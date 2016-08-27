@@ -14,9 +14,16 @@ git clone https://github.com/jflowaa/spatiotemoralgeom_interface.git
 ```
 
 Create a virtual environment and activate it.
+
+To install virtualenv
+```bash
+pip install virtualenv
+```
+
+To create a virtual environment and activate
 ```bash
 cd spatiotemoralgeom_interface/
-virtualenv -p /usr/bin/python2.7 venv
+virtualenv -p python2.7 venv
 source venv/bin/activate
 ```
 
