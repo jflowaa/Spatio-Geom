@@ -3,7 +3,7 @@ from . import api
 from .. import utils
 
 
-@api.route("/do_a_thing", methods=["POST"])
-def do_a_thing():
+@api.route("/process_coords", methods=["POST"])
+def process_coords():
     data = request.form
     return "You sent me this stuff:\n{}".format(data)

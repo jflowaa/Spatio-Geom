@@ -6,6 +6,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY") or "l328973nfLlkads**3254nsdflL@"
+    GOOGLE_MAPS_KEY = "AIzaSyCKjQOP5auPyirNV_5AH_wOZeeUnlX7-l0"
     LOGGING_LOCATION = "log"
     LOGGING_LEVEL = logging.DEBUG
 
