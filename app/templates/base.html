@@ -4,9 +4,10 @@
 
 {% block head %}
 {{ super() }}
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico')  }}" type="image/x-icon">
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico')  }}" type="image/x-icon">
 <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
 {% endblock %}
-
 {% block navbar %}
 <div class="container">
     <div class="navbar navbar-default" role="navigation">

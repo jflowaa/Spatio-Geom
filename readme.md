@@ -1,7 +1,8 @@
 A web interface for the [pyspatiotemporalgeom](https://pypi.python.org/pypi/pyspatiotemporalgeom/) package.
 
 ### Features
-* Currently none
+* Create a region from a map.
+* Use Google Maps to create a polygon for selecting an area.
 
 ### Libraries
 This web application is built in Python2 using the Flask web framework.  
@@ -34,7 +35,7 @@ pip install -r requirements.txt
 
 Then run the application
 ```bash
-python run.py runserver
+python run.py run
 ```
 The application is now running at: http://0.0.0.0:5000
 ### Todo

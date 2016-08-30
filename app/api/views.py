@@ -1,6 +1,6 @@
 from flask import request
 from . import api
-from .. import utils
+from ..utils import example_method
 
 
 @api.route("/process_coords", methods=["POST"])
