@@ -1,7 +1,6 @@
 A web interface for the [pyspatiotemporalgeom](https://pypi.python.org/pypi/pyspatiotemporalgeom/) package.
 
 ### Features
-* Create a region from a map.
 * Use Google Maps to create a polygon for selecting an area.
 
 ### Libraries
