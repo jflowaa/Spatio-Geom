@@ -11,52 +11,14 @@
 	</div>
     <div class="row">
         <div id="map" class="col-md-10" style="height: 550px;"></div>
-        <script type="text/javascript">
-                function initMap() {
-        var map = new google.maps.Map(document.getElementById('map'), {
-              center: {lat: 38.7931, lng: -89.9967},
-              zoom: 10
-        });
-        var drawingManager = new google.maps.drawing.DrawingManager({
-            drawingMode: google.maps.drawing.OverlayType.MARKER,
-            drawingControl: true,
-            drawingControlOptions: {
-                position: google.maps.ControlPosition.TOP_CENTER,
-                drawingModes: ['polygon']
-            },
-            markerOptions: {icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'},
-            circleOptions: {
-                fillColor: '#ffff00',
-                fillOpacity: 1,
-                strokeWeight: 5,
-                clickable: false,
-                editable: false,
-                zIndex: 1
-            }
-        });
-        drawingManager.setMap(map);
-        google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
-              var newShape = event.overlay;
-              newShape.type = event.type;
-            });
-
-        google.maps.event.addListener(drawingManager, "overlaycomplete", function(event){
-              overlayClickListener(event.overlay);
-              $('#coords').val(event.overlay.getPath().getArray());
-            });
-        }
-        function overlayClickListener(overlay) {
-          google.maps.event.addListener(overlay, "mouseup", function(event){
-              $('#coords').val(overlay.getPath().getArray());
-          });
-        }
-        </script>
-        <script src="https://maps.googleapis.com/maps/api/js?v=3&key={{ GOOGLE_MAPS_KEY }}&libraries=drawing&callback=initMap"
+        <script src="https://maps.googleapis.com/maps/api/js?v=3&key={{ GOOGLE_MAPS_KEY }}&libraries=drawing&callback=initialize"
              async defer></script>
+        <script src="{{ url_for('static', filename='google_maps_drawer.js') }}"> </script>
+
         <div class="col-md-2">
             <p> Create a region by drawing on the map. Once the region is made
                 click the process button </p>
-            <form method="post" id="coords_form">
+            <form method="post" id="coords-form">
                 <input type="text" name="coords" value="" id="coords" class="form-control" />
                 <input type="button" name="process" value="Process" id="process" class="btn btn-default form-control"/>
             </form>
@@ -71,7 +33,7 @@
         $.ajax({
             type: "POST",
             url: "{{ url_for('api.process_coords') }}",
-            data: $("#coords_form").serialize(),
+            data: $("#coords-form").serialize(),
             success: function(data) {
                 console.log(data);
             },
