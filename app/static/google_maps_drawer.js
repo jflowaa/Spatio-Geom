@@ -34,7 +34,7 @@ function initialize() {
     google.maps.event.addListener(drawingManager, "overlaycomplete", function(event){
         overlayClickListener(event.overlay);
         $('#coords').val(event.overlay.getPath().getArray());
-    }); 
+    });
 }
 
 function overlayClickListener(overlay) {
