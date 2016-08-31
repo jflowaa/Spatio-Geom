@@ -1,6 +1,7 @@
 from pyspatiotemporalgeom import region
 
 
-def example_method():
-    return "Nothing"
+def create_segments(segs):
+    return region.createRegionFromSegs(segs)
+
     
