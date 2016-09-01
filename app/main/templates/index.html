@@ -15,8 +15,10 @@
              async defer></script>
         <script src="{{ url_for('static', filename='google_maps_drawer.js') }}"> </script>
         <div class="col-md-2">
-            <p> Create a region by drawing on the map. Once the region is made
-                click the process button </p>
+            <p>
+                Draw a polygon over the area you want to process. Once finished
+                click the process button.
+            </p>
             <form method="post" id="coords-form">
                 <input type="hidden" name="coords" value="" id="coords" class="form-control" />
                 <input type="button" name="process" value="Process" id="process" class="btn btn-default form-control"/>

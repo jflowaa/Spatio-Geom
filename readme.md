@@ -38,5 +38,6 @@ python run.py run
 ```
 The application is now running at: http://0.0.0.0:5000
 ### Todo
-- [ ] Create region on map return segments for intersection [feature1]
-- [ ] Everything
+- [x] Draw a polygon on a map to generate a region for processing
+- [ ] Update the map with the generated region
+- [ ] Everything else
