@@ -1,9 +1,9 @@
 var map;
 function initialize() {
   var mapProp = {
-    center:new google.maps.LatLng(38.7931,-89.9967),
-    zoom:10,
-    mapTypeId:google.maps.MapTypeId.ROADMAP
+    center: new google.maps.LatLng(38.7931,-89.9967),
+    zoom: 8,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
   };
 
   map = new google.maps.Map(document.getElementById("map"), mapProp);
@@ -33,7 +33,7 @@ function initialize() {
 
     google.maps.event.addListener(drawingManager, "overlaycomplete", function(event){
         overlayClickListener(event.overlay);
-        $('#coords').val(event.overlay.getPath().getArray());
+        $('#coords').val(JSON.stringify(event.overlay.getPath()));
     });
 }
 
