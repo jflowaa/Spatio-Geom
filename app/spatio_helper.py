@@ -30,5 +30,3 @@ def create_segments(data):
         # be the last coord_matrix data set.
         seg_list.append(copy.deepcopy(coord_matrix))
     return region.createRegionFromSegs(seg_list)
-
-
