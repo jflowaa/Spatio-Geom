@@ -4,13 +4,12 @@ import copy
 
 def create_segments(data):
     """
-    We now need to structure a data set that
-    pyspatiotemporalgeom can parse. This is done by interacting through the
-    coordinates and creating a 2D list. Where this list is the coordinates
-    (x, y) of a line. This list is appended to another list. This proccess
-    continues util the polygon is complete.
-        argument:
-            data, dictionary of JSON data
+    We now need to structure a data set that pyspatiotemporalgeom can parse.
+    This is done by interacting through the coordinates and creating a 2D list.
+    Where this list is the coordinates (x, y) of a line. This list is appended
+    to another list. This proccess continues util the polygon is complete.
+    Argument:
+        data, dictionary of JSON data
 
     Returns:
         an ordered list of half segments with valid labels.
