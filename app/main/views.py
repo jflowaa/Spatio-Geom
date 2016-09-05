@@ -1,7 +1,7 @@
 from flask import render_template, url_for, flash, redirect, request,\
  current_app
 from . import main
-from .. import utils
+from .. import spatio_helper
 
 
 @main.route("/")
