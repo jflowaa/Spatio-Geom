@@ -19,7 +19,7 @@ def create_segments(data):
     for i in range(len(data)):
         coord_matrix[0][0] = data[i].get("lat")
         coord_matrix[0][1] = data[i].get("lng")
-        # if not last segment, else complete the shape (loop back to start segment)
+        # If not last segment, else complete the shape
         if len(data) > i + 1:
             coord_matrix[1][0] = data[i + 1].get("lat")
             coord_matrix[1][1] = data[i + 1].get("lng")
