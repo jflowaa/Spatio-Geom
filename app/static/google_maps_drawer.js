@@ -30,7 +30,8 @@ function initialize() {
     google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
         var newShape = event.overlay;
         newShape.type = event.type;
-        polygons.push(newShape);
+        newShape.path = event.overlay.getPath();
+        polygons.push(newShape.path);
     });
 
     google.maps.event.addListener(drawingManager, "overlaycomplete", function(event){
@@ -38,11 +39,12 @@ function initialize() {
     });
 
     $('#process').click(function() {
-        console.log(polygons);
+        var data = JSON.stringify(polygons);
+        console.log(data);
         $.ajax({
             type: "POST",
             url: "/api/process_coords",
-            data: $("#coords-form").serialize(),
+            data: {coords:data},
             success: function(data) {
                 console.log(data);
             },

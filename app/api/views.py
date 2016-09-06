@@ -13,6 +13,12 @@ def process_coords():
     Returns: This returns a post request of create_segments().
     """
 
-    data = json.loads(request.form.get("coords")).get("b")
-    print data
-    return "{}".format(create_segments(data))
+    """data = json.loads(request.form.get("coords")).get("b")"""
+    data = json.loads(request.form.get("coords"))
+    hsegs = []
+    for polygon in data:
+    	segment = polygon.get("b")
+    	hsegs.append(create_segments(segment))
+
+    print len(hsegs)
+    return "{}".format(hsegs)
