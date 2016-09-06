@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, session
 from . import api
 from ..spatio_helper import create_segments
 import json
@@ -16,9 +16,11 @@ def process_coords():
     """data = json.loads(request.form.get("coords")).get("b")"""
     data = json.loads(request.form.get("coords"))
     hsegs = []
+    count = 1;
     for polygon in data:
+    	key = "hseg" + str(count)
+    	count = count + 1
     	segment = polygon.get("b")
-    	hsegs.append(create_segments(segment))
-
-    print len(hsegs)
-    return "{}".format(hsegs)
+    	session[key] = segment
+    print session
+    return "{}".format(session)
