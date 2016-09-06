@@ -15,11 +15,13 @@ def process_coords():
 
     data = json.loads(request.form.get("coords"))
     hsegs = []
-
+    polygons = []
     for polygon in data:
     	segment = polygon.get("b")
-    	hsegs.append(segment)
+        polygons.append(segment);
+    	hsegs.append(create_segments(segment))
 
-    session["polygons"] = hsegs
+    session["polygons"] = polygons
+    session["regions"] = hsegs
     
-    return "{}".format(session)
+    return "{}".format(session["polygons"])
