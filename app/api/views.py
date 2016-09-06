@@ -14,4 +14,5 @@ def process_coords():
     """
 
     data = json.loads(request.form.get("coords")).get("b")
+    print data
     return "{}".format(create_segments(data))
