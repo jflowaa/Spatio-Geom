@@ -14,10 +14,12 @@ def process_coords():
     """
 
     data = json.loads(request.form.get("coords"))
-    count = 1;
+    hsegs = []
+
     for polygon in data:
-    	key = "hseg" + str(count)
-    	count = count + 1
     	segment = polygon.get("b")
-    	session[key] = segment
+    	hsegs.append(segment)
+
+    session["polygons"] = hsegs
+    
     return "{}".format(session)
