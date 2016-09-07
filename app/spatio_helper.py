@@ -2,7 +2,7 @@ from pyspatiotemporalgeom import region
 import copy
 
 
-def create_segments(data):
+def create_region(data):
     """
     We now need to structure a data set that pyspatiotemporalgeom can parse.
     This is done by interacting through the coordinates and creating a 2D list.

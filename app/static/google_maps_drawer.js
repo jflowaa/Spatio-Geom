@@ -35,7 +35,7 @@ function initialize() {
         var data = JSON.stringify(polygons);
         $.ajax({
             type: "POST",
-            url: "/api/process_coords",
+            url: "/api/process_polygons",
             data: {coords:data},
             success: function(data) {
                 console.log(data);
