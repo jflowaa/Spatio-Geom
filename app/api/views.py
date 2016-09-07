@@ -19,4 +19,4 @@ def process_polygons():
         segment = polygon.get("b")
         session.get("polygons").append(segment)
         session.get("regions").append(create_region(segment))
-    return "{}".format(session.get("regions"))
+    return "", 200
