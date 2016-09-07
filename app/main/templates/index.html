@@ -29,19 +29,4 @@
 {% endblock %}
 {% block scripts %}
 {{ super() }}
-<script type="text/javascript">
-    $("#process").click(function() {
-        $.ajax({
-            type: "POST",
-            url: "{{ url_for('api.process_coords') }}",
-            data: $("#coords-form").serialize(),
-            success: function(data) {
-                console.log(data);
-            },
-            failure: function(data) {
-                console.log(data);
-            }
-        });
-    });
-</script>
 {% endblock %}

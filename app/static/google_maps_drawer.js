@@ -1,4 +1,5 @@
 var map;
+var polygons = []; 
 function initialize() {
   var mapProp = {
     center: new google.maps.LatLng(38.7931,-89.9967),
@@ -27,18 +28,21 @@ function initialize() {
         });
     drawingManager.setMap(map);
     google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
-        var newShape = event.overlay;
-        newShape.type = event.type;
+        polygons.push(event.overlay.getPath());
     });
 
-    google.maps.event.addListener(drawingManager, "overlaycomplete", function(event){
-        overlayClickListener(event.overlay);
-        $('#coords').val(JSON.stringify(event.overlay.getPath()));
+    $('#process').click(function() {
+        var data = JSON.stringify(polygons);
+        $.ajax({
+            type: "POST",
+            url: "/api/process_polygons",
+            data: {coords:data},
+            success: function(data) {
+                console.log(data);
+            },
+            failure: function(data) {
+                console.log(data);
+            }
+        });
     });
-}
-
-function overlayClickListener(overlay) {
-	google.maps.event.addListener(overlay, "mouseup", function(event){
-    $('#coords').val(overlay.getPath().getArray());
-	});
 }
