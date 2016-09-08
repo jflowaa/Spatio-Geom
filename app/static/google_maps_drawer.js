@@ -1,5 +1,65 @@
 var map;
-var polygons = []; 
+var polygons = {
+          collection:{},
+          selectedShape:null,
+          add:function(e){
+            var shape=e.overlay,
+                that=this;
+            shape.type=e.type;
+            shape.path = e.overlay.getPath();
+            shape.id=new Date().getTime()+'_'+Math.floor(Math.random()*1000);
+            this.collection[shape.id]=shape;
+            this.setSelection(shape);
+            google.maps.event.addListener(shape,'click',function(){
+              console.log(shape.path);
+              that.setSelection(this);
+            });
+          },
+          setSelection:function(shape){
+            if(this.selectedShape!==shape){
+              this.clearSelection();
+              this.selectedShape = shape;
+              shape.set('draggable',true);
+              shape.set('editable',true);
+            }
+          },
+          deleteSelected:function(){
+
+            if(this.selectedShape){
+              var shape= this.selectedShape;
+              this.clearSelection();
+              shape.setMap(null);
+              delete this.collection[shape.id];
+            }
+           },
+
+
+          clearSelection:function(){
+            if(this.selectedShape){
+              this.selectedShape.set('draggable',false);
+              this.selectedShape.set('editable',false);
+              this.selectedShape=null;
+            }
+          },
+          save:function(){
+            var collection=[];
+            for(var k in this.collection){
+              var shape=this.collection[k],
+                  types=google.maps.drawing.OverlayType;
+              switch(shape.type){
+                case types.POLYGON:
+                   collection.push({ type:shape.type,
+                                     path:google.maps.geometry.encoding
+                                      .encodePath(shape.getPath())});
+                  break;
+                default:
+                  alert('implement a storage-method for '+shape.type)
+              }
+            }
+            //collection is the result
+            console.log(collection);
+          }
+        };
 function initialize() {
   var mapProp = {
     center: new google.maps.LatLng(38.7931,-89.9967),
@@ -28,12 +88,16 @@ function initialize() {
         });
     drawingManager.setMap(map);
     google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
-        polygons.push(event.overlay.getPath());
+        polygons.add(event);
+        console.log(polygons);
+        console.log(polygons.collection);
+        //polygons.push(event.overlay.getPath());
     });
 
     $('#process').click(function() {
         var data = JSON.stringify(polygons);
-        $.ajax({
+        console.log(data)
+        /*$.ajax({
             type: "POST",
             url: "/api/process_polygons",
             data: {coords:data},
@@ -43,6 +107,6 @@ function initialize() {
             failure: function(data) {
                 console.log(data);
             }
-        });
+        });*/
     });
 }

@@ -7,16 +7,26 @@ import json
 @api.route("/process_polygons", methods=["POST"])
 def process_polygons():
     """
-    Retrieves a list of JSON strings. These strings are converted back into a JSON
-    object (dictionary). Returns result of create_region()
+    Retrieves a list of JSON strings. These strings are converted back into a
+    JSON object (dictionary). Returns result of create_region()
 
     Returns: This returns a post request of create_region().
     """
     data = json.loads(request.form.get("coords"))
-    session["polygons"] = []
-    session["regions"] = []
+    polygonDict = {}
+    session["regions"] = {}
     for polygon in data:
         segment = polygon.get("b")
-        session.get("polygons").append(segment)
-        session.get("regions").append(create_region(segment))
+        polygonDict[segment] = create_region(segment)
+    session["regions"] = polygonDict
     return "", 200
+
+
+@api.route("/process_intersection", methods=["POST"])
+def process_intersection():
+    """
+
+    Retrieves the intersections of the specified hsegs
+
+    Returns: the hseg list of the intersections.
+    """
