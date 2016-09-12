@@ -7,6 +7,7 @@ var polygons = {
                 that=this;
             shape.type=e.type;
             shape.path = e.overlay.getPath();
+            console.log(JSON.stringify(e.overlay.getPath()));
             shape.id=new Date().getTime()+'_'+Math.floor(Math.random()*1000);
             this.collection[shape.id]=shape;
             this.setSelection(shape);
@@ -89,15 +90,16 @@ function initialize() {
     drawingManager.setMap(map);
     google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
         polygons.add(event);
-        console.log(polygons);
-        console.log(polygons.collection);
-        //polygons.push(event.overlay.getPath());
     });
 
     $('#process').click(function() {
-        var data = JSON.stringify(polygons);
-        console.log(data)
-        /*$.ajax({
+        var polygonDictionary = {};
+        for (var key in polygons.collection) {
+            var arr = polygons.collection[key].path;
+            polygonDictionary[key] = arr.getArray();
+        }
+        data = JSON.stringify(polygonDictionary);
+        $.ajax({
             type: "POST",
             url: "/api/process_polygons",
             data: {coords:data},
@@ -107,6 +109,6 @@ function initialize() {
             failure: function(data) {
                 console.log(data);
             }
-        });*/
+        });
     });
 }

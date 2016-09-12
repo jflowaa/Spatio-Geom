@@ -16,9 +16,9 @@ def process_polygons():
     polygonDict = {}
     session["regions"] = {}
     for polygon in data:
-        segment = polygon.get("b")
-        polygonDict[segment] = create_region(segment)
+        polygonDict[polygon] = create_region(data[polygon])
     session["regions"] = polygonDict
+    print session["regions"]
     return "", 200
 
 
