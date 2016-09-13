@@ -89,7 +89,13 @@ function initialize() {
         for (var polygon_id in polygons.collection) {
             polygonIDArray.push(polygon_id);
         }
-        data = JSON.stringify(polygonIDArray);
+        console.log(selectedPolygons);
+
+        $('#selected_intersections').val(selectedPolygons.toString());
+    });
+
+    $('#process_intersection').click(function() {
+        data = JSON.stringify(selectedPolygons);
         $.ajax({
             type: "POST",
             url: "/api/process_intersection",
