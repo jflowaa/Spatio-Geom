@@ -1,6 +1,6 @@
 from flask import request, session
 from . import api
-from ..spatio_helper import create_region
+from ..spatio_helper import create_region, find_intersection
 import json
 
 
@@ -18,7 +18,6 @@ def process_polygons():
     for polygon in data:
         polygonDict[polygon] = create_region(data[polygon])
     session["regions"] = polygonDict
-    print session["regions"]
     return "", 200
 
 
@@ -30,3 +29,16 @@ def process_intersection():
 
     Returns: the hseg list of the intersections.
     """
+    if 'intersection' not in session:
+        session["intersection"] = {}
+    hsegList = []
+    hsegDic = session["regions"]
+    data = json.loads(request.form.get("polygonIDs"))
+    intersectionID = 0
+    for polygonId in data:
+        pId = int(polygonId)
+        hsegList.append(hsegDic[polygonId])
+        intersectionID += pId
+    result = find_intersection(hsegList)
+    session["intersection"].update({intersectionID: result})
+    return "", 200

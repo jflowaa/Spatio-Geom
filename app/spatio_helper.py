@@ -30,3 +30,8 @@ def create_region(data):
         # be the last coord_matrix data set.
         seg_list.append(copy.deepcopy(coord_matrix))
     return region.createRegionFromSegs(seg_list)
+
+
+def find_intersection(hsegs):
+    intersections = region.intersection( hsegs[0], hsegs[1] )
+    return intersections

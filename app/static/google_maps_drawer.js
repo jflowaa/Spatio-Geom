@@ -8,7 +8,7 @@ var polygons = {
             shape.type=e.type;
             shape.path = e.overlay.getPath();
             console.log(JSON.stringify(e.overlay.getPath()));
-            shape.id=new Date().getTime()+'_'+Math.floor(Math.random()*1000);
+            shape.id=new Date().getTime()+Math.floor(Math.random()*1000);
             this.collection[shape.id]=shape;
             this.setSelection(shape);
             google.maps.event.addListener(shape,'click',function(){
@@ -90,6 +90,25 @@ function initialize() {
     drawingManager.setMap(map);
     google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
         polygons.add(event);
+    });
+
+    $('#process_intersection').click(function() {
+        var polygonIDArray = [];
+        for (var key in polygons.collection) {
+            polygonIDArray.push(key);
+        }
+        data = JSON.stringify(polygonIDArray);
+        $.ajax({
+            type: "POST",
+            url: "/api/process_intersection",
+            data: {polygonIDs:data},
+            success: function(data) {
+                console.log(data);
+            },
+            failure: function(data) {
+                console.log(data);
+            }
+        });
     });
 
     $('#process').click(function() {
