@@ -1,4 +1,4 @@
-from pyspatiotemporalgeom import region
+from pyspatiotemporalgeom import region as region_logic
 import copy
 
 
@@ -29,9 +29,27 @@ def create_region(data):
         # Need to make a copy of the list. Else each element in seg_list will
         # be the last coord_matrix data set.
         seg_list.append(copy.deepcopy(coord_matrix))
-    return region.createRegionFromSegs(seg_list)
+    return region_logic.createRegionFromSegs(seg_list)
 
 
-def find_intersection(hsegs):
-    intersections = region.intersection( hsegs[0], hsegs[1] )
+def find_intersections(regions):
+    """
+    Iterates through each region and gets the next region in the list to check
+    for intersections. If there is intersections between the two regions a
+    dictionary is created. This dictionary holds the first region's ID and the
+    intersection path coordinates.
+
+    Returns:
+        A list of intersection dictionaries.
+    """
+    intersections = []
+    for region in regions:
+        for other_region in regions:
+            if region != other_region:
+                intersection = {
+                    "id": region.get("id"),
+                    "intersection": region_logic.intersection(
+                        region.get("region"), other_region.get("region"))
+                }
+                intersections.append(intersection)
     return intersections
