@@ -9,7 +9,10 @@
 ###Progress Made:
 > - Found a way to keep track of polygons.
 > - Added a button that will find the intersections.
+> - Added a button that generate the unions
 > - Post request on the button now shows the individual poylgon id's.
+> - Each polygon has its own unqiue ID.
+> - All intersections and unions are stored in the session.
 
 ### Questions:
 > - What should the interface look like?
