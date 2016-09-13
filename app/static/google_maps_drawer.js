@@ -102,6 +102,24 @@ function initialize() {
             }
         });
     });
+    $('#find-unions-form').click(function() {
+        var polygonIDArray = [];
+        for (var key in polygons.collection) {
+            polygonIDArray.push(key);
+        }
+        data = JSON.stringify(polygonIDArray);
+        $.ajax({
+            type: "POST",
+            url: "/api/find_unions",
+            data: {polygonIDs:data},
+            success: function(data) {
+                console.log(data);
+            },
+            failure: function(data) {
+                console.log(data);
+            }
+        });
+    });
     $('#create-regions-form').click(function() {
         var polygonDictionary = {};
         for (var polygon_id in polygons.collection) {
@@ -116,8 +134,10 @@ function initialize() {
             success: function(data) {
                 if (data > 1) {
                     $("#find-intersections").show();
+                    $("#find-unions").show();
                 } else {
                     $("#find-intersections").hide();
+                    $("#find-unions").hide();
                 }
             },
             failure: function(data) {
@@ -128,4 +148,5 @@ function initialize() {
 }
 $(document).ready(function() {
     $("#find-intersections").hide();
+    $("#find-unions").hide();
 });

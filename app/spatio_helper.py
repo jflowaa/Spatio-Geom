@@ -47,9 +47,34 @@ def process_intersections(regions):
         for other_region in regions:
             if region != other_region:
                 intersection = {
-                    "id": region.get("id"),
+                    "region_id": region.get("id"),
+                    "other_region": other_region.get("id"),
                     "intersection": region_logic.intersection(
                         region.get("region"), other_region.get("region"))
                 }
                 intersections.append(intersection)
     return intersections
+
+
+def process_unions(regions):
+    """
+    Iterates through each region and gets the next region in the list to check
+    for unions. If there is unions between the two regions a
+    dictionary is created. This dictionary holds the first region's ID and the
+    union path coordinates.
+
+    Returns:
+        A list of union dictionaries.
+    """
+    unions = []
+    for region in regions:
+        for other_region in regions:
+            if region != other_region:
+                union = {
+                    "region_id": region.get("id"),
+                    "other_region": other_region.get("id"),
+                    "union": region_logic.union(
+                        region.get("region"), other_region.get("region"))
+                }
+                unions.append(union)
+    return unions
