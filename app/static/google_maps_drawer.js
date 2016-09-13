@@ -18,7 +18,6 @@ var polygons = {
         if(this.selectedShape !== shape) {
             this.clearSelection();
             this.selectedShape = shape;
-            shape.set('draggable',true);
             shape.set('editable',true);
         }
     },
@@ -54,6 +53,35 @@ var polygons = {
                     alert('implement a storage-method for ' + shape.type)
             }
         }
+    },
+    generatColor: function(e){
+        var colorVal ="#";
+        for(var x=0; x<6; x++){
+            var randNum = Math.floor(Math.random() * 10) + 6;
+            switch(randNum){
+                case 10:
+                    colorVal += "A";
+                    break;
+                case 11:
+                    colorVal+="B";
+                    break;
+                case 12:
+                    colorVal+="C";
+                    break;
+                case 13:
+                    colorVal+="D";
+                    break;
+                case 14:
+                    colorVal+="E";
+                    break;
+                case 15:
+                    colorVal+="F";
+                    break;
+                default:
+                    colorVal+=randNum.toString();
+            }
+        }
+        return colorVal;
     }
 };
 function initialize() {
@@ -63,6 +91,12 @@ function initialize() {
         mapTypeId: google.maps.MapTypeId.ROADMAP
     };
     map = new google.maps.Map(document.getElementById("map"), mapProp);
+    var polyOptions = {
+        fillColor : polygons.generatColor(),
+        fillOpacity: .8,
+        strokeWeight: 4,
+        zIndex: 1
+    };
     var drawingManager = new google.maps.drawing.DrawingManager({
         drawingMode: google.maps.drawing.OverlayType.POLYGON,
         drawingControl: true,
@@ -70,18 +104,13 @@ function initialize() {
             position: google.maps.ControlPosition.TOP_CENTER,
             drawingModes: ['polygon']
         },
-        markerOptions: {icon: 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png'},
-        circleOptions: {
-            fillColor: '#ffff00',
-            fillOpacity: 1,
-            strokeWeight: 5,
-            clickable: false,
-            editable: false,
-            zIndex: 1
-        }
+        polygonOptions: polyOptions
     });
     drawingManager.setMap(map);
     google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
+        var polygonOptions = drawingManager.get('polygonOptions');
+        polygonOptions.fillColor = polygons.generatColor();
+        drawingManager.set('polygonOptions', polygonOptions);
         polygons.add(event);
     });
     $('#find-intersections-form').click(function() {
