@@ -54,7 +54,7 @@ var polygons = {
             }
         }
     },
-    generatColor: function(e){
+    generateColor: function(e){
         var colorVal ="#";
         for(var x=0; x<6; x++){
             var randNum = Math.floor(Math.random() * 10) + 6;
@@ -84,6 +84,16 @@ var polygons = {
         return colorVal;
     }
 };
+
+function generateNewPolygon(path, drawingManager) {
+    var polygonOptions = drawingManager.get('polygonOptions');
+    polygonOptions.fillColor = polygons.generateColor();
+    console.log(path);
+    polygonOptions.paths = path;
+    drawingManager.set('polygonOptions', polygonOptions);
+    polygons.add(polygonOptions);
+}
+
 function initialize() {
     var mapProp = {
         center: new google.maps.LatLng(38.7931,-89.9967),
@@ -92,7 +102,7 @@ function initialize() {
     };
     map = new google.maps.Map(document.getElementById("map"), mapProp);
     var polyOptions = {
-        fillColor : polygons.generatColor(),
+        fillColor : polygons.generateColor(),
         fillOpacity: .8,
         strokeWeight: 4,
         zIndex: 1
@@ -109,11 +119,12 @@ function initialize() {
     drawingManager.setMap(map);
     google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
         var polygonOptions = drawingManager.get('polygonOptions');
-        polygonOptions.fillColor = polygons.generatColor();
+        polygonOptions.fillColor = polygons.generateColor();
         drawingManager.set('polygonOptions', polygonOptions);
         polygons.add(event);
     });
     $('#find-intersections-form').click(function() {
+        var intersectionCoords;
         var polygonIDArray = [];
         for (var key in polygons.collection) {
             polygonIDArray.push(key);
@@ -123,8 +134,9 @@ function initialize() {
             type: "POST",
             url: "/api/find_intersections",
             data: {polygonIDs:data},
-            success: function(data) {
-                console.log(data);
+            success: function(res) {
+                console.log("res:" + res);
+                generateNewPolygon(res, drawingManager);
             },
             failure: function(data) {
                 console.log(data);
