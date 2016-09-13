@@ -37,7 +37,7 @@ def process_intersection():
     intersectionID = 0
     for polygonId in data:
         pId = int(polygonId)
-        hsegList.append(hsegDic[polygonId])
+        hsegList.append(hsegDic[str(polygonId)])
         intersectionID += pId
     result = find_intersection(hsegList)
     session["intersection"].update({intersectionID: result})

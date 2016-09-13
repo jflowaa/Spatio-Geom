@@ -33,5 +33,5 @@ def create_region(data):
 
 
 def find_intersection(hsegs):
-    intersections = region.intersection( hsegs[0], hsegs[1] )
+    intersections = region.intersection(hsegs[0], hsegs[1])
     return intersections

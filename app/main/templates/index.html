@@ -23,8 +23,13 @@
                 <input type="hidden" name="coords" value="" id="coords" class="form-control" />
                 <input type="button" name="process" value="Process" id="process" class="btn btn-default form-control"/>
             </form>
+			<p>
+				Select Two Polygons to process their intersections.
+			</p>
 			<form method="post" id="interection-form">
                 <input type="hidden" name="intersection" value="" id="intersection" class="form-control" />
+				<input type="text" name="intersection" value="" id="selected_intersections" class="form_control" />
+				<input type="button" name="add polygon" value="add polygon" id="add_polygon_intersection" class"form_control" />
                 <input type="button" name="process_intersection" value="Process Intersection" id="process_intersection" class="btn btn-default form-control"/>
             </form>
         </div>

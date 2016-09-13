@@ -12,8 +12,8 @@ var polygons = {
             this.collection[shape.id]=shape;
             this.setSelection(shape);
             google.maps.event.addListener(shape,'click',function(){
-              console.log(shape.path);
-              that.setSelection(this);
+                console.log(shape.id);
+                that.setSelection(this);
             });
           },
           setSelection:function(shape){
@@ -22,6 +22,7 @@ var polygons = {
               this.selectedShape = shape;
               shape.set('draggable',true);
               shape.set('editable',true);
+              console.log("i am selected: " + this.selectedShape.id);
             }
           },
           deleteSelected:function(){
@@ -92,12 +93,20 @@ function initialize() {
         polygons.add(event);
     });
 
-    $('#process_intersection').click(function() {
-        var polygonIDArray = [];
-        for (var key in polygons.collection) {
-            polygonIDArray.push(key);
+    var selectedPolygons = [];
+    $('#add_polygon_intersection').click(function() {
+        selectedPolygons.push(polygons.selectedShape.id);
+        if (selectedPolygons.length > 2)
+        {
+            selectedPolygons.shift();
         }
-        data = JSON.stringify(polygonIDArray);
+        console.log(selectedPolygons);
+
+        $('#selected_intersections').val(selectedPolygons.toString());
+    });
+
+    $('#process_intersection').click(function() {
+        data = JSON.stringify(selectedPolygons);
         $.ajax({
             type: "POST",
             url: "/api/process_intersection",
