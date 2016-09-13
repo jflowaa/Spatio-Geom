@@ -2,7 +2,7 @@ from pyspatiotemporalgeom import region as region_logic
 import copy
 
 
-def create_region(data):
+def process_polygons(data):
     """
     We now need to structure a data set that pyspatiotemporalgeom can parse.
     This is done by interacting through the coordinates and creating a 2D list.
@@ -32,7 +32,7 @@ def create_region(data):
     return region_logic.createRegionFromSegs(seg_list)
 
 
-def find_intersections(regions):
+def process_intersections(regions):
     """
     Iterates through each region and gets the next region in the list to check
     for intersections. If there is intersections between the two regions a

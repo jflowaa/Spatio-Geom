@@ -84,21 +84,15 @@ function initialize() {
     google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
         polygons.add(event);
     });
-    $('#find-intersections').click(function() {
+    $('#find-intersections-form').click(function() {
         var polygonIDArray = [];
-        for (var polygon_id in polygons.collection) {
-            polygonIDArray.push(polygon_id);
+        for (var key in polygons.collection) {
+            polygonIDArray.push(key);
         }
-        console.log(selectedPolygons);
-
-        $('#selected_intersections').val(selectedPolygons.toString());
-    });
-
-    $('#process_intersection').click(function() {
-        data = JSON.stringify(selectedPolygons);
+        data = JSON.stringify(polygonIDArray);
         $.ajax({
             type: "POST",
-            url: "/api/process_intersection",
+            url: "/api/find_intersections",
             data: {polygonIDs:data},
             success: function(data) {
                 console.log(data);
@@ -108,7 +102,7 @@ function initialize() {
             }
         });
     });
-    $('#process-polygons').click(function() {
+    $('#create-regions-form').click(function() {
         var polygonDictionary = {};
         for (var polygon_id in polygons.collection) {
             var arr = polygons.collection[polygon_id].path;
@@ -117,7 +111,7 @@ function initialize() {
         data = JSON.stringify(polygonDictionary);
         $.ajax({
             type: "POST",
-            url: "/api/process_polygons",
+            url: "/api/create_regions",
             data: {coords:data},
             success: function(data) {
                 if (data > 1) {
