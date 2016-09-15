@@ -43,11 +43,11 @@ def process_intersections(regions):
         A list of intersection dictionaries.
     """
     intersections = []
-    visitedRegions = []
+    visited_regions = []
     for region in regions:
-        visitedRegions.append(region)
+        visited_regions.append(region)
         for other_region in regions:
-            if other_region not in visitedRegions:
+            if other_region not in visited_regions:
                 intersection = {
                     "region_id": region.get("id"),
                     "other_region": other_region.get("id"),
@@ -69,11 +69,11 @@ def process_unions(regions):
         A list of union dictionaries.
     """
     unions = []
-    visitedRegions = []
+    visited_regions = []
     for region in regions:
-        visitedRegions.append(region)
+        visited_regions.append(region)
         for other_region in regions:
-            if other_region not in visitedRegions:
+            if other_region not in visited_regions:
                 union = {
                     "region_id": region.get("id"),
                     "other_region": other_region.get("id"),
@@ -91,13 +91,13 @@ def hseg_to_coords(hseg):
     Returns:
         Dictionary of Coordinates.
     """
-    uniqueCords = []
+    unique_cords = []
     for seg in hseg:
-        if seg[0][0] not in uniqueCords:
-            uniqueCords.append(seg[0][0])
-        if seg[0][1] not in uniqueCords:
-            uniqueCords.append(seg[0][1])
-    latLngDictionary = []
-    for cord in uniqueCords:
-        latLngDictionary.append({"lat": cord[0], "lng": cord[1]})
-    return latLngDictionary
+        if seg[0][0] not in unique_cords:
+            unique_cords.append(seg[0][0])
+        if seg[0][1] not in unique_cords:
+            unique_cords.append(seg[0][1])
+    lat_lng_dictionary = []
+    for cord in unique_cords:
+        lat_lng_dictionary.append({"lat": cord[0], "lng": cord[1]})
+    return lat_lng_dictionary

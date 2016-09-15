@@ -1,6 +1,7 @@
 from flask import request, session
 from . import api
-from ..spatio_helper import process_polygons, process_intersections, process_unions, hseg_to_coords
+from ..spatio_helper import (process_polygons, process_intersections,
+                             process_unions, hseg_to_coords)
 import json
 
 
@@ -33,11 +34,11 @@ def find_intersections():
     """
     session["intersections"] = []
     session["intersections"] = process_intersections(session["regions"])
-    intersectionCoords = []
+    intersection_coords = []
     for intersection in session["intersections"]:
-        intersectionCoords.append(
+        intersection_coords.append(
             hseg_to_coords(intersection.get("intersection")))
-    return json.dumps(intersectionCoords)
+    return json.dumps(intersection_coords)
 
 
 @api.route("/find_unions", methods=["POST"])

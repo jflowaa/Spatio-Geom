@@ -67,11 +67,11 @@ var polygons = {
             }
         }
     },
-    generateColor: function(e){
-        var colorVal ="#";
-        for(var x=0; x<6; x++){
+    generateColor: function(e) {
+        var colorVal = "#";
+        for(var x = 0; x < 6; x++) {
             var randNum = Math.floor(Math.random() * 10) + 6;
-            switch(randNum){
+            switch(randNum) {
                 case 10:
                     colorVal += "A";
                     break;
@@ -91,7 +91,7 @@ var polygons = {
                     colorVal+="F";
                     break;
                 default:
-                    colorVal+=randNum.toString();
+                    colorVal += randNum.toString();
             }
         }
         return colorVal;
