@@ -19,10 +19,17 @@
                 Draw a polygon over the area you want to process. Once finished
                 click the process button.
             </p>
-            <form method="post" id="coords-form">
-                <input type="hidden" name="coords" value="" id="coords" class="form-control" />
-                <input type="button" name="process" value="Process" id="process" class="btn btn-default form-control"/>
+            <form method="post" id="create-regions-form">
+                <input type="button" name="process_polygons" value="Create Regions" id="process-polygons" class="btn btn-default form-control"/>
             </form>
+            <br>
+			<form method="post" id="find-intersections-form">
+                <input type="button" name="find_intersections" value="Find Intersections" id="find-intersections" class="btn btn-default form-control"/>
+            </form>
+			<br>
+			<form method="post" id="find-unions-form">
+				<input type="button" name="find_unions" value="Find Unions" id="find-unions" class="btn btn-default form-control"/>
+			</form>
         </div>
     </div>
 </div>
