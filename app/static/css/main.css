@@ -15,8 +15,14 @@ html, body {
 }
 
 #tabs {
+    border-left: 0.1px solid;
+    padding-left: 0.1%;
     height: 100%;
     overflow: auto;
+}
+
+a, a:hover {
+    color: inherit;
 }
 
 .col-md-9, .col-md-3 {

@@ -10,60 +10,84 @@
         <script src="{{ url_for('static', filename='js/google_maps_drawer.js') }}"> </script>
     </div>
 </div>
-<div class="col-md-3">
-    <div id="tabs">
-        <ul>
-            <li><a href="#tabs-comp">Computations</a></li>
-            <li><a href="#tabs-regions">Regions</a></li>
-        </ul>
-        <div id="tabs-comp">
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
-            <p> Stuff for doing stuff here </p>
+<div id="tabs" class="col-md-3">
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#regions" aria-controls="regions" role="tab" data-toggle="tab">Regions</a></li>
+        <li role="presentation"><a href="#computations" aria-controls="computations" role="tab" data-toggle="tab">Computations</a></li>
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane-active" id="regions">
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
         </div>
-        <div id="tabs-regions">
-            <p>Show list of regions</p>
+        <div role="tabpanel" class="tab-pane" id="computations">
+             <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
+            <p> Dummy Data </p>
         </div>
     </div>
 </div>
-{% endblock %}
-{% block scripts %}
-{{ super() }}
-<script type="text/javascript">
-$.noConflict();
-$(document).ready(function(){
-    $(function() {
-        $("#tabs").tabs();
-    });
-});
-</script>
 {% endblock %}
