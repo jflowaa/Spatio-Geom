@@ -1,0 +1,21 @@
+html, body { 
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#map-container {
+    width: 100%;
+    height: 100%;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+.col-md-9, .col-md-3 {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}

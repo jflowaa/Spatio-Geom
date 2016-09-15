@@ -3,30 +3,36 @@
 {% block title %} {{super() }} | Style?{% endblock %}
 
 {% block page_content %}
-<div class="container">
-	<div class="row">
-		<div class="page-header">
-			<h1>Home</h1>
-		</div>
-	</div>
-    <div class="row">
-        <div id="map" class="col-md-10" style="height: 550px;"></div>
-        <script src="https://maps.googleapis.com/maps/api/js?v=3&key={{ GOOGLE_MAPS_KEY }}&libraries=drawing&callback=initialize"
-             async defer></script>
-        <script src="{{ url_for('static', filename='google_maps_drawer.js') }}"> </script>
-        <div class="col-md-2">
-            <p>
-                Draw a polygon over the area you want to process. Once finished
-                click the process button.
-            </p>
-            <form method="post" id="coords-form">
-                <input type="hidden" name="coords" value="" id="coords" class="form-control" />
-                <input type="button" name="process" value="Process" id="process" class="btn btn-default form-control"/>
-            </form>
+<div class="col-md-9">
+    <div id="map-container">
+        <div id="map"></div>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3&key={{ GOOGLE_MAPS_KEY }}&libraries=drawing"></script>
+        <script src="{{ url_for('static', filename='js/google_maps_drawer.js') }}"> </script>
+    </div>
+</div>
+<div class="col-md-3">
+    <div id="tabs">
+        <ul>
+            <li><a href="#tabs-comp">Computations</a></li>
+            <li><a href="#tabs-regions">Regions</a></li>
+        </ul>
+        <div id="tabs-comp">
+            <p> Stuff for doing stuff here </p>
+        </div>
+        <div id="tabs-regions">
+            <p>Show list of regions</p>
         </div>
     </div>
 </div>
 {% endblock %}
 {% block scripts %}
 {{ super() }}
+<script type="text/javascript">
+$.noConflict();
+$(document).ready(function(){
+    $(function() {
+        $("#tabs").tabs();
+    });
+});
+</script>
 {% endblock %}
