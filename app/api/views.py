@@ -37,7 +37,7 @@ def find_intersections():
     for intersection in session["intersections"]:
         intersectionCoords.append(
             hseg_to_coords(intersection.get("intersection")))
-    return "{}".format(intersectionCoords), 200
+    return json.dumps(intersectionCoords)
 
 
 @api.route("/find_unions", methods=["POST"])
@@ -52,5 +52,4 @@ def find_unions():
     """
     session["unions"] = []
     session["unions"] = process_unions(session["regions"])
-    print session
     return "", 200
