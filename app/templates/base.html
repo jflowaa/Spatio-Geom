@@ -12,25 +12,10 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
 {% endblock %}
 {% block content %}
-    <div class="container">
-    	{% for category, message in get_flashed_messages(with_categories=true) %}
-    	<div id="flash" class="alert alert-{{ category }}">
-    		 <button type="button" class="close" data-dismiss="alert">&times;</button>
-    		 {{ message  }}
-    	 </div>
-    	{% endfor %}
-    </div>
 	{% block page_content %}
 	{% endblock %}
 {% endblock %}
 
 {% block scripts %}
 {{ super() }}
-<script type="text/javascript">
-	$(document).ready(function(){
-		$("#flash").delay(1750).slideUp(400, function() {
-            $(this).alert("close");
-		});
-	});
-</script>
 {% endblock %}
