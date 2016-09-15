@@ -3,3 +3,4 @@
 * Feature 2 - Allow multiple polygons to be drawn, and submitted in the POST
 * Feature 3 - Clear Map when clear button is clicked
 * Feature 4 - Implement intersection from the python library.
+* Feature 5 - Redesign UI
