@@ -29,7 +29,7 @@ var polygons = {
         var shape = poly,
             that = this;
         shape.type = "polygon";
-        shape.path = poly.paths;
+        shape.path = poly.path;
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
         this.setSelection(shape);
@@ -174,7 +174,6 @@ function initialize() {
 
 function managePolygon(polygon_id, action) {
     if (action === "add") {
-        console.log(polygons.collection[polygon_id]);
         data = JSON.stringify(
             {
                 "id": polygon_id,
