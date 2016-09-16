@@ -88,19 +88,19 @@ var polygons = {
                     colorVal += "A";
                     break;
                 case 11:
-                    colorVal+="B";
+                    colorVal += "B";
                     break;
                 case 12:
-                    colorVal+="C";
+                    colorVal += "C";
                     break;
                 case 13:
-                    colorVal+="D";
+                    colorVal += "D";
                     break;
                 case 14:
-                    colorVal+="E";
+                    colorVal += "E";
                     break;
                 case 15:
-                    colorVal+="F";
+                    colorVal += "F";
                     break;
                 default:
                     colorVal += randNum.toString();
@@ -109,23 +109,6 @@ var polygons = {
         return colorVal;
     }
 };
-
-function generateNewPolygon(polygon) {
-    var arr = new Array();
-    for (var i = 0; i < polygon.data.length; i++) {
-        arr.push(new google.maps.LatLng(polygon.data[i].lat, polygon.data[i].lng));
-    }
-    var poly = new google.maps.Polygon({
-                paths: arr,
-                strokeWeight: 4,
-                fillColor: polygons.generateColor(),
-                fillOpacity: 0.8,
-                zIndex: 3
-            });
-            console.log(poly);
-    polygons.newPolygon(poly);
-    addPolygonToList(polygons.newPolygon(poly));
-}
 
 function initialize() {
     var mapProp = {
@@ -161,7 +144,6 @@ function initialize() {
             type: "POST",
             url: "/api/find_intersections",
             success: function(data) {
-                console.log(data);
                 if (data.success)
                     generateNewPolygon(data);
             },
@@ -192,6 +174,7 @@ function initialize() {
 
 function managePolygon(polygon_id, action) {
     if (action === "add") {
+        console.log(polygons.collection[polygon_id]);
         data = JSON.stringify(
             {
                 "id": polygon_id,
@@ -260,6 +243,23 @@ function clearSession() {
                 console.log(data);
             }
         });
+}
+
+function generateNewPolygon(polygon) {
+    var arr = new Array();
+    for (var i = 0; i < polygon.data.length; i++) {
+        arr.push(new google.maps.LatLng(polygon.data[i].lat, polygon.data[i].lng));
+    }
+    var poly = new google.maps.Polygon({
+                path: arr,
+                strokeWeight: 4,
+                fillColor: polygons.generateColor(),
+                fillOpacity: 0.8,
+                zIndex: 3
+            });
+    var polygon_id = polygons.newPolygon(poly)
+    addPolygonToList(polygon_id);
+    managePolygon(polygon_id, "add");
 }
 
 $(document).ready(function() {

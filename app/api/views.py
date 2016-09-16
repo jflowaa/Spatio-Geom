@@ -17,7 +17,6 @@ def manage_region():
         successful
     """
     data = json.loads(request.form.get("data"))
-    print(data.get("id"))
     if data.get("action") == "add":
         region = {
             "id": data.get("id"),
@@ -27,9 +26,8 @@ def manage_region():
             session["regions"] = []
         session["regions"].append(region)
     else:
-        print(data.get("id"))
-        session["regions"] = [region for region in session["regions"] if region.get("id") != data.get("id")]
-    print(len(session["regions"]))
+        session["regions"] = [region for region in session[
+            "regions"] if region.get("id") != int(data.get("id"))]
     return jsonify({"success": True})
 
 
