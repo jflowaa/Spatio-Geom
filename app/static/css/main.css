@@ -22,7 +22,8 @@ html, body {
     border-left: 0.1px solid;
     padding-left: 0.1%;
     height: 100%;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #region-list {
