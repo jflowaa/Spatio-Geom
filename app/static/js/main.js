@@ -25,6 +25,12 @@ var polygons = {
         polygon.setMap(null);
         delete this.collection[polygon.id];
     },
+    clearAll: function() {
+        for (polygonID in this.collection) {
+            managePolygon(polygonID, "delete");
+            polygons.delete(polygons.collection[polygonID]);
+        }
+    },
     newPolygon: function(poly) {
         var shape = poly,
             that = this;
@@ -171,29 +177,34 @@ function initialize() {
             }
         });
     });
+    $("#clear-regions").on("click", function(e) {
+        polygons.clearAll();
+        $("#region-list").empty();
+        showEmptyRegionList();
+    });
 }
 
-function managePolygon(polygon_id, action) {
+function managePolygon(polygonID, action) {
     if (action === "add") {
         data = JSON.stringify(
             {
-                "id": polygon_id,
-                "path": polygons.collection[polygon_id].path.getArray(),
+                "id": polygonID,
+                "path": polygons.collection[polygonID].path.getArray(),
                 "action": action
             }
         );
-        addPolygonToList(polygon_id);
+        addPolygonToList(polygonID);
     } else if (action === "delete") {
         data = JSON.stringify(
             {
-               "id": polygon_id,
+               "id": polygonID,
                "action": action
             }
         );
     } else {
         data = JSON.stringify(
             {
-               "id": polygon_id,
+               "id": polygonID,
                "action": action
             }
         );
@@ -211,19 +222,19 @@ function managePolygon(polygon_id, action) {
     });
 }
 
-function addPolygonToList(polygon_id) {
-    var fillColor = polygons.collection[polygon_id].fillColor;
+function addPolygonToList(polygonID) {
+    var fillColor = polygons.collection[polygonID].fillColor;
     $("#placeholder-empty").remove();
     $("#region-list").append(
-        $("<li>").attr("id", polygon_id).attr("class", "list-group-item")
+        $("<li>").attr("id", polygonID).attr("class", "list-group-item")
             .attr("style", "margin-bottom: 1%; background-color: " + fillColor + ";")
-            .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygon_id))
-            .append($("<button>").attr("id", "show-hide-" + polygon_id).attr("class", "btn btn-default").text("Hide"))
-            .append($("<button>").attr("id", "delete-" + polygon_id).attr("class", "btn btn-danger pull-right").text("Delete"))
+            .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID))
+            .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default").text("Hide"))
+            .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger pull-right").text("Delete"))
     );
-    $("#show-hide-" + polygon_id).on("click", function(e) {
-        var polygon_id = $(this).parent().attr("id");
-        var polygon = polygons.collection[polygon_id];
+    $("#show-hide-" + polygonID).on("click", function(e) {
+        var polygonID = $(this).parent().attr("id");
+        var polygon = polygons.collection[polygonID];
         if ($(this).text() === "Hide") {
             $(this).text("Show");
             polygons.hide(polygon);
@@ -231,12 +242,12 @@ function addPolygonToList(polygon_id) {
             $(this).text("Hide");
             polygons.show(polygon);
         }
-        managePolygon(polygon_id, "visible");
+        managePolygon(polygonID, "visible");
     })
-    $("#delete-" + polygon_id).on("click", function(e) {
-        var polygon_id = $(this).parent().attr("id");
-        var polygon = polygons.collection[polygon_id];
-        managePolygon(polygon_id, "delete");
+    $("#delete-" + polygonID).on("click", function(e) {
+        var polygonID = $(this).parent().attr("id");
+        var polygon = polygons.collection[polygonID];
+        managePolygon(polygonID, "delete");
         polygons.delete(polygon);
         $(this).parent().remove();
         console.log($("#region-list").children().length);
@@ -270,9 +281,9 @@ function generateNewPolygon(polygon) {
         fillOpacity: 0.8,
         zIndex: 3
     });
-    var polygon_id = polygons.newPolygon(poly)
-    addPolygonToList(polygon_id);
-    managePolygon(polygon_id, "add");
+    var polygonID = polygons.newPolygon(poly)
+    addPolygonToList(polygonID);
+    managePolygon(polygonID, "add");
 }
 
 function showEmptyRegionList() {
