@@ -10,7 +10,7 @@ var polygons = {
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
         this.setSelection(shape);
-        google.maps.event.addListener(shape,'click',function() {
+        google.maps.event.addListener(shape,'click', function() {
             that.setSelection(this);
         });
         return shape.id;
@@ -33,7 +33,7 @@ var polygons = {
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
         this.setSelection(shape);
-        google.maps.event.addListener(shape,'click',function() {
+        google.maps.event.addListener(shape,'click', function() {
             that.setSelection(this);
         });
         shape.setMap(map);
@@ -43,7 +43,7 @@ var polygons = {
         if(this.selectedShape !== shape) {
             this.clearSelection();
             this.selectedShape = shape;
-            shape.set('editable',true);
+            shape.set('editable', true);
         }
     },
     deleteSelected: function() {
@@ -56,8 +56,8 @@ var polygons = {
     },
     clearSelection: function() {
         if(this.selectedShape) {
-            this.selectedShape.set('draggable',false);
-            this.selectedShape.set('editable',false);
+            this.selectedShape.set('draggable', false);
+            this.selectedShape.set('editable', false);
             this.selectedShape = null;
         }
     },
@@ -235,14 +235,14 @@ function addPolygonToList(polygon_id) {
 
 function clearSession() {
     $.ajax({
-            type: "POST",
-            url: "/api/clear_session",
-            success: function(data) {
-            },
-            failure: function(data) {
-                console.log(data);
-            }
-        });
+        type: "POST",
+        url: "/api/clear_session",
+        success: function(data) {
+        },
+        failure: function(data) {
+            console.log(data);
+        }
+    });
 }
 
 function generateNewPolygon(polygon) {
@@ -251,12 +251,12 @@ function generateNewPolygon(polygon) {
         arr.push(new google.maps.LatLng(polygon.data[i].lat, polygon.data[i].lng));
     }
     var poly = new google.maps.Polygon({
-                path: arr,
-                strokeWeight: 4,
-                fillColor: polygons.generateColor(),
-                fillOpacity: 0.8,
-                zIndex: 3
-            });
+        path: arr,
+        strokeWeight: 4,
+        fillColor: polygons.generateColor(),
+        fillOpacity: 0.8,
+        zIndex: 3
+    });
     var polygon_id = polygons.newPolygon(poly)
     addPolygonToList(polygon_id);
     managePolygon(polygon_id, "add");
