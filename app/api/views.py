@@ -20,11 +20,16 @@ def manage_region():
     if data.get("action") == "add":
         region = {
             "id": data.get("id"),
-            "region": process_polygons(data.get("path"))
+            "region": process_polygons(data.get("path")),
+            "visible": True
         }
         if not session.get("regions"):
             session["regions"] = []
         session["regions"].append(region)
+    elif data.get("action") == "visible":
+        for region in session["regions"]:
+            if region.get("id") == int(data.get("id")):
+                region["visible"] = not region["visible"]
     else:
         session["regions"] = [region for region in session[
             "regions"] if region.get("id") != int(data.get("id"))]
@@ -56,9 +61,9 @@ def find_intersections():
     Returns:
         A polygon to map. This polygon is the intersection.
     """
-    # TODO: Need to allow the user to select regions for intersection checking
     if len(session.get("regions")) > 1:
-        intersection = process_intersections(session["regions"])
+        intersection = process_intersections(
+            [region for region in session["regions"] if region.get("visible")])
     else:
         return jsonify(
             {"success": False, "data": "Not enough regions selected"})

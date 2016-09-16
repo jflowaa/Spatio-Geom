@@ -183,6 +183,13 @@ function managePolygon(polygon_id, action) {
             }
         );
         addPolygonToList(polygon_id);
+    } else if (action === "delete") {
+        data = JSON.stringify(
+            {
+               "id": polygon_id,
+               "action": action
+            }
+        );
     } else {
         data = JSON.stringify(
             {
@@ -190,7 +197,7 @@ function managePolygon(polygon_id, action) {
                "action": action
             }
         );
-    }    
+    } 
     $.ajax({
         type: "POST",
         url: "/api/manage_region",
@@ -223,6 +230,7 @@ function addPolygonToList(polygon_id) {
             $(this).text("Hide");
             polygons.show(polygon);
         }
+        managePolygon(polygon_id, "visible");
     })
     $("#delete-" + polygon_id).on("click", function(e) {
         var polygon_id = $(this).parent().attr("id");
