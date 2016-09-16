@@ -15,6 +15,16 @@ var polygons = {
         });
         return shape.id;
     },
+    hide: function(polygon) {
+        polygon.setMap(null);
+    },
+    show: function(polygon) {
+        polygon.setMap(map);
+    },
+    delete: function(polygon) {
+        polygon.setMap(null);
+        delete this.collection[polygon.id];
+    },
     newPolygon: function(poly) {
         var shape = poly,
             that = this;
@@ -144,7 +154,7 @@ function initialize() {
         var polygonOptions = drawingManager.get('polygonOptions');
         polygonOptions.fillColor = polygons.generateColor();
         drawingManager.set('polygonOptions', polygonOptions);
-        recordPolygon(polygons.add(event));
+        managePolygon(polygons.add(event), "add");
     });
     $('#find-intersections-form').click(function() {
         $.ajax({
@@ -180,14 +190,30 @@ function initialize() {
     });
 }
 
-function recordPolygon(polygon_id) {
-    data = JSON.stringify({"id": polygon_id, "path": polygons.collection[polygon_id].path.getArray()});
+function managePolygon(polygon_id, action) {
+    if (action === "add") {
+        data = JSON.stringify(
+            {
+                "id": polygon_id,
+                "path": polygons.collection[polygon_id].path.getArray(),
+                "action": action
+            }
+        );
+        addPolygonToList(polygon_id);
+    } else {
+        data = JSON.stringify(
+            {
+               "id": polygon_id,
+               "action": action
+            }
+        );
+    }    
     $.ajax({
         type: "POST",
-        url: "/api/create_region",
-        data: {"polygon": data},
+        url: "/api/manage_region",
+        data: {"data": data},
         success: function(data) {
-            addPolygonToList(polygon_id);
+
         },
         failure: function(data) {
             console.log(data);
@@ -199,8 +225,29 @@ function addPolygonToList(polygon_id) {
     var fillColor = polygons.collection[polygon_id].fillColor;
     $("#region-list").append(
         $("<li>").attr("id", polygon_id).attr("class", "list-group-item")
-            .attr("style", "padding: 10%; margin-bottom: 1%; background-color: " + fillColor + ";")
+            .attr("style", "margin-bottom: 1%; background-color: " + fillColor + ";")
+            .append($("<p>").attr("style", "padding-bottom: 5%;").text(polygon_id))
+            .append($("<button>").attr("id", "show-hide-" + polygon_id).attr("class", "btn btn-default").text("Hide"))
+            .append($("<button>").attr("id", "delete-" + polygon_id).attr("class", "btn btn-danager pull-right").text("Delete"))
     );
+    $("#show-hide-" + polygon_id).on("click", function(e) {
+        var polygon_id = $(this).parent().attr("id");
+        var polygon = polygons.collection[polygon_id];
+        if ($(this).text() === "Hide") {
+            $(this).text("Show");
+            polygons.hide(polygon);
+        } else {
+            $(this).text("Hide");
+            polygons.show(polygon);
+        }
+    })
+    $("#delete-" + polygon_id).on("click", function(e) {
+        var polygon_id = $(this).parent().attr("id");
+        var polygon = polygons.collection[polygon_id];
+        managePolygon(polygon_id, "delete");
+        polygons.delete(polygon);
+        $(this).parent().remove();
+    })
 }
 
 function clearSession() {

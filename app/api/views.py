@@ -5,23 +5,31 @@ from ..spatio_helper import (process_polygons, process_intersections,
 import json
 
 
-@api.route("/create_region", methods=["POST"])
-def create_regions():
+@api.route("/manage_region", methods=["POST"])
+def manage_region():
     """
-    Retrieves a list of JSON strings. These strings are converted back into a
-    JSON object (dictionary). Returns result of create_region()
+    Restrives a JSON object. This object holds an ID of the polygon, the paths
+    of the polygon and the action to do with the polygon. If action is "add"
+    then the polygon is converted to a region and added to the session. If
+    the action is "delete" then the region is removed from the session.
 
     Returns:
         successful
     """
-    data = json.loads(request.form.get("polygon"))
-    region = {
-        "id": data.get("id"),
-        "region": process_polygons(data.get("path"))
-    }
-    if not session.get("regions"):
-        session["regions"] = []
-    session["regions"].append(region)
+    data = json.loads(request.form.get("data"))
+    print(data.get("id"))
+    if data.get("action") == "add":
+        region = {
+            "id": data.get("id"),
+            "region": process_polygons(data.get("path"))
+        }
+        if not session.get("regions"):
+            session["regions"] = []
+        session["regions"].append(region)
+    else:
+        print(data.get("id"))
+        session["regions"] = [region for region in session["regions"] if region.get("id") != data.get("id")]
+    print(len(session["regions"]))
     return jsonify({"success": True})
 
 
