@@ -32,19 +32,25 @@ def process_polygons(data):
     return region_logic.createRegionFromSegs(seg_list)
 
 
-def process_intersections(region, other_regions):
+def process_intersections(regions):
     """
-    Iterates through each region and gets the next region in the list to check
-    for intersections. If there is intersections between the two regions a
-    dictionary is created. This dictionary holds the first region's ID and the
-    intersection path coordinates.
+    Iterates through the given regions. If there is an intersection
+    between those two regions. That intersection is then used as the next
+    region to be used to compare aganist the next region in the list. If there
+    is no intersection then there is no common intersection and it is done.
+
+    Arguments:
+        regions: a list of regions to find a common intersection.
 
     Returns:
-        A list of intersection dictionaries.
+        An intersection in region form.
     """
-    for other_region in other_regions:
-        print(region[0])
+    # This will be used to start the matching
+    region = regions[0].get("region")
+    # Compare with the reset of the regions
+    for other_region in regions[1:]:
         region = region_logic.intersection(region, other_region.get("region"))
+        # If region is not empty, then there was an intersection.
         if not region:
             return []
     return region
@@ -78,10 +84,10 @@ def process_unions(regions):
 
 def hseg_to_coords(hseg):
     """
-    Iterates throught the hseg and pulls out unique coordinates.
+    Iterates through the hseg and pulls out unique coordinates.
 
     Returns:
-        Dictionary of Coordinates.
+        A list of dictionary of coordinates.
     """
     unique_cords = []
     for seg in hseg:
@@ -89,7 +95,7 @@ def hseg_to_coords(hseg):
             unique_cords.append(seg[0][0])
         if seg[0][1] not in unique_cords:
             unique_cords.append(seg[0][1])
-    lat_lng_dictionary = []
+    lat_lng = []
     for cord in unique_cords:
-        lat_lng_dictionary.append({"lat": cord[0], "lng": cord[1]})
-    return lat_lng_dictionary
+        lat_lng.append({"lat": cord[0], "lng": cord[1]})
+    return lat_lng

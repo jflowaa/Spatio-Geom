@@ -6,18 +6,11 @@ A web interface for the [pyspatiotemporalgeom](https://pypi.python.org/pypi/pysp
 ### Libraries
 This web application is built in Python2 using the Flask web framework.  
 [pyspatiotemporalgeom](https://pypi.python.org/pypi/pyspatiotemporalgeom/) an open source geometry processing library focusing on regions and moving regions.  
-Sessions are saved in [MongoDB](https://docs.mongodb.com/)
+Sessions are saved in memory using [Redis](http://redis.io/).
 
 ### Installation
-Install MongoDB.  
-On Debian based Linux systems:
-```bash
-sudo apt-get install mongodb-server
-```
-On OSX:
-```bash
-brew install mongodb
-```
+Install Redis, instructions can be found [here](http://redis.io/topics/quickstart).
+
 Clone the repository
 ```bash
 git clone https://github.com/jflowaa/spatiotemoralgeom_interface.git
@@ -40,6 +33,10 @@ source venv/bin/activate
 Install the packages
 ```bash
 pip install -r requirements.txt
+```
+Start the redis-server
+```bash
+redis-server
 ```
 
 Then run the application

@@ -27,6 +27,7 @@ var polygons = {
             that.setSelection(this);
         });
         shape.setMap(map);
+        return shape.id;
     },
     setSelection: function(shape) {
         if(this.selectedShape !== shape) {
@@ -99,19 +100,21 @@ var polygons = {
     }
 };
 
-function generateNewPolygon(path) {
+function generateNewPolygon(polygon) {
     var arr = new Array();
-    for (var coord in path) {
-        arr.push(new google.maps.LatLng(path[coord].lat, path[coord].lng));
+    for (var i = 0; i < polygon.data.length; i++) {
+        arr.push(new google.maps.LatLng(polygon.data[i].lat, polygon.data[i].lng));
     }
     var poly = new google.maps.Polygon({
                 paths: arr,
                 strokeWeight: 4,
-                fillColor: '#000000',
+                fillColor: polygons.generateColor(),
                 fillOpacity: 0.8,
-                zIndex: 1
+                zIndex: 3
             });
+            console.log(poly);
     polygons.newPolygon(poly);
+    addPolygonToList(polygons.newPolygon(poly));
 }
 
 function initialize() {
@@ -144,19 +147,13 @@ function initialize() {
         recordPolygon(polygons.add(event));
     });
     $('#find-intersections-form').click(function() {
-        var intersectionCoords;
-        var polygonIDArray = [];
-        for (var key in polygons.collection) {
-            polygonIDArray.push(key);
-        }
-        data = JSON.stringify(polygonIDArray);
         $.ajax({
             type: "POST",
             url: "/api/find_intersections",
-            data: {polygonIDs:data},
-            dataType: "json",
-            success: function(res) {
-                generateNewPolygon(res[0]);
+            success: function(data) {
+                console.log(data);
+                if (data.success)
+                    generateNewPolygon(data);
             },
             failure: function(data) {
                 console.log(data);

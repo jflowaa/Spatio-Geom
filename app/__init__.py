@@ -3,7 +3,7 @@ from flask_bootstrap import Bootstrap
 from config import configs
 from .main import main as main_blueprint
 from .api import api as api_blueprint
-from .mongo_session_interface import MongoSessionInterface
+from .redis_session_interface import RedisSessionInterface
 
 bootstrap = Bootstrap()
 
@@ -11,7 +11,7 @@ bootstrap = Bootstrap()
 def create_app(config_name):
     app = Flask(__name__)
     app.config.from_object(configs[config_name])
-    app.session_interface = MongoSessionInterface(db="mongo_session")
+    app.session_interface = RedisSessionInterface()
     configs[config_name].init_app(app)
     bootstrap.init_app(app)
     app.register_blueprint(main_blueprint)
