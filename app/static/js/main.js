@@ -144,9 +144,10 @@ function initialize() {
         polygonOptions.fillColor = polygons.generateColor();
         drawingManager.set('polygonOptions', polygonOptions);
         managePolygon(polygons.add(event), "add");
+        $("#clear-regions").removeClass("hidden");
     });
     showEmptyRegionList();
-    $('#find-intersections-form').click(function() {
+    $('#find-intersections').click(function() {
         $.ajax({
             type: "POST",
             url: "/api/find_intersections",
@@ -159,7 +160,7 @@ function initialize() {
             }
         });
     });
-    $('#find-unions-form').click(function() {
+    $('#find-unions').click(function() {
         var polygonIDArray = [];
         for (var key in polygons.collection) {
             polygonIDArray.push(key);
@@ -181,6 +182,7 @@ function initialize() {
         polygons.clearAll();
         $("#region-list").empty();
         showEmptyRegionList();
+        $("#clear-regions").addClass("hidden");
     });
 }
 
@@ -253,6 +255,7 @@ function addPolygonToList(polygonID) {
         console.log($("#region-list").children().length);
         if (!$("#region-list").children().length) {
             showEmptyRegionList();
+            $("#clear-regions").addClass("hidden");
         }
     })
 }
