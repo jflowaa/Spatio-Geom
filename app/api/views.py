@@ -61,9 +61,9 @@ def find_intersections():
     Returns:
         A polygon to map. This polygon is the intersection.
     """
-    if len(session.get("regions")) > 1:
-        intersection = process_intersections(
-            [region for region in session["regions"] if region.get("visible")])
+    regions = [region for region in session["regions"] if region.get("visible")]
+    if len(regions) > 1:
+        intersection = process_intersections(regions)
     else:
         return jsonify(
             {"success": False, "data": "Not enough regions selected"})
