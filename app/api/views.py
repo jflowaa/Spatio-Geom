@@ -19,10 +19,22 @@ def create_regions():
         "id": data.get("id"),
         "region": process_polygons(data.get("path"))
     }
-    if session.get("regions"):
-        session["regions"].append(region)
-    else:
-        session["regions"] = [region]
+    if not session.get("regions"):
+        session["regions"] = []
+    session["regions"].append(region)
+    return "", 200
+
+
+@api.route("/clear_session", methods=["POST"])
+def clear_session():
+    """
+    Clears the session. We could restore the session but this could be
+    computationally intensive when we're getting data from a database.
+
+    Returns:
+        successful
+    """
+    session.clear()
     return "", 200
 
 
@@ -36,13 +48,9 @@ def find_intersections():
     Returns:
         The hseg list of the intersections.
     """
-    session["intersections"] = []
-    session["intersections"] = process_intersections(session["regions"])
-    intersection_coords = []
-    for intersection in session["intersections"]:
-        intersection_coords.append(
-            hseg_to_coords(intersection.get("intersection")))
-    return json.dumps(intersection_coords)
+    intersection = process_intersections(session["regions"][0].get("region"),
+                                         session["regions"][1:])
+    return json.dumps(intersection)
 
 
 @api.route("/find_unions", methods=["POST"])

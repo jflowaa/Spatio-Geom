@@ -190,7 +190,7 @@ function recordPolygon(polygon_id) {
         url: "/api/create_region",
         data: {"polygon": data},
         success: function(data) {
-            addRegionToList();
+            addPolygonToList(polygon_id);
         },
         failure: function(data) {
             console.log(data);
@@ -198,8 +198,7 @@ function recordPolygon(polygon_id) {
     });
 }
 
-function addRegionToList() {
-    var polygon_id = Object.keys(polygons.collection).pop();
+function addPolygonToList(polygon_id) {
     var fillColor = polygons.collection[polygon_id].fillColor;
     $("#region-list").append(
         $("<li>").attr("id", polygon_id).attr("class", "list-group-item")
@@ -207,8 +206,19 @@ function addRegionToList() {
     );
 }
 
+function clearSession() {
+    $.ajax({
+            type: "POST",
+            url: "/api/clear_session",
+            success: function(data) {
+            },
+            failure: function(data) {
+                console.log(data);
+            }
+        });
+}
+
 $(document).ready(function() {
     initialize();
-    $("#find-intersections").hide();
-    $("#find-unions").hide();
+    clearSession();
 });

@@ -32,7 +32,7 @@ def process_polygons(data):
     return region_logic.createRegionFromSegs(seg_list)
 
 
-def process_intersections(regions):
+def process_intersections(region, other_regions):
     """
     Iterates through each region and gets the next region in the list to check
     for intersections. If there is intersections between the two regions a
@@ -42,20 +42,12 @@ def process_intersections(regions):
     Returns:
         A list of intersection dictionaries.
     """
-    intersections = []
-    visited_regions = []
-    for region in regions:
-        visited_regions.append(region)
-        for other_region in regions:
-            if other_region not in visited_regions:
-                intersection = {
-                    "region_id": region.get("id"),
-                    "other_region": other_region.get("id"),
-                    "intersection": region_logic.intersection(
-                        region.get("region"), other_region.get("region"))
-                }
-                intersections.append(intersection)
-    return intersections
+    for other_region in other_regions:
+        print(region[0])
+        region = region_logic.intersection(region, other_region.get("region"))
+        if not region:
+            return []
+    return region
 
 
 def process_unions(regions):
