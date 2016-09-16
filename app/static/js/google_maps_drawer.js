@@ -139,6 +139,7 @@ function initialize() {
         drawingManager.set('polygonOptions', polygonOptions);
         managePolygon(polygons.add(event), "add");
     });
+    showEmptyRegionList();
     $('#find-intersections-form').click(function() {
         $.ajax({
             type: "POST",
@@ -212,12 +213,13 @@ function managePolygon(polygon_id, action) {
 
 function addPolygonToList(polygon_id) {
     var fillColor = polygons.collection[polygon_id].fillColor;
+    $("#placeholder-empty").remove();
     $("#region-list").append(
         $("<li>").attr("id", polygon_id).attr("class", "list-group-item")
             .attr("style", "margin-bottom: 1%; background-color: " + fillColor + ";")
-            .append($("<p>").attr("style", "padding-bottom: 5%;").text(polygon_id))
+            .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygon_id))
             .append($("<button>").attr("id", "show-hide-" + polygon_id).attr("class", "btn btn-default").text("Hide"))
-            .append($("<button>").attr("id", "delete-" + polygon_id).attr("class", "btn btn-danager pull-right").text("Delete"))
+            .append($("<button>").attr("id", "delete-" + polygon_id).attr("class", "btn btn-danger pull-right").text("Delete"))
     );
     $("#show-hide-" + polygon_id).on("click", function(e) {
         var polygon_id = $(this).parent().attr("id");
@@ -237,6 +239,10 @@ function addPolygonToList(polygon_id) {
         managePolygon(polygon_id, "delete");
         polygons.delete(polygon);
         $(this).parent().remove();
+        console.log($("#region-list").children().length);
+        if (!$("#region-list").children().length) {
+            showEmptyRegionList();
+        }
     })
 }
 
@@ -267,6 +273,13 @@ function generateNewPolygon(polygon) {
     var polygon_id = polygons.newPolygon(poly)
     addPolygonToList(polygon_id);
     managePolygon(polygon_id, "add");
+}
+
+function showEmptyRegionList() {
+    $("#region-list").append(
+        $("<li>").attr("id", "placeholder-empty").attr("class", "list-group-item").text(
+            "No regions created. Draw on the map to create regions or import from a database.")
+    );
 }
 
 $(document).ready(function() {
