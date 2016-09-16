@@ -203,7 +203,7 @@ function addRegionToList() {
     var fillColor = polygons.collection[polygon_id].fillColor;
     $("#region-list").append(
         $("<li>").attr("id", polygon_id).attr("class", "list-group-item")
-            .attr("style", "padding: 10%; margin-top: 1%; margin-bottom: 1%; background-color: " + fillColor + ";")
+            .attr("style", "padding: 10%; margin-bottom: 1%; background-color: " + fillColor + ";")
     );
 }
 
