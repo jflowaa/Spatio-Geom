@@ -40,8 +40,9 @@ a, a:hover {
     margin: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 920px) {
   .mobile-device {
     width: 100%;
+    padding: 2px;
   }
 }
