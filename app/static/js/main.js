@@ -161,17 +161,12 @@ function initialize() {
         });
     });
     $('#find-unions').click(function() {
-        var polygonIDArray = [];
-        for (var key in polygons.collection) {
-            polygonIDArray.push(key);
-        }
-        data = JSON.stringify(polygonIDArray);
         $.ajax({
             type: "POST",
             url: "/api/find_unions",
-            data: {polygonIDs:data},
             success: function(data) {
-                console.log(data);
+                if (data.success)
+                    generateNewPolygon(data);
             },
             failure: function(data) {
                 console.log(data);

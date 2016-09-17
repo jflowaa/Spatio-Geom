@@ -61,7 +61,8 @@ def find_intersections():
     Returns:
         A polygon to map. This polygon is the intersection.
     """
-    regions = [region for region in session["regions"] if region.get("visible")]
+    regions = [region for region in session[
+        "regions"] if region.get("visible")]
     if len(regions) > 1:
         intersection = process_intersections(regions)
     else:
@@ -84,6 +85,15 @@ def find_unions():
     Returns:
         The hseg list of the unions.
     """
-    session["unions"] = []
-    session["unions"] = process_unions(session["regions"])
-    return jsonify({"success": True})
+    regions = [region for region in session[
+        "regions"] if region.get("visible")]
+    if len(regions) > 1:
+        union = process_unions(regions)
+    else:
+        return jsonify(
+            {"success": False, "data": "Not enough regions selected"})
+    if union:
+        return jsonify({"success": True, "data": hseg_to_coords(union)})
+    else:
+        return jsonify(
+            {"success": False, "data": "No common union"})
