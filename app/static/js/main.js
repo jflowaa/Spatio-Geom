@@ -228,11 +228,11 @@ function addPolygonToList(polygonID) {
     var fillColor = polygons.collection[polygonID].fillColor;
     $("#placeholder-empty").remove();
     $("#region-list").append(
-        $("<li>").attr("id", polygonID).attr("class", "list-group-item")
-            .attr("style", "margin-bottom: 1%; background-color: " + fillColor + ";")
+        $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
+            .attr("style", "margin: 1%; background-color: " + fillColor + ";")
             .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID))
-            .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default").text("Hide"))
-            .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger pull-right").text("Delete"))
+            .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default mobile-device").attr("style", "padding-bottom: 1%:").text("Hide"))
+            .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger mobile-device pull-right").text("Delete"))
     );
     $("#show-hide-" + polygonID).on("click", function(e) {
         var polygonID = $(this).parent().attr("id");

@@ -40,8 +40,8 @@ a, a:hover {
     margin: 0;
 }
 
-@media (max-width: 767px) {
-    .mobile-device {
-        display: block;
-    }
+@media (max-width: 768px) {
+  .mobile-device {
+    width: 100%;
+  }
 }
