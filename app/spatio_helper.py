@@ -81,38 +81,49 @@ def process_unions(regions):
 
 def hseg_to_coords(hseg):
     """
-    Iterates through the hseg and pulls out unique coordinates.
+    Iterates through the hsegs to find the cycles and returns the the
+    coordinates of each cycle in its own dictionary. The key is the unique
+    label given to the hseg and the value is the coordinates.
 
     Returns:
         A list of dictionary of coordinates.
     """
-    cycleDict = dict()
+    cycle_dict = {}
+    # Sets up the cycle_dict to have dictionary for each cycle and its segments.
     for seg in hseg:
         key = seg[1]
+        # -1 is not a unique label for segment
         if key == -1:
             key = seg[2]
-        if key not in cycleDict:
-            cycleDict[key] = dict()
-        if seg[0][0] not in cycleDict[key]:
-            cycleDict[key][seg[0][0]] = []
-        cycleDict[key][seg[0][0]].append(seg[0][1])
-    segDict = dict()
-    print cycleDict
-    for cycleLabel in cycleDict:
-        currCord = None
-        nextCord = None
-        visitedCords = []
-        for cord in cycleDict[cycleLabel]:
-            if currCord is None:
-                nextCord = cord
-                currCord = cord
+        if key not in cycle_dict:
+            cycle_dict[key] = {}
+        # The starting point of the hseg will be the key for its line segments.
+        if seg[0][0] not in cycle_dict[key]:
+            cycle_dict[key][seg[0][0]] = []
+        # They key has a line segment to this coordinate.
+        cycle_dict[key][seg[0][0]].append(seg[0][1])
+    seg_dict = {}
+    # For each cyle in the dictionary we will find its cycle path.
+    for cycle_label in cycle_dict:
+        curr_cord = None
+        next_cord = None
+        visited_cords = []
+        for cord in cycle_dict[cycle_label]:
+            # Checks to see if it is the first itteration of the loop.
+            if curr_cord is None:
+                next_cord = cord
+                curr_cord = cord
             else:
-                nextCord = cycleDict[cycleLabel][currCord][0]
-            if nextCord in visitedCords:
-                nextCord = cycleDict[cycleLabel][currCord][1]
-            visitedCords.append(nextCord)
-            currCord = nextCord
-        segDict[cycleLabel] = []
-        for point in visitedCords:
-            segDict[cycleLabel].append({"lat": point[0], "lng": point[1]})
-    return segDict
+                next_cord = cycle_dict[cycle_label][curr_cord][0]
+            # If we already discovered this line segment then it will be in
+            # visited_cords.
+            if next_cord in visited_cords:
+                next_cord = cycle_dict[cycle_label][curr_cord][1]
+            visited_cords.append(next_cord)
+            curr_cord = next_cord
+        seg_dict[cycle_label] = []
+        # After finding the path for the cycle we just need to put in
+        # lat and lng for google maps to understand.
+        for point in visited_cords:
+            seg_dict[cycle_label].append({"lat": point[0], "lng": point[1]})
+    return seg_dict
