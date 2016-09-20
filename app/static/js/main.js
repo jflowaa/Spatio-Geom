@@ -282,7 +282,6 @@ function generateNewPolygon(polygonList) {
             zIndex: 3
         });
         var polygonID = polygons.newPolygon(poly)
-        addPolygonToList(polygonID);
         managePolygon(polygonID, "add");
     }
 }
