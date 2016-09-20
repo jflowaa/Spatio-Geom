@@ -86,13 +86,33 @@ def hseg_to_coords(hseg):
     Returns:
         A list of dictionary of coordinates.
     """
-    unique_cords = []
+    cycleDict = dict()
     for seg in hseg:
-        if seg[0][0] not in unique_cords:
-            unique_cords.append(seg[0][0])
-        if seg[0][1] not in unique_cords:
-            unique_cords.append(seg[0][1])
-    lat_lng = []
-    for cord in unique_cords:
-        lat_lng.append({"lat": cord[0], "lng": cord[1]})
-    return lat_lng
+        key = seg[1]
+        if key == -1:
+            key = seg[2]
+        if key not in cycleDict:
+            cycleDict[key] = dict()
+        if seg[0][0] not in cycleDict[key]:
+            cycleDict[key][seg[0][0]] = []
+        cycleDict[key][seg[0][0]].append(seg[0][1])
+    segDict = dict()
+    print cycleDict
+    for cycleLabel in cycleDict:
+        currCord = None
+        nextCord = None
+        visitedCords = []
+        for cord in cycleDict[cycleLabel]:
+            if currCord is None:
+                nextCord = cord
+                currCord = cord
+            else:
+                nextCord = cycleDict[cycleLabel][currCord][0]
+            if nextCord in visitedCords:
+                nextCord = cycleDict[cycleLabel][currCord][1]
+            visitedCords.append(nextCord)
+            currCord = nextCord
+        segDict[cycleLabel] = []
+        for point in visitedCords:
+            segDict[cycleLabel].append({"lat": point[0], "lng": point[1]})
+    return segDict

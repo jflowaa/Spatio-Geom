@@ -35,7 +35,7 @@ var polygons = {
         var shape = poly,
             that = this;
         shape.type = "polygon";
-        shape.path = poly.path;
+        shape.path = poly.getPath();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
         this.setSelection(shape);
@@ -205,7 +205,7 @@ function managePolygon(polygonID, action) {
                "action": action
             }
         );
-    } 
+    }
     $.ajax({
         type: "POST",
         url: "/api/manage_region",
@@ -268,21 +268,23 @@ function clearSession() {
     });
 }
 
-function generateNewPolygon(polygon) {
-    var arr = new Array();
-    for (var i = 0; i < polygon.data.length; i++) {
-        arr.push(new google.maps.LatLng(polygon.data[i].lat, polygon.data[i].lng));
+function generateNewPolygon(polygonList) {
+    for (var polygon in polygonList.data) {
+        var arr = new Array();
+        for (var i = 0; i < polygonList.data[polygon].length; i++) {
+            arr.push(new google.maps.LatLng(polygonList.data[polygon][i].lat, polygonList.data[polygon][i].lng));
+        }
+        var poly = new google.maps.Polygon({
+            paths: arr,
+            strokeWeight: 4,
+            fillColor: polygons.generateColor(),
+            fillOpacity: 0.8,
+            zIndex: 3
+        });
+        var polygonID = polygons.newPolygon(poly)
+        addPolygonToList(polygonID);
+        managePolygon(polygonID, "add");
     }
-    var poly = new google.maps.Polygon({
-        path: arr,
-        strokeWeight: 4,
-        fillColor: polygons.generateColor(),
-        fillOpacity: 0.8,
-        zIndex: 3
-    });
-    var polygonID = polygons.newPolygon(poly)
-    addPolygonToList(polygonID);
-    managePolygon(polygonID, "add");
 }
 
 function showEmptyRegionList() {
