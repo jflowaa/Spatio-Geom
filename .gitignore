@@ -4,3 +4,5 @@ log
 *.pyc
 *.idea/
 *.DS_Store
+.vscode/
+*.rdb

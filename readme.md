@@ -2,12 +2,17 @@ A web interface for the [pyspatiotemporalgeom](https://pypi.python.org/pypi/pysp
 
 ### Features
 * Use Google Maps to create a polygon for selecting an area.
+* Manage selected regions.
+* Run computations on created regions.
 
 ### Libraries
 This web application is built in Python2 using the Flask web framework.  
-[pyspatiotemporalgeom](https://pypi.python.org/pypi/pyspatiotemporalgeom/) an open source geometry processing library focusing on regions and moving regions.
+[pyspatiotemporalgeom](https://pypi.python.org/pypi/pyspatiotemporalgeom/) an open source geometry processing library focusing on regions and moving regions.  
+Sessions are saved in memory using [Redis](http://redis.io/).
 
 ### Installation
+Install Redis, instructions can be found [here](http://redis.io/topics/quickstart).
+
 Clone the repository
 ```bash
 git clone https://github.com/jflowaa/spatiotemoralgeom_interface.git
@@ -31,6 +36,10 @@ Install the packages
 ```bash
 pip install -r requirements.txt
 ```
+Start the redis-server
+```bash
+redis-server
+```
 
 Then run the application
 ```bash
@@ -38,6 +47,12 @@ python run.py run
 ```
 The application is now running at: http://0.0.0.0:5000
 ### Todo
-- [x] Draw a polygon on a map to generate a region for processing
-- [ ] Update the map with the generated region
-- [ ] Everything else
+- [x] Draw a polygon on a map to generate a region for processing.
+- [x] Decide on a UI.
+- [x] Map intersections and unions.
+- [x] Only run computations on selected regions.
+- [x] Manage regions. Such as delete, hide, clear map.
+- [ ] Add more computations
+- [ ] Select regions on map and hide/delete it.
+- [ ] Import regions from database
+- [ ] Restore session option

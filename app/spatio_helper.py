@@ -34,70 +34,96 @@ def process_polygons(data):
 
 def process_intersections(regions):
     """
-    Iterates through each region and gets the next region in the list to check
-    for intersections. If there is intersections between the two regions a
-    dictionary is created. This dictionary holds the first region's ID and the
-    intersection path coordinates.
+    Iterates through the given regions. If there is an intersection
+    between those two regions. That intersection is then used as the next
+    region to be used to compare aganist the next region in the list. If there
+    is no intersection then there is no common intersection and it is done.
+
+    Arguments:
+        regions: a list of regions shown on the map
 
     Returns:
-        A list of intersection dictionaries.
+        An intersection in region form.
     """
-    intersections = []
-    visited_regions = []
-    for region in regions:
-        visited_regions.append(region)
-        for other_region in regions:
-            if other_region not in visited_regions:
-                intersection = {
-                    "region_id": region.get("id"),
-                    "other_region": other_region.get("id"),
-                    "intersection": region_logic.intersection(
-                        region.get("region"), other_region.get("region"))
-                }
-                intersections.append(intersection)
-    return intersections
+    # This will be used to start the process
+    region = regions[0].get("region")
+    # Compare with the rest of the regions
+    for other_region in regions[1:]:
+        region = region_logic.intersection(region, other_region.get("region"))
+        # If region is not empty, then there was an intersection.
+        if not region:
+            return []
+    return region
 
 
 def process_unions(regions):
     """
-    Iterates through each region and gets the next region in the list to check
-    for unions. If there is unions between the two regions a
-    dictionary is created. This dictionary holds the first region's ID and the
-    union path coordinates.
+    Iterates through the given regions. That union is then used as the next
+    region to be used to union the next region in the list. If there
+    is no union then the process is done, the region should be empty.
+
+    Arguments:
+        regions: a list of regions shown on the map
 
     Returns:
-        A list of union dictionaries.
+        A region unioned with all given regions.
     """
-    unions = []
-    visited_regions = []
-    for region in regions:
-        visited_regions.append(region)
-        for other_region in regions:
-            if other_region not in visited_regions:
-                union = {
-                    "region_id": region.get("id"),
-                    "other_region": other_region.get("id"),
-                    "union": region_logic.union(
-                        region.get("region"), other_region.get("region"))
-                }
-                unions.append(union)
-    return unions
+    # This will be used to start the process
+    region = regions[0].get("region")
+    # Compare with the rest of the regions
+    for other_region in regions[1:]:
+        region = region_logic.union(region, other_region.get("region"))
+        # If region is not empty, then there was a well-formed union.
+        if not region:
+            return []
+    return region
 
 
 def hseg_to_coords(hseg):
     """
-    Iterates throught the hseg and pulls out unique coordinates.
+    Iterates through the hsegs to find the cycles and returns the the
+    coordinates of each cycle in its own dictionary. The key is the unique
+    label given to the hseg and the value is the coordinates.
 
     Returns:
-        Dictionary of Coordinates.
+        A list of dictionary of coordinates.
     """
-    unique_cords = []
+    cycle_dict = {}
+    # Sets up the cycle_dict to have dictionary for each cycle and its segments.
     for seg in hseg:
-        if seg[0][0] not in unique_cords:
-            unique_cords.append(seg[0][0])
-        if seg[0][1] not in unique_cords:
-            unique_cords.append(seg[0][1])
-    lat_lng_dictionary = []
-    for cord in unique_cords:
-        lat_lng_dictionary.append({"lat": cord[0], "lng": cord[1]})
-    return lat_lng_dictionary
+        key = seg[1]
+        # -1 is not a unique label for segment
+        if key == -1:
+            key = seg[2]
+        if key not in cycle_dict:
+            cycle_dict[key] = {}
+        # The starting point of the hseg will be the key for its line segments.
+        if seg[0][0] not in cycle_dict[key]:
+            cycle_dict[key][seg[0][0]] = []
+        # They key has a line segment to this coordinate.
+        cycle_dict[key][seg[0][0]].append(seg[0][1])
+    seg_dict = {}
+    # For each cyle in the dictionary we will find its cycle path.
+    for cycle_label in cycle_dict:
+        curr_cord = None
+        next_cord = None
+        visited_cords = []
+        for cord in cycle_dict[cycle_label]:
+            # Checks to see if it is the first itteration of the loop.
+            if curr_cord is None:
+                next_cord = cord
+                curr_cord = cord
+            else:
+                next_cord = cycle_dict[cycle_label][curr_cord][0]
+            # If we already discovered this line segment then it will be in
+            # visited_cords.
+            if next_cord in visited_cords:
+                next_cord = cycle_dict[cycle_label][curr_cord][1]
+            visited_cords.append(next_cord)
+            curr_cord = next_cord
+        seg_dict[cycle_label] = []
+        # After finding the path for the cycle we just need to put in
+        # lat and lng for google maps to understand.
+        for point in visited_cords:
+            seg_dict[cycle_label].append({"lat": point[0], "lng": point[1]})
+    return seg_dict
