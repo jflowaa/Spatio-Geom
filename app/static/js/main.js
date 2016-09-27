@@ -173,6 +173,19 @@ function initialize() {
             }
         });
     });
+    $('#find-differences').click(function() {
+        $.ajax({
+            type: "POST",
+            url: "/api/find_difference",
+            success: function(data) {
+                if (data.success)
+                    generateNewPolygon(data);
+            },
+            failure: function(data) {
+                console.log(data);
+            }
+        });
+    });
     $("#clear-regions").on("click", function(e) {
         polygons.clearAll();
         $("#region-list").empty();
