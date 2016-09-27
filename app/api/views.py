@@ -1,7 +1,8 @@
 from flask import request, session, jsonify
 from . import api
 from ..spatio_helper import (process_polygons, process_intersections,
-                             process_unions, hseg_to_coords)
+                             process_unions, process_difference,
+                             hseg_to_coords)
 import json
 
 
@@ -97,3 +98,27 @@ def find_unions():
     else:
         return jsonify(
             {"success": False, "data": "No common union"})
+
+
+@api.route("/find_difference", methods=["POST"])
+def find_difference():
+    """
+    The user has started the process difference. The helper function is
+    called to go through each region and see what other regions it has
+    difference with
+
+    Returns:
+        The hseg list of the differences.
+    """
+    regions = [region for region in session[
+        "regions"] if region.get("visible")]
+    if len(regions) > 1:
+        difference = process_difference(regions)
+    else:
+        return jsonify(
+            {"success": False, "data": "Not enough regions selected"})
+    if difference:
+        return jsonify({"success": True, "data": hseg_to_coords(difference)})
+    else:
+        return jsonify(
+            {"success": False, "data": "No common difference"})

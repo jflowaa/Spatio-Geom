@@ -79,6 +79,28 @@ def process_unions(regions):
     return region
 
 
+def process_difference(regions):
+    """
+    Iterates through the given regions. That difference is then used as the
+    next region to be used to difference the next region in the list. If there
+    is no difference then the process is done, the region should be empty.
+
+    Arguments:
+        regions: a list of regions shown on the map
+
+    Returns:
+        A region formed from the difference with all given regions.
+    """
+    region = regions[0].get("region")
+    # Compare with the rest of the regions
+    for other_region in regions[1:]:
+        region = region_logic.difference(region, other_region.get("region"))
+        # If region is not empty, then there was a well-formed difference.
+        if not region:
+            return []
+    return region
+
+
 def hseg_to_coords(hseg):
     """
     Iterates through the hsegs to find the cycles and returns the the
@@ -89,7 +111,7 @@ def hseg_to_coords(hseg):
         A list of dictionary of coordinates.
     """
     cycle_dict = {}
-    # Sets up the cycle_dict to have dictionary for each cycle and its segments.
+    # Sets up the cycle_dict to have dictionary for each cycle and its segments
     for seg in hseg:
         key = seg[1]
         # -1 is not a unique label for segment
