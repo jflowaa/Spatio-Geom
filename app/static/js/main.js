@@ -329,7 +329,6 @@ function handleContextMenu(event, polygon) {
         }
     });
 
-    console.log(polygon);
     // If the menu element is clicked
     $(".custom-menu li").unbind().click(function(e){
         // This is the triggered action name
@@ -347,7 +346,6 @@ function handleContextMenu(event, polygon) {
         }
         // Hide it AFTER the action was triggered
         $(".custom-menu").hide(100);
-
       });
 }
 
