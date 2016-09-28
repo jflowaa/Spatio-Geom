@@ -13,6 +13,9 @@ var polygons = {
         google.maps.event.addListener(shape,'click', function() {
             that.setSelection(this);
         });
+        google.maps.event.addListener(shape, 'rightclick', function(event) {
+            handleContextMenu(event, this);
+        });
         return shape.id;
     },
     hide: function(polygon) {
@@ -244,29 +247,35 @@ function addPolygonToList(polygonID) {
             .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
     );
     $("#show-hide-" + polygonID).on("click", function(e) {
-        var polygonID = $(this).parent().attr("id");
         var polygon = polygons.collection[polygonID];
-        if ($(this).text() === "Hide") {
-            $(this).text("Show");
-            polygons.hide(polygon);
-        } else {
-            $(this).text("Hide");
-            polygons.show(polygon);
-        }
-        managePolygon(polygonID, "visible");
+        showHidePolygonButton(this, polygon);
     })
     $("#delete-" + polygonID).on("click", function(e) {
         var polygonID = $(this).parent().attr("id");
         var polygon = polygons.collection[polygonID];
-        managePolygon(polygonID, "delete");
-        polygons.delete(polygon);
-        $(this).parent().remove();
-        console.log($("#region-list").children().length);
-        if (!$("#region-list").children().length) {
-            showEmptyRegionList();
-            $("#clear-regions").addClass("hidden");
-        }
+        deletePolygonButton(this, polygon);
     })
+}
+
+function deletePolygonButton(button, polygon) {
+    managePolygon(polygon.id, "delete");
+    polygons.delete(polygon);
+    $(button).parent().remove();
+    if (!$("#region-list").children().length) {
+        showEmptyRegionList();
+        $("#clear-regions").addClass("hidden");
+    }
+}
+
+function showHidePolygonButton(button, polygon) {
+    if ($(button).text() === "Hide") {
+        $(button).text("Show");
+        polygons.hide(polygon);
+    } else {
+        $(button).text("Hide");
+        polygons.show(polygon);
+    }
+    managePolygon(polygon.id, "visible");
 }
 
 function clearSession() {
@@ -304,6 +313,42 @@ function showEmptyRegionList() {
         $("<li>").attr("id", "placeholder-empty").attr("class", "list-group-item").text(
             "No regions created. Draw on the map to create regions or import from a database.")
     );
+}
+
+function handleContextMenu(event, polygon) {
+    // Show contextmenu
+    $(".custom-menu").finish().toggle(100).css({
+        top: event.eb.pageY + "px",
+        left: event.eb.pageX + "px"
+    });
+
+// If the document is clicked somewhere
+    $(document).bind("mousedown", function (e) {
+        if (!$(e.target).parents(".custom-menu").length > 0) {
+            $(".custom-menu").hide(100);
+        }
+    });
+
+    console.log(polygon);
+    // If the menu element is clicked
+    $(".custom-menu li").unbind().click(function(e){
+        // This is the triggered action name
+        switch($(this).attr("data-action")) {
+            case "hide": {
+                var button = "#show-hide-" + polygon.id;
+                showHidePolygonButton(button, polygon);
+                break;
+            }
+            case "delete": {
+                var button = "#delete-" + polygon.id;
+                deletePolygonButton(button, polygon);
+                break;
+            }
+        }
+        // Hide it AFTER the action was triggered
+        $(".custom-menu").hide(100);
+
+      });
 }
 
 $(document).ready(function() {
