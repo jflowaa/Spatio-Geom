@@ -243,6 +243,7 @@ function addPolygonToList(polygonID, computation) {
         $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
             .attr("style", "margin: 1%; background-color: " + fillColor + ";")
             .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
+            .append($("<input>").attr("type", "range"))
             .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
             .append($("<div>").attr("class", "col-md-2"))
             .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
