@@ -53,6 +53,6 @@ The application is now running at: http://0.0.0.0:5000
 - [x] Only run computations on selected regions.
 - [x] Manage regions. Such as delete, hide, clear map.
 - [ ] Add more computations
-- [ ] Select regions on map and hide/delete it.
+- [x] Select regions on map and hide/delete it.
 - [ ] Import regions from database
 - [ ] Restore session option
