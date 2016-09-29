@@ -27,7 +27,7 @@ var polygons = {
     },
     clearAll: function() {
         for (polygonID in this.collection) {
-            managePolygon(polygonID, "delete");
+            managePolygon(polygonID, "delete", null);
             polygons.delete(polygons.collection[polygonID]);
         }
     },
@@ -143,7 +143,7 @@ function initialize() {
         var polygonOptions = drawingManager.get('polygonOptions');
         polygonOptions.fillColor = polygons.generateColor();
         drawingManager.set('polygonOptions', polygonOptions);
-        managePolygon(polygons.add(event), "add");
+        managePolygon(polygons.add(event), "add", null);
         $("#clear-regions").removeClass("hidden");
     });
     showEmptyRegionList();
@@ -153,7 +153,7 @@ function initialize() {
             url: "/api/find_intersections",
             success: function(data) {
                 if (data.success)
-                    generateNewPolygon(data);
+                    generateNewPolygon(data, "Intersection");
             },
             failure: function(data) {
                 console.log(data);
@@ -166,7 +166,7 @@ function initialize() {
             url: "/api/find_unions",
             success: function(data) {
                 if (data.success)
-                    generateNewPolygon(data);
+                    generateNewPolygon(data, "Union");
             },
             failure: function(data) {
                 console.log(data);
@@ -179,7 +179,7 @@ function initialize() {
             url: "/api/find_difference",
             success: function(data) {
                 if (data.success)
-                    generateNewPolygon(data);
+                    generateNewPolygon(data, "Difference");
             },
             failure: function(data) {
                 console.log(data);
@@ -194,7 +194,7 @@ function initialize() {
     });
 }
 
-function managePolygon(polygonID, action) {
+function managePolygon(polygonID, action, computation) {
     if (action === "add") {
         data = JSON.stringify(
             {
@@ -203,7 +203,7 @@ function managePolygon(polygonID, action) {
                 "action": action
             }
         );
-        addPolygonToList(polygonID);
+        addPolygonToList(polygonID, computation);
     } else if (action === "delete") {
         data = JSON.stringify(
             {
@@ -232,13 +232,17 @@ function managePolygon(polygonID, action) {
     });
 }
 
-function addPolygonToList(polygonID) {
+function addPolygonToList(polygonID, computation) {
     var fillColor = polygons.collection[polygonID].fillColor;
+    var compName = "";
+    if (computation != null){
+        compName = " (" + computation + ")";
+    }
     $("#placeholder-empty").remove();
     $("#region-list").append(
         $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
             .attr("style", "margin: 1%; background-color: " + fillColor + ";")
-            .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID))
+            .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
             .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
             .append($("<div>").attr("class", "col-md-2"))
             .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
@@ -253,12 +257,12 @@ function addPolygonToList(polygonID) {
             $(this).text("Hide");
             polygons.show(polygon);
         }
-        managePolygon(polygonID, "visible");
+        managePolygon(polygonID, "visible", null);
     })
     $("#delete-" + polygonID).on("click", function(e) {
         var polygonID = $(this).parent().attr("id");
         var polygon = polygons.collection[polygonID];
-        managePolygon(polygonID, "delete");
+        managePolygon(polygonID, "delete", null);
         polygons.delete(polygon);
         $(this).parent().remove();
         console.log($("#region-list").children().length);
@@ -281,7 +285,7 @@ function clearSession() {
     });
 }
 
-function generateNewPolygon(polygonList) {
+function generateNewPolygon(polygonList,computation) {
     for (var polygon in polygonList.data) {
         var arr = new Array();
         for (var i = 0; i < polygonList.data[polygon].length; i++) {
@@ -295,7 +299,7 @@ function generateNewPolygon(polygonList) {
             zIndex: 3
         });
         var polygonID = polygons.newPolygon(poly)
-        managePolygon(polygonID, "add");
+        managePolygon(polygonID, "add", computation);
     }
 }
 
