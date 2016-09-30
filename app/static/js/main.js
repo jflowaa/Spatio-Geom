@@ -317,35 +317,33 @@ function showEmptyRegionList() {
 
 function handleContextMenu(event, polygon) {
     // Show contextmenu
-    $(".custom-menu").finish().toggle(100).css({
+    $("#custom-menu").finish().toggle(100).css({
         top: event.eb.pageY + "px",
         left: event.eb.pageX + "px"
     });
-
-// If the document is clicked somewhere
-    $(document).bind("mousedown", function (e) {
-        if (!$(e.target).parents(".custom-menu").length > 0) {
-            $(".custom-menu").hide(100);
-        }
-    });
+    $("#custom-menu").removeClass("hidden");
 
     // If the menu element is clicked
-    $(".custom-menu li").unbind().click(function(e){
+    $("#custom-menu div").unbind().click(function(e) {
         // This is the triggered action name
         switch($(this).attr("data-action")) {
             case "hide": {
                 var button = "#show-hide-" + polygon.id;
                 showHidePolygonButton(button, polygon);
+                $("#custom-menu").addClass("hidden");
                 break;
             }
             case "delete": {
                 var button = "#delete-" + polygon.id;
                 deletePolygonButton(button, polygon);
+                $("#custom-menu").addClass("hidden");
+                break;
+            }
+            case "close": {
+                $("#custom-menu").addClass("hidden");
                 break;
             }
         }
-        // Hide it AFTER the action was triggered
-        $(".custom-menu").hide(100);
       });
 }
 
