@@ -322,7 +322,6 @@ function handleContextMenu(event, polygon) {
         left: event.eb.pageX + "px"
     });
     $("#custom-menu").removeClass("hidden");
-
     // If the menu element is clicked
     $("#custom-menu div").unbind().click(function(e) {
         // This is the triggered action name
@@ -350,4 +349,11 @@ function handleContextMenu(event, polygon) {
 $(document).ready(function() {
     initialize();
     clearSession();
+    $(document).on("click", function(e) {
+        var target = $(e.target);
+        if (!$("#custom-menu").hasClass("hidden")) {
+            if (!(target.is("h4") || target.is("#custom-menu")))
+                $("#custom-menu").addClass("hidden");
+        }
+    });
 });
