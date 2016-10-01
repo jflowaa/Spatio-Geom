@@ -37,17 +37,16 @@ def manage_region():
     return jsonify({"success": True})
 
 
-@api.route("/clear_session", methods=["POST"])
-def clear_session():
+@api.route("/restore_session", methods=["POST"])
+def restore_session():
     """
-    Clears the session. We could restore the session but this could be
-    computationally intensive when we're getting data from a database.
-
+    Called on load of page, either will clear the session to start new,
+    or will reload a session that was started previously
     Returns:
         successful
     """
-    session.clear()
-    return jsonify({"success": True})
+    if not session.get("regions"):
+        return session.get("regions")
 
 
 @api.route("/find_intersections", methods=["POST"])

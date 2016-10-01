@@ -278,10 +278,10 @@ function showHidePolygonButton(button, polygon) {
     managePolygon(polygon.id, "visible");
 }
 
-function clearSession() {
+function restoreSession() {
     $.ajax({
         type: "POST",
-        url: "/api/clear_session",
+        url: "/api/restore_session",
         success: function(data) {
         },
         failure: function(data) {
@@ -348,7 +348,7 @@ function handleContextMenu(event, polygon) {
 
 $(document).ready(function() {
     initialize();
-    clearSession();
+    restore_session();
     $(document).on("click", function(e) {
         var target = $(e.target);
         if (!$("#custom-menu").hasClass("hidden")) {
