@@ -48,9 +48,11 @@ def restore_session():
     """
     if session.get("regions"):
         regions = []
-        for region in session.get("regions"):
-            regions.append(hseg_to_coords(region))
-        return jsonify({"success": True, "data": json.dump(regions)})
+        poly = [r["region"] for r in session.get("regions")]
+        for p in poly:
+            r = hseg_to_coords(p)
+            regions.append(r)
+        return jsonify({"success": True, "data": regions})
     else:
         return jsonify({"success": False, "data": "No session found"})
 

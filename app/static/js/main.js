@@ -284,8 +284,11 @@ function restoreSession() {
         url: "/api/restore_session",
         success: function(data) {
             console.log(data);
-            if (data.success)
-                generateNewPolygon(data);
+            if (data.success) {
+                for (region in data.data) {
+                    console.log(region[0]);
+                }
+            }
         },
         failure: function(data) {
             console.log(data);
