@@ -46,10 +46,13 @@ def restore_session():
     Returns:
         successful
     """
-    if not session.get("regions"):
-        return jsonify({"success": True, "data": session.get("regions")})
+    if session.get("regions"):
+        regions = []
+        for region in session.get("regions"):
+            regions.append(hseg_to_coords(region))
+        return jsonify({"success": True, "data": json.dump(regions)})
     else:
-        return jsonify({"success": False})
+        return jsonify({"success": False, "data": "No session found"})
 
 
 @api.route("/find_intersections", methods=["POST"])

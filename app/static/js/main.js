@@ -283,6 +283,9 @@ function restoreSession() {
         type: "POST",
         url: "/api/restore_session",
         success: function(data) {
+            console.log(data);
+            if (data.success)
+                generateNewPolygon(data);
         },
         failure: function(data) {
             console.log(data);
@@ -291,11 +294,13 @@ function restoreSession() {
 }
 
 function generateNewPolygon(polygonList) {
+    console.log(polygonList);
     for (var polygon in polygonList.data) {
         var arr = new Array();
         for (var i = 0; i < polygonList.data[polygon].length; i++) {
             arr.push(new google.maps.LatLng(polygonList.data[polygon][i].lat, polygonList.data[polygon][i].lng));
         }
+        console.log(arr);
         var poly = new google.maps.Polygon({
             paths: arr,
             strokeWeight: 4,
@@ -303,6 +308,7 @@ function generateNewPolygon(polygonList) {
             fillOpacity: 0.8,
             zIndex: 3
         });
+        console.log(poly);
         var polygonID = polygons.newPolygon(poly)
         managePolygon(polygonID, "add");
     }
@@ -348,7 +354,7 @@ function handleContextMenu(event, polygon) {
 
 $(document).ready(function() {
     initialize();
-    restore_session();
+    restoreSession();
     $(document).on("click", function(e) {
         var target = $(e.target);
         if (!$("#custom-menu").hasClass("hidden")) {
