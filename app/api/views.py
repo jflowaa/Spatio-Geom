@@ -42,11 +42,14 @@ def restore_session():
     """
     Called on load of page, either will clear the session to start new,
     or will reload a session that was started previously
+
     Returns:
         successful
     """
     if not session.get("regions"):
-        return session.get("regions")
+        return jsonify({"success": True, "data": session.get("regions")})
+    else:
+        return jsonify({"success": False})
 
 
 @api.route("/find_intersections", methods=["POST"])
