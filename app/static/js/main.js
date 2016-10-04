@@ -13,6 +13,9 @@ var polygons = {
         google.maps.event.addListener(shape,'click', function() {
             that.setSelection(this);
         });
+        google.maps.event.addListener(shape, 'rightclick', function(event) {
+            handleContextMenu(event, this);
+        });
         return shape.id;
     },
     hide: function(polygon) {
@@ -243,35 +246,53 @@ function addPolygonToList(polygonID, computation) {
         $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
             .attr("style", "margin: 1%; background-color: " + fillColor + ";")
             .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
-            .append($("<input>").attr("type", "range"))
+            .append($("<input>").attr("type", "range").attr("class","form-control"))
             .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
             .append($("<div>").attr("class", "col-md-2"))
             .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
     );
     $("#show-hide-" + polygonID).on("click", function(e) {
-        var polygonID = $(this).parent().attr("id");
         var polygon = polygons.collection[polygonID];
-        if ($(this).text() === "Hide") {
-            $(this).text("Show");
-            polygons.hide(polygon);
-        } else {
-            $(this).text("Hide");
-            polygons.show(polygon);
-        }
-        managePolygon(polygonID, "visible", null);
+        showHidePolygonButton(this, polygon);
     })
     $("#delete-" + polygonID).on("click", function(e) {
         var polygonID = $(this).parent().attr("id");
         var polygon = polygons.collection[polygonID];
-        managePolygon(polygonID, "delete", null);
-        polygons.delete(polygon);
-        $(this).parent().remove();
-        console.log($("#region-list").children().length);
-        if (!$("#region-list").children().length) {
-            showEmptyRegionList();
-            $("#clear-regions").addClass("hidden");
-        }
+        deletePolygonButton(this, polygon);
     })
+    $("#" + polygonID).on("click", function(e) {
+        clearPolygonListBorders();
+       var polygon = polygons.collection[polygonID];
+       polygons.setSelection(polygon);
+       document.getElementById(polygonID).style.border = "2px solid black";
+   })
+}
+
+function clearPolygonListBorders(){
+    for(var polygonID in polygons.collection){
+        document.getElementById(polygonID).style.border = "none";
+    }
+}
+
+function deletePolygonButton(button, polygon) {
+    managePolygon(polygon.id, "delete");
+    polygons.delete(polygon);
+    $(button).parent().remove();
+    if (!$("#region-list").children().length) {
+        showEmptyRegionList();
+        $("#clear-regions").addClass("hidden");
+    }
+}
+
+function showHidePolygonButton(button, polygon) {
+    if ($(button).text() === "Hide") {
+        $(button).text("Show");
+        polygons.hide(polygon);
+    } else {
+        $(button).text("Hide");
+        polygons.show(polygon);
+    }
+    managePolygon(polygon.id, "visible");
 }
 
 function clearSession() {
@@ -311,7 +332,45 @@ function showEmptyRegionList() {
     );
 }
 
+function handleContextMenu(event, polygon) {
+    // Show contextmenu
+    $("#custom-menu").finish().toggle(100).css({
+        top: event.eb.pageY + "px",
+        left: event.eb.pageX + "px"
+    });
+    $("#custom-menu").removeClass("hidden");
+    // If the menu element is clicked
+    $("#custom-menu div").unbind().click(function(e) {
+        // This is the triggered action name
+        switch($(this).attr("data-action")) {
+            case "hide": {
+                var button = "#show-hide-" + polygon.id;
+                showHidePolygonButton(button, polygon);
+                $("#custom-menu").addClass("hidden");
+                break;
+            }
+            case "delete": {
+                var button = "#delete-" + polygon.id;
+                deletePolygonButton(button, polygon);
+                $("#custom-menu").addClass("hidden");
+                break;
+            }
+            case "close": {
+                $("#custom-menu").addClass("hidden");
+                break;
+            }
+        }
+      });
+}
+
 $(document).ready(function() {
     initialize();
     clearSession();
+    $(document).on("click", function(e) {
+        var target = $(e.target);
+        if (!$("#custom-menu").hasClass("hidden")) {
+            if (!(target.is("h4") || target.is("#custom-menu")))
+                $("#custom-menu").addClass("hidden");
+        }
+    });
 });
