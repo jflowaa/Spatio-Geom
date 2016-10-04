@@ -1,6 +1,7 @@
 var map;
 var polygons = {
     collection: {},
+    is3DPolygon: false,
     selectedShape: null,
     add: function(e) {
         var shape = e.overlay,
@@ -242,15 +243,26 @@ function addPolygonToList(polygonID, computation) {
         compName = " (" + computation + ")";
     }
     $("#placeholder-empty").remove();
-    $("#region-list").append(
-        $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
-            .attr("style", "margin: 1%; background-color: " + fillColor + ";")
-            .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
-            .append($("<input>").attr("type", "range").attr("class","form-control"))
-            .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
-            .append($("<div>").attr("class", "col-md-2"))
-            .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
-    );
+    if(polygons.collection[polygonID].is3DPolygon === true){
+        $("#region-list").append(
+            $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
+                .attr("style", "margin: 1%; background-color: " + fillColor + ";")
+                .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
+                .append($("<input>").attr("type", "range").attr("class", "form-control"))
+                .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
+                .append($("<div>").attr("class", "col-md-2"))
+                .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
+        );
+    }else{
+        $("#region-list").append(
+            $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
+                .attr("style", "margin: 1%; background-color: " + fillColor + ";")
+                .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
+                .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
+                .append($("<div>").attr("class", "col-md-2"))
+                .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
+        );
+    }
     $("#show-hide-" + polygonID).on("click", function(e) {
         var polygon = polygons.collection[polygonID];
         showHidePolygonButton(this, polygon);
