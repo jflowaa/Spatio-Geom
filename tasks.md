@@ -44,11 +44,20 @@ Feature 9
   * Add a slider to 3D regions. No functionality yet
     * The polygon object found in `main.js` will need a new attribute to define itself as 3D
 
+Feature 10
+  * Give the ability to the user for creating a multiple polygon region
+  * Current idea to go about this is:
+     * Keep everything the same while drawing a polygon
+     * Update the region list to look more card like (It might already)
+       * Might need to be a list of divs now instead of an actual list
+     * User clicks and drags a region card over another region card to merge these two regions into one region
+     * This process can repeat for adding more regions to a 2+ region region
+ 
+
 Feature 11
   * Allow the user to create multiple polygons for one region
   * Computations that return multiple regions should be merged into one region
   * For the backend: I'm thinking polygon object found in `main.js` will have a new attribute: `groupId`. This will allow the server to know what is a region with multiple regions
-  * For the frontend: The user needs to be able to draw polygons and make them a group a polygons. My current idea is allow the user to continue to do how it is now. If the user wants two polygons to be a group, then within the `region list` tab, the user can click and drag one of the regions onto another region, this will merge the two regions, this process continutes for more regions
 
 Feature 12
   * There is a database of created regions
