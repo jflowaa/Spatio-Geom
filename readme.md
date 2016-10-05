@@ -15,7 +15,7 @@ Install Redis, instructions can be found [here](http://redis.io/topics/quickstar
 
 Clone the repository
 ```bash
-git clone https://github.com/jflowaa/spatiotemoralgeom_interface.git
+git clone https://github.com/jflowaa/Spatio-Geom.git
 ```
 
 Create a virtual environment and activate it.
@@ -27,7 +27,7 @@ pip install virtualenv
 
 To create a virtual environment and activate
 ```bash
-cd spatiotemoralgeom_interface/
+cd Spatio-Geom/
 virtualenv -p python2.7 venv
 source venv/bin/activate
 ```
@@ -47,12 +47,11 @@ python run.py run
 ```
 The application is now running at: http://0.0.0.0:5000
 ### Todo
-- [x] Draw a polygon on a map to generate a region for processing.
-- [x] Decide on a UI.
-- [x] Map intersections and unions.
-- [x] Only run computations on selected regions.
-- [x] Manage regions. Such as delete, hide, clear map.
-- [ ] Add more computations
-- [x] Select regions on map and hide/delete it.
+- [x] Draw a polygon on a map to generate a region for processing
+- [x] Decide on a UI
+- [x] Map intersections and unions
+- [ ] Only run computations on selected regions
+- [x] Manage regions. Such as delete, hide, clear map
+- [x] Select regions on map and hide/delete it from a context menu
 - [ ] Import regions from database
-- [ ] Restore session option
+- [ ] Restore session feature
