@@ -245,7 +245,7 @@ function addPolygonToList(polygonID, computation) {
     **/
     var fillColor = polygons.collection[polygonID].fillColor;
     var compName = "";
-    if (computation){
+    if (computation) {
         compName = " (" + computation + ")";
     }
     $("#placeholder-empty").remove();
@@ -325,7 +325,7 @@ function clearSession() {
     });
 }
 
-function generateNewPolygon(polygonList,computation) {
+function generateNewPolygon(polygonList, computation) {
     for (var polygon in polygonList.data) {
         var arr = new Array();
         for (var i = 0; i < polygonList.data[polygon].length; i++) {
