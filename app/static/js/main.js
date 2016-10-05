@@ -237,13 +237,19 @@ function managePolygon(polygonID, action, computation) {
 }
 
 function addPolygonToList(polygonID, computation) {
+    /**
+    *   Removes the empty list placeholder. 
+    *   Creates the card item for the region list tab. If the region is a 3D
+    *   region then it will have a slider.
+    *   Binds click events to the buttons found on the card item.
+    **/
     var fillColor = polygons.collection[polygonID].fillColor;
     var compName = "";
-    if (computation != null){
+    if (computation){
         compName = " (" + computation + ")";
     }
     $("#placeholder-empty").remove();
-    if(polygons.collection[polygonID].is3DPolygon === true){
+    if(polygons.collection[polygonID].is3DPolygon === true) {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
@@ -253,7 +259,7 @@ function addPolygonToList(polygonID, computation) {
                 .append($("<div>").attr("class", "col-md-2"))
                 .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
         );
-    }else{
+    } else {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
@@ -273,15 +279,15 @@ function addPolygonToList(polygonID, computation) {
         deletePolygonButton(this, polygon);
     })
     $("#" + polygonID).on("click", function(e) {
-        clearPolygonListBorders();
+       clearPolygonListBorders();
        var polygon = polygons.collection[polygonID];
        polygons.setSelection(polygon);
        document.getElementById(polygonID).style.border = "2px solid black";
    })
 }
 
-function clearPolygonListBorders(){
-    for(var polygonID in polygons.collection){
+function clearPolygonListBorders() {
+    for(var polygonID in polygons.collection) {
         document.getElementById(polygonID).style.border = "none";
     }
 }
