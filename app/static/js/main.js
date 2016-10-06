@@ -13,6 +13,7 @@ var polygons = {
         this.setSelection(shape);
         google.maps.event.addListener(shape,'click', function() {
             that.setSelection(this);
+            createPolygonListBorder(shape.id);
         });
         google.maps.event.addListener(shape, 'rightclick', function(event) {
             handleContextMenu(event, this);
@@ -45,6 +46,7 @@ var polygons = {
         this.setSelection(shape);
         google.maps.event.addListener(shape,'click', function() {
             that.setSelection(this);
+            createPolygonListBorder(shape.id);
         });
         shape.setMap(map);
         return shape.id;
