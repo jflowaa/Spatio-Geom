@@ -206,8 +206,10 @@ function managePolygon(polygonID, action, computation) {
                 "path": polygons.collection[polygonID].path.getArray(),
                 "action": action
             }
+
         );
         addPolygonToList(polygonID, computation);
+        createPolygonListBorder(polygonID);
     } else if (action === "delete") {
         data = JSON.stringify(
             {
@@ -238,7 +240,7 @@ function managePolygon(polygonID, action, computation) {
 
 function addPolygonToList(polygonID, computation) {
     /**
-    *   Removes the empty list placeholder. 
+    *   Removes the empty list placeholder.
     *   Creates the card item for the region list tab. If the region is a 3D
     *   region then it will have a slider.
     *   Binds click events to the buttons found on the card item.
@@ -282,8 +284,13 @@ function addPolygonToList(polygonID, computation) {
        clearPolygonListBorders();
        var polygon = polygons.collection[polygonID];
        polygons.setSelection(polygon);
-       document.getElementById(polygonID).style.border = "2px solid black";
+       createPolygonListBorder(polygonID);
    })
+}
+
+function createPolygonListBorder(polygonID){
+    clearPolygonListBorders();
+    document.getElementById(polygonID).style.border = "2px solid black";
 }
 
 function clearPolygonListBorders() {
