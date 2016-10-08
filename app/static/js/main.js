@@ -12,7 +12,11 @@ var polygons = {
         this.collection[shape.id] = shape;
         this.setSelection(shape);
         google.maps.event.addListener(shape,'click', function() {
-            that.setSelection(this);
+            if(that.selectedShape !== shape ) {
+                that.multipleSelection(this);
+            }else {
+                that.clearSelection();
+            }
         });
         google.maps.event.addListener(shape, 'rightclick', function(event) {
             handleContextMenu(event, this);
@@ -44,7 +48,11 @@ var polygons = {
         this.collection[shape.id] = shape;
         this.setSelection(shape);
         google.maps.event.addListener(shape,'click', function() {
-            that.setSelection(this);
+            if(that.selectedShape !== shape ) {
+                that.multipleSelection(this);
+            }else {
+                that.clearSelection();
+            }
         });
         shape.setMap(map);
         return shape.id;
@@ -54,6 +62,13 @@ var polygons = {
             this.clearSelection();
             this.selectedShape = shape;
             shape.set('editable', true);
+        }
+    },
+    multipleSelection: function(shape) {
+        if(this.selectedShape !== shape){
+            this.selectedShape = shape;
+            shape.set('editable', true);
+            this.isSelected = true;
         }
     },
     deleteSelected: function() {
@@ -69,6 +84,7 @@ var polygons = {
             this.selectedShape.set('draggable', false);
             this.selectedShape.set('editable', false);
             this.selectedShape = null;
+            this.isSelected = false;
         }
     },
     save: function() {
@@ -238,7 +254,7 @@ function managePolygon(polygonID, action, computation) {
 
 function addPolygonToList(polygonID, computation) {
     /**
-    *   Removes the empty list placeholder. 
+    *   Removes the empty list placeholder.
     *   Creates the card item for the region list tab. If the region is a 3D
     *   region then it will have a slider.
     *   Binds click events to the buttons found on the card item.
