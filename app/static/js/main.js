@@ -222,7 +222,6 @@ function managePolygon(polygonID, action, computation) {
                 "path": polygons.collection[polygonID].path.getArray(),
                 "action": action
             }
-
         );
         addPolygonToList(polygonID, computation);
         createPolygonListBorder(polygonID);
