@@ -52,11 +52,12 @@ def clear_session():
 @api.route("/restore_session", methods=["POST"])
 def restore_session():
     """
-    Called on load of page, either will clear the session to start new,
-    or will reload a session that was started previously
+    Called on load of page. This is used for restoring the map of polygons
+    back to how it was when the user left the page or refreshed the page.
 
     Returns:
-        a list of all the stored regions
+        Dictionary of two lists. One for the regions in lat and long. The
+        other list for the ID of the region.
     """
     if session.get("regions"):
         regions_to_coords = {}
