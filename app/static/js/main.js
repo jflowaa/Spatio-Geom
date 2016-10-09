@@ -30,9 +30,9 @@ var polygons = {
     },
     clearAll: function() {
         for (polygonID in this.collection) {
-            managePolygon(polygonID, "delete");
             polygons.delete(polygons.collection[polygonID]);
         }
+        clearSession();
     },
     newPolygon: function(poly) {
         var shape = poly,
@@ -40,6 +40,20 @@ var polygons = {
         shape.type = "polygon";
         shape.path = poly.getPath();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
+        this.collection[shape.id] = shape;
+        this.setSelection(shape);
+        google.maps.event.addListener(shape,'click', function() {
+            that.setSelection(this);
+        });
+        shape.setMap(map);
+        return shape.id;
+    },
+    restorePolygon: function(poly, polyId) {
+        var shape = poly,
+            that = this;
+        shape.type = "polygon";
+        shape.path = poly.getPath();
+        shape.id = polyId;
         this.collection[shape.id] = shape;
         this.setSelection(shape);
         google.maps.event.addListener(shape,'click', function() {
@@ -147,7 +161,6 @@ function initialize() {
         polygonOptions.fillColor = polygons.generateColor();
         drawingManager.set('polygonOptions', polygonOptions);
         managePolygon(polygons.add(event), "add");
-        $("#clear-regions").removeClass("hidden");
     });
     showEmptyRegionList();
     $('#find-intersections').click(function() {
@@ -156,7 +169,7 @@ function initialize() {
             url: "/api/find_intersections",
             success: function(data) {
                 if (data.success)
-                    generateNewPolygon(data);
+                    generateNewPolygon(data.data);
             },
             failure: function(data) {
                 console.log(data);
@@ -169,7 +182,7 @@ function initialize() {
             url: "/api/find_unions",
             success: function(data) {
                 if (data.success)
-                    generateNewPolygon(data);
+                    generateNewPolygon(data.data);
             },
             failure: function(data) {
                 console.log(data);
@@ -182,7 +195,7 @@ function initialize() {
             url: "/api/find_difference",
             success: function(data) {
                 if (data.success)
-                    generateNewPolygon(data);
+                    generateNewPolygon(data.data);
             },
             failure: function(data) {
                 console.log(data);
@@ -255,6 +268,7 @@ function addPolygonToList(polygonID) {
         var polygon = polygons.collection[polygonID];
         deletePolygonButton(this, polygon);
     })
+    $("#clear-regions").removeClass("hidden");
 }
 
 function deletePolygonButton(button, polygon) {
@@ -283,10 +297,11 @@ function restoreSession() {
         type: "POST",
         url: "/api/restore_session",
         success: function(data) {
-            console.log(data);
             if (data.success) {
-                for (region in data.data) {
-                    console.log(region[0]);
+                // Doing a for instead of a foreach because foreach was giving
+                // the index instead of the object. No idea
+                for (i = 0; i < data.data.polygons.length; i++) {
+                    generateNewPolygon(data.data.polygons[i], data.data.polygon_ids[i]);
                 }
             }
         },
@@ -296,14 +311,19 @@ function restoreSession() {
     });
 }
 
-function generateNewPolygon(polygonList) {
-    console.log(polygonList);
-    for (var polygon in polygonList.data) {
+function generateNewPolygon(polygonCoords, restoreId=0) {
+    /**
+     * Creates a polygon from the given coords. polygonCoords is an object with
+     * arrays. The arrays are paths to take. Think of this as sides of a shape.
+     * restoreId is used for restoring a polygon, if it is set, not 0, then the
+     * new polygon isn't new, it is already in the session and we know an ID to
+     * give it. This avoids duplicate regions in session.
+     */
+    for (var polygon in polygonCoords) {
         var arr = new Array();
-        for (var i = 0; i < polygonList.data[polygon].length; i++) {
-            arr.push(new google.maps.LatLng(polygonList.data[polygon][i].lat, polygonList.data[polygon][i].lng));
+        for (var i = 0; i < polygonCoords[polygon].length; i++) {
+            arr.push(new google.maps.LatLng(polygonCoords[polygon][i].lat, polygonCoords[polygon][i].lng));
         }
-        console.log(arr);
         var poly = new google.maps.Polygon({
             paths: arr,
             strokeWeight: 4,
@@ -311,9 +331,13 @@ function generateNewPolygon(polygonList) {
             fillOpacity: 0.8,
             zIndex: 3
         });
-        console.log(poly);
-        var polygonID = polygons.newPolygon(poly)
-        managePolygon(polygonID, "add");
+        if (restoreId) {
+            polygons.restorePolygon(poly, restoreId);
+            addPolygonToList(restoreId);
+        } else {
+            var polygonID = polygons.newPolygon(poly)
+            managePolygon(polygonID, "add");
+        }
     }
 }
 
@@ -353,6 +377,18 @@ function handleContextMenu(event, polygon) {
             }
         }
       });
+}
+
+function clearSession() {
+    $.ajax({
+        type: "POST",
+        url: "/api/clear_session",
+        success: function(data) {
+        },
+        failure: function(data) {
+            console.log(data);
+        }
+    });
 }
 
 $(document).ready(function() {

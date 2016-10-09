@@ -37,6 +37,18 @@ def manage_region():
     return jsonify({"success": True})
 
 
+@api.route("/clear_session", methods=["POST"])
+def clear_session():
+    """
+    Clears the session. We could restore the session but this could be
+    computationally intensive when we're getting data from a database.
+    Returns:
+        successful
+    """
+    session.clear()
+    return jsonify({"success": True})
+
+
 @api.route("/restore_session", methods=["POST"])
 def restore_session():
     """
@@ -44,15 +56,17 @@ def restore_session():
     or will reload a session that was started previously
 
     Returns:
-        successful
+        a list of all the stored regions
     """
     if session.get("regions"):
-        regions = []
-        poly = [r["region"] for r in session.get("regions")]
-        for p in poly:
-            r = hseg_to_coords(p)
-            regions.append(r)
-        return jsonify({"success": True, "data": regions})
+        regions_to_coords = {}
+        regions_to_coords["polygons"] = []
+        regions_to_coords["polygon_ids"] = []
+        for region in session.get("regions"):
+            hseg = hseg_to_coords(region["region"])
+            regions_to_coords["polygons"].append(hseg)
+            regions_to_coords["polygon_ids"].append(region["id"])
+        return jsonify({"success": True, "data": regions_to_coords})
     else:
         return jsonify({"success": False, "data": "No session found"})
 
