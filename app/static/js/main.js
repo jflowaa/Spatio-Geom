@@ -406,9 +406,8 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
             managePolygon(polygonID, "add", computation);
         }
         if (!isVisible){
-            showHidePolygonButton($("#show-hide-" + restoreId), poly);
-            //polygons.hide(poly);
-            //managePolygon(poly.id, "visible");
+            $("#show-hide-" + poly.id).text("Show");
+            polygons.hide(poly);
         }
     }
 }
