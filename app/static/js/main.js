@@ -366,7 +366,9 @@ function restoreSession() {
                 // Doing a for instead of a foreach because foreach was giving
                 // the index instead of the object. No idea
                 for (i = 0; i < data.data.polygons.length; i++) {
-                    generateNewPolygon(data.data.polygons[i], "", data.data.polygon_ids[i]);
+                    generateNewPolygon(data.data.polygons[i], "", data.data.polygon_ids[i],
+                                       data.data.polygon_visible[i]);
+                    console.log(JSON.stringify(data.data.polygon_visible[i]));
                 }
             }
         },
@@ -376,7 +378,7 @@ function restoreSession() {
     });
 }
 
-function generateNewPolygon(polygonCoords, computation, restoreId=0) {
+function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=true) {
     /**
      * Creates a polygon from the given coords. polygonCoords is an object with
      * arrays. The arrays are paths to take. Think of this as sides of a shape.
@@ -402,6 +404,10 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0) {
         } else {
             var polygonID = polygons.newPolygon(poly)
             managePolygon(polygonID, "add", computation);
+        }
+        if (!isVisible){
+            polygons.hide(poly);
+            managePolygon(poly.id, "visible");
         }
     }
 }
