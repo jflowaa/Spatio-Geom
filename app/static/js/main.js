@@ -15,8 +15,10 @@ var polygons = {
         google.maps.event.addListener(shape,'click', function() {
             if(!that.isInSCollec(this)) {
                 that.multipleSelection(this);
+                createPolygonListBorder(shape.id);
             }else {
                 that.clearSelection(this);
+                clearPolygonListBorders(shape.id);
             }
             managePolygon(this.id,"selected");
 
@@ -54,10 +56,13 @@ var polygons = {
         google.maps.event.addListener(shape,'click', function() {
             if(!that.isInSCollec(this)) {
                 that.multipleSelection(this);
+                createPolygonListBorder(shape.id);
             }else {
                 that.mutipleClearSelection(this);
+                clearPolygonListBorders(shape.id);
             }
             managePolygon(this.id,"selected");
+
         });
         shape.setMap(map);
         return shape.id;
@@ -248,6 +253,7 @@ function managePolygon(polygonID, action, computation) {
                 "path": polygons.collection[polygonID].path.getArray(),
                 "action": action
             }
+
         );
         addPolygonToList(polygonID, computation);
     } else if (action === "delete") {
@@ -287,6 +293,7 @@ function addPolygonToList(polygonID, computation) {
     **/
     var fillColor = polygons.collection[polygonID].fillColor;
     var compName = "";
+    var isHidden = false;
     if (computation) {
         compName = " (" + computation + ")";
     }
@@ -314,24 +321,32 @@ function addPolygonToList(polygonID, computation) {
     $("#show-hide-" + polygonID).on("click", function(e) {
         var polygon = polygons.collection[polygonID];
         showHidePolygonButton(this, polygon);
+        isHidden = !isHidden;
     })
     $("#delete-" + polygonID).on("click", function(e) {
         var polygonID = $(this).parent().attr("id");
         var polygon = polygons.collection[polygonID];
         deletePolygonButton(this, polygon);
     })
-   //  $("#" + polygonID).on("click", function(e) {
-   //     clearPolygonListBorders();
-   //     var polygon = polygons.collection[polygonID];
-   //     polygons.setSelection(polygon);
-   //     document.getElementById(polygonID).style.border = "2px solid black";
-   // })
+    $("#" + polygonID).on("click", function(e) {
+       var polygon = polygons.collection[polygonID];
+       if (!polygons.isInSCollec(polygon) && isHidden !== true) {
+           polygons.multipleSelection(polygon);
+           createPolygonListBorder(polygonID);
+       }else {
+           polygons.mutipleClearSelection(polygon);
+           clearPolygonListBorders(polygonID);
+       }
+       managePolygon(this.id,"selected");
+   })
 }
 
-function clearPolygonListBorders() {
-    for(var polygonID in polygons.collection) {
-        document.getElementById(polygonID).style.border = "none";
-    }
+function createPolygonListBorder(polygonID) {
+    document.getElementById(polygonID).style.border = "2px solid black";
+}
+
+function clearPolygonListBorders(polygonID) {
+    document.getElementById(polygonID).style.border = "none";
 }
 
 function deletePolygonButton(button, polygon) {
@@ -352,6 +367,7 @@ function showHidePolygonButton(button, polygon) {
         $(button).text("Hide");
         polygons.show(polygon);
     }
+    clearPolygonListBorders(polygon.id);
     managePolygon(polygon.id, "visible");
 }
 
