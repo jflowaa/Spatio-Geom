@@ -22,7 +22,8 @@ def manage_region():
         region = {
             "id": data.get("id"),
             "region": process_polygons(data.get("path")),
-            "visible": True
+            "visible": True,
+            "selected": False
         }
         if not session.get("regions"):
             session["regions"] = []
@@ -31,6 +32,10 @@ def manage_region():
         for region in session["regions"]:
             if region.get("id") == int(data.get("id")):
                 region["visible"] = not region["visible"]
+    elif data.get("action") == "selected":
+        for region in session["regions"]:
+            if region.get("id") == int(data.get("id")):
+                region["selected"] = not region["selected"]
     else:
         session["regions"] = [region for region in session[
             "regions"] if region.get("id") != int(data.get("id"))]
@@ -63,7 +68,7 @@ def find_intersections():
         A polygon to map. This polygon is the intersection.
     """
     regions = [region for region in session[
-        "regions"] if region.get("visible")]
+        "regions"] if (region.get("selected") and region.get("visible"))]
     if len(regions) > 1:
         intersection = process_intersections(regions)
     else:
@@ -87,7 +92,7 @@ def find_unions():
         The hseg list of the unions.
     """
     regions = [region for region in session[
-        "regions"] if region.get("visible")]
+        "regions"] if (region.get("selected") and region.get("visible"))]
     if len(regions) > 1:
         union = process_unions(regions)
     else:
@@ -111,7 +116,7 @@ def find_difference():
         The hseg list of the differences.
     """
     regions = [region for region in session[
-        "regions"] if region.get("visible")]
+        "regions"] if (region.get("selected") and region.get("visible"))]
     if len(regions) > 1:
         difference = process_difference(regions)
     else:

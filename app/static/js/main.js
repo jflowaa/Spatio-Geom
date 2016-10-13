@@ -1,5 +1,6 @@
 var map;
 var polygons = {
+    scollec: {},
     collection: {},
     is3DPolygon: false,
     selectedShape: null,
@@ -10,17 +11,20 @@ var polygons = {
         shape.path = e.overlay.getPath();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
-        this.setSelection(shape);
+        //this.setSelection(shape);
         google.maps.event.addListener(shape,'click', function() {
-            if(that.selectedShape !== shape ) {
+            if(!that.isInSCollec(this)) {
                 that.multipleSelection(this);
             }else {
-                that.clearSelection();
+                that.clearSelection(this);
             }
+            managePolygon(this.id,"selected");
+
         });
         google.maps.event.addListener(shape, 'rightclick', function(event) {
             handleContextMenu(event, this);
         });
+        shape.setMap(map);
         return shape.id;
     },
     hide: function(polygon) {
@@ -46,30 +50,32 @@ var polygons = {
         shape.path = poly.getPath();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
-        this.setSelection(shape);
+        //this.setSelection(shape);
         google.maps.event.addListener(shape,'click', function() {
-            if(that.selectedShape !== shape ) {
+            if(!that.isInSCollec(this)) {
                 that.multipleSelection(this);
             }else {
-                that.clearSelection();
+                that.mutipleClearSelection(this);
             }
+            managePolygon(this.id,"selected");
         });
         shape.setMap(map);
         return shape.id;
     },
     setSelection: function(shape) {
         if(this.selectedShape !== shape) {
-            this.clearSelection();
+            this.clearSelection(shape);
+            this.scollec[shape.id] = shape;
             this.selectedShape = shape;
             shape.set('editable', true);
+            managePolygon(shape.id, "selected");
         }
     },
     multipleSelection: function(shape) {
-        if(this.selectedShape !== shape){
-            this.selectedShape = shape;
-            shape.set('editable', true);
-            this.isSelected = true;
-        }
+        this.selectedShape = shape;
+        shape.set('editable', true);
+        this.isSelected = true;
+        this.scollec[shape.id] = shape;
     },
     deleteSelected: function() {
         if(this.selectedShape) {
@@ -79,13 +85,32 @@ var polygons = {
             delete this.collection[shape.id];
         }
     },
-    clearSelection: function() {
-        if(this.selectedShape) {
+    clearSelection: function(shape) {
+        if(this.selectedShape){
             this.selectedShape.set('draggable', false);
             this.selectedShape.set('editable', false);
             this.selectedShape = null;
-            this.isSelected = false;
+            managePolygon(shape.id, "selected");
         }
+    },
+    mutipleClearSelection: function(shape) {
+        if(this.selectedShape !== shape) {
+            this.selectedShape = shape;
+        }
+        this.selectedShape.set('draggable', false);
+        this.selectedShape.set('editable', false);
+        this.selectedShape = null;
+        if(Object.keys(this.scollec).length !== null) {
+            delete this.scollec[shape.id];
+        }
+    },
+    isInSCollec: function(shape) {
+        for(var x in this.scollec) {
+            if(shape === this.scollec[x]) {
+                return true;
+            }
+        }
+        return false;
     },
     save: function() {
         var collection = [];
@@ -172,6 +197,7 @@ function initialize() {
             type: "POST",
             url: "/api/find_intersections",
             success: function(data) {
+                console.log(data);
                 if (data.success)
                     generateNewPolygon(data, "Intersection");
             },
@@ -294,12 +320,12 @@ function addPolygonToList(polygonID, computation) {
         var polygon = polygons.collection[polygonID];
         deletePolygonButton(this, polygon);
     })
-    $("#" + polygonID).on("click", function(e) {
-       clearPolygonListBorders();
-       var polygon = polygons.collection[polygonID];
-       polygons.setSelection(polygon);
-       document.getElementById(polygonID).style.border = "2px solid black";
-   })
+   //  $("#" + polygonID).on("click", function(e) {
+   //     clearPolygonListBorders();
+   //     var polygon = polygons.collection[polygonID];
+   //     polygons.setSelection(polygon);
+   //     document.getElementById(polygonID).style.border = "2px solid black";
+   // })
 }
 
 function clearPolygonListBorders() {
