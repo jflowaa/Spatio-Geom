@@ -91,7 +91,7 @@ var polygons = {
         }
     },
     clearSelection: function(shape) {
-        if(this.selectedShape){
+        if(this.selectedShape) {
             this.selectedShape.set('draggable', false);
             this.selectedShape.set('editable', false);
             this.selectedShape = null;
