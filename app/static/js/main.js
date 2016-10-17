@@ -386,18 +386,13 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
      * new polygon isn't new, it is already in the session and we know an ID to
      * give it. This avoids duplicate regions in session.
      */
+    var allPolygons = new Array();
     for (var polygon in polygonCoords) {
         var arr = new Array();
         for (var i = 0; i < polygonCoords[polygon].length; i++) {
             arr.push(new google.maps.LatLng(polygonCoords[polygon][i].lat, polygonCoords[polygon][i].lng));
         }
-        var poly = new google.maps.Polygon({
-            paths: arr,
-            strokeWeight: 4,
-            fillColor: polygons.generateColor(),
-            fillOpacity: 0.8,
-            zIndex: 3
-        });
+
         if (restoreId) {
             polygons.restorePolygon(poly, restoreId);
             addPolygonToList(restoreId, computation);
@@ -410,6 +405,20 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
             polygons.hide(poly);
         }
     }
+    // If the computation is a difference then we need to make the second
+    // array path counter-clockwise. This will create the hole in the graph. 
+    if (computation == "Difference") {
+        if (allPolygons[1] !== undefined) {
+            allPolygons[1].reverse();
+        }
+    }
+    var poly = new google.maps.Polygon({
+        paths: allPolygons,
+        strokeWeight: 4,
+        fillColor: polygons.generateColor(),
+        fillOpacity: 0.8,
+        zIndex: 3
+    });
 }
 
 function showEmptyRegionList() {
