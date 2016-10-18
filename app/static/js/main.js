@@ -57,6 +57,7 @@ var polygons = {
             that = this;
         shape.type = "polygon";
         shape.path = poly.getPath();
+        console.log(shape.path);
         shape.id = polyId;
         this.collection[shape.id] = shape;
         this.setSelection(shape);
@@ -386,31 +387,14 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
      * new polygon isn't new, it is already in the session and we know an ID to
      * give it. This avoids duplicate regions in session.
      */
+     console.log(polygonCoords);
     var allPolygons = new Array();
     for (var polygon in polygonCoords) {
         var arr = new Array();
         for (var i = 0; i < polygonCoords[polygon].length; i++) {
             arr.push(new google.maps.LatLng(polygonCoords[polygon][i].lat, polygonCoords[polygon][i].lng));
         }
-
-        if (restoreId) {
-            polygons.restorePolygon(poly, restoreId);
-            addPolygonToList(restoreId, computation);
-        } else {
-            var polygonID = polygons.newPolygon(poly)
-            managePolygon(polygonID, "add", computation);
-        }
-        if (!isVisible){
-            $("#show-hide-" + poly.id).text("Show");
-            polygons.hide(poly);
-        }
-    }
-    // If the computation is a difference then we need to make the second
-    // array path counter-clockwise. This will create the hole in the graph. 
-    if (computation == "Difference") {
-        if (allPolygons[1] !== undefined) {
-            allPolygons[1].reverse();
-        }
+        allPolygons.push(arr);
     }
     var poly = new google.maps.Polygon({
         paths: allPolygons,
@@ -419,6 +403,17 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
         fillOpacity: 0.8,
         zIndex: 3
     });
+    if (restoreId) {
+        polygons.restorePolygon(poly, restoreId);
+        addPolygonToList(restoreId, computation);
+    } else {
+        var polygonID = polygons.newPolygon(poly)
+        managePolygon(polygonID, "add", computation);
+    }
+    if (!isVisible){
+        $("#show-hide-" + poly.id).text("Show");
+        polygons.hide(poly);
+    }
 }
 
 function showEmptyRegionList() {

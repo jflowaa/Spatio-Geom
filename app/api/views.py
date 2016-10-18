@@ -142,7 +142,7 @@ def find_difference():
         return jsonify(
             {"success": False, "data": "Not enough regions selected"})
     if difference:
-        return jsonify({"success": True, "data": hseg_to_coords(difference)})
+        return jsonify({"success": True, "data": hseg_to_coords(difference, True)})
     else:
         return jsonify(
             {"success": False, "data": "No common difference"})

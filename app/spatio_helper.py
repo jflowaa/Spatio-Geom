@@ -101,7 +101,50 @@ def process_difference(regions):
     return region
 
 
-def hseg_to_coords(hseg):
+def is_cycle_clockwise(seg):
+    """
+    Iterates through the coordinates and gets the line sums for the entire
+    polygon. If the sum is greater than zero then points are going clockwise.
+
+    Returns:
+        True if the polygon is going clockwise
+    """
+    print "seg"
+    print seg
+    sumOfLines = 0
+    for index in range(len(seg)):
+        nextIndex = index + 1
+        if nextIndex == len(seg):
+            nextIndex = 0
+        xTotal = seg[nextIndex]['lat'] - seg[index]['lat']
+        yTotal = seg[nextIndex]['lng'] + seg[index]['lng']
+        sumOfLines += (xTotal * yTotal)
+    return sumOfLines > 0
+
+
+def process_difference_cords(seg_dict):
+    """
+    Iterates through the segs to make sure the Polygons are going in the
+    correct direction. The outer cycle has to go clockwise and
+    the inner ones have to go counter-clockwise
+
+    Returns:
+        A list of dictionary of coordinates.
+    """
+    cycleCount = 0
+    for seg in seg_dict:
+        if cycleCount > 0:
+            if is_cycle_clockwise(seg_dict[seg]):
+                seg_dict[seg].reverse()
+        else:
+            if not is_cycle_clockwise(seg_dict[seg]):
+                print "not clockwise for big one"
+                seg_dict[seg].reverse()
+        cycleCount = cycleCount + 1
+    return seg_dict
+
+
+def hseg_to_coords(hseg, isDifference=None):
     """
     Iterates through the hsegs to find the cycles and returns the the
     coordinates of each cycle in its own dictionary. The key is the unique
@@ -148,4 +191,6 @@ def hseg_to_coords(hseg):
         # lat and lng for google maps to understand.
         for point in visited_cords:
             seg_dict[cycle_label].append({"lat": point[0], "lng": point[1]})
+    if (isDifference):
+        seg_dict = process_difference_cords(seg_dict)
     return seg_dict
