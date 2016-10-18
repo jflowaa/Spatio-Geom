@@ -1,6 +1,6 @@
 var map;
 var polygons = {
-    scollec: {},
+    selectedCollection: {},
     collection: {},
     is3DPolygon: false,
     selectedShape: null,
@@ -11,9 +11,8 @@ var polygons = {
         shape.path = e.overlay.getPath();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
-        //this.setSelection(shape);
         google.maps.event.addListener(shape,'click', function() {
-            if(!that.isInSCollec(this)) {
+            if(!that.isInSelectedCollection(this)) {
                 that.multipleSelection(this);
                 createPolygonListBorder(shape.id);
             }else {
@@ -52,9 +51,8 @@ var polygons = {
         shape.path = poly.getPath();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
-        //this.setSelection(shape);
         google.maps.event.addListener(shape,'click', function() {
-            if(!that.isInSCollec(this)) {
+            if(!that.isInSelectedCollection(this)) {
                 that.multipleSelection(this);
                 createPolygonListBorder(shape.id);
             }else {
@@ -70,7 +68,7 @@ var polygons = {
     setSelection: function(shape) {
         if(this.selectedShape !== shape) {
             this.clearSelection(shape);
-            this.scollec[shape.id] = shape;
+            this.selectedCollection[shape.id] = shape;
             this.selectedShape = shape;
             shape.set('editable', true);
             managePolygon(shape.id, "selected");
@@ -79,8 +77,7 @@ var polygons = {
     multipleSelection: function(shape) {
         this.selectedShape = shape;
         shape.set('editable', true);
-        this.isSelected = true;
-        this.scollec[shape.id] = shape;
+        this.selectedCollection[shape.id] = shape;
     },
     deleteSelected: function() {
         if(this.selectedShape) {
@@ -109,7 +106,7 @@ var polygons = {
             delete this.scollec[shape.id];
         }
     },
-    isInSCollec: function(shape) {
+    isInSelectedCollection: function(shape) {
         for(var x in this.scollec) {
             if(shape === this.scollec[x]) {
                 return true;
@@ -202,7 +199,6 @@ function initialize() {
             type: "POST",
             url: "/api/find_intersections",
             success: function(data) {
-                console.log(data);
                 if (data.success)
                     generateNewPolygon(data, "Intersection");
             },
