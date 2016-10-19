@@ -17,18 +17,19 @@ def process_polygons(data):
     seg_list = []
     coord_matrix = [[0 for j in range(2)] for i in range(2)]
     for i in range(len(data)):
-        coord_matrix[0][0] = data[i].get("lat")
-        coord_matrix[0][1] = data[i].get("lng")
-        # If not last segment, else complete the shape
-        if len(data) > i + 1:
-            coord_matrix[1][0] = data[i + 1].get("lat")
-            coord_matrix[1][1] = data[i + 1].get("lng")
-        else:
-            coord_matrix[1][0] = data[0].get("lat")
-            coord_matrix[1][1] = data[0].get("lng")
-        # Need to make a copy of the list. Else each element in seg_list will
-        # be the last coord_matrix data set.
-        seg_list.append(copy.deepcopy(coord_matrix))
+        for j in range(len(data[i])):
+            coord_matrix[0][0] = data[i][j].get("lat")
+            coord_matrix[0][1] = data[i][j].get("lng")
+            # If not last segment, else complete the shape
+            if len(data[i]) > j + 1:
+                coord_matrix[1][0] = data[i][j + 1].get("lat")
+                coord_matrix[1][1] = data[i][j + 1].get("lng")
+            else:
+                coord_matrix[1][0] = data[i][0].get("lat")
+                coord_matrix[1][1] = data[i][0].get("lng")
+            # Need to make a copy of the list. Else each element in seg_list
+            # will be the last coord_matrix data set.
+            seg_list.append(copy.deepcopy(coord_matrix))
     return region_logic.createRegionFromSegs(seg_list)
 
 
@@ -109,7 +110,6 @@ def is_cycle_clockwise(seg):
     Returns:
         True if the polygon is going clockwise
     """
-    print "seg"
     print seg
     sumOfLines = 0
     for index in range(len(seg)):

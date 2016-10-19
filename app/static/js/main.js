@@ -7,7 +7,7 @@ var polygons = {
         var shape = e.overlay,
             that = this;
         shape.type = e.type;
-        shape.path = e.overlay.getPath();
+        shape.path = e.overlay.getPaths();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
         this.setSelection(shape);
@@ -41,7 +41,7 @@ var polygons = {
         var shape = poly,
             that = this;
         shape.type = "polygon";
-        shape.path = poly.getPath();
+        shape.path = poly.getPaths();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
         this.setSelection(shape);
@@ -56,8 +56,7 @@ var polygons = {
         var shape = poly,
             that = this;
         shape.type = "polygon";
-        shape.path = poly.getPath();
-        console.log(shape.path);
+        shape.path = poly.getPaths();
         shape.id = polyId;
         this.collection[shape.id] = shape;
         this.setSelection(shape);
@@ -99,7 +98,7 @@ var polygons = {
                     collection.push({
                         type:shape.type,
                         path:google.maps.geometry.encoding.encodePath(
-                            shape.getPath())
+                            shape.getPaths())
                     });
                     break;
                 default:
@@ -216,11 +215,15 @@ function initialize() {
 }
 
 function managePolygon(polygonID, action, computation) {
+    var paths = new Array();
+    for (var singlePath in polygons.collection[polygonID].path.getArray()) {
+        paths.push(polygons.collection[polygonID].path.getArray()[singlePath].getArray());
+    }
     if (action === "add") {
         data = JSON.stringify(
             {
                 "id": polygonID,
-                "path": polygons.collection[polygonID].path.getArray(),
+                "path": paths,
                 "action": action
             }
         );
@@ -369,7 +372,6 @@ function restoreSession() {
                 for (i = 0; i < data.data.polygons.length; i++) {
                     generateNewPolygon(data.data.polygons[i], "", data.data.polygon_ids[i],
                                        data.data.polygon_visible[i]);
-                    console.log(JSON.stringify(data.data.polygon_visible[i]));
                 }
             }
         },
@@ -387,7 +389,6 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
      * new polygon isn't new, it is already in the session and we know an ID to
      * give it. This avoids duplicate regions in session.
      */
-     console.log(polygonCoords);
     var allPolygons = new Array();
     for (var polygon in polygonCoords) {
         var arr = new Array();
