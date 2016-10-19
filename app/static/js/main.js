@@ -326,7 +326,7 @@ function addPolygonToList(polygonID, computation) {
     })
     $("#" + polygonID).on("click", function(e) {
        var polygon = polygons.collection[polygonID];
-       if (!polygons.isInSCollec(polygon) && isHidden !== true) {
+       if (!polygons.isInSCollec(polygon) && !isHidden) {
            polygons.multipleSelection(polygon);
            createPolygonListBorder(polygonID);
        }else {
