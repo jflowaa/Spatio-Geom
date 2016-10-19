@@ -16,7 +16,7 @@ var polygons = {
                 that.multipleSelection(this);
                 createPolygonListBorder(shape.id);
             } else {
-                that.clearSelection(this);
+                that.mutipleClearSelection(this);
                 clearPolygonListBorders(shape.id);
             }
             managePolygon(this.id,"selected");
