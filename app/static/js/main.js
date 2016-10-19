@@ -52,7 +52,7 @@ var polygons = {
         this.collection[shape.id] = shape;
         this.deselectAll();
         google.maps.event.addListener(shape,'click', function() {
-            if(!that.isInSelectedCollection(this)) {
+            if (!that.isInSelectedCollection(this)) {
                 that.multipleSelection(this);
                 createPolygonListBorder(shape.id);
             } else {
@@ -65,7 +65,7 @@ var polygons = {
         return shape.id;
     },
     setSelection: function(shape) {
-        if(this.selectedShape !== shape) {
+        if (this.selectedShape !== shape) {
             this.clearSelection(shape);
             this.selectedCollection[shape.id] = shape;
             this.selectedShape = shape;
@@ -79,7 +79,7 @@ var polygons = {
         this.selectedCollection[shape.id] = shape;
     },
     deleteSelected: function() {
-        if(this.selectedShape) {
+        if (this.selectedShape) {
             var shape= this.selectedShape;
             this.clearSelection();
             shape.setMap(null);
@@ -87,7 +87,7 @@ var polygons = {
         }
     },
     clearSelection: function(shape) {
-        if(this.selectedShape) {
+        if (this.selectedShape) {
             this.selectedShape.set('draggable', false);
             this.selectedShape.set('editable', false);
             this.selectedShape = null;
@@ -96,7 +96,7 @@ var polygons = {
     },
     deselectAll: function(){
         for(var x in this.selectedCollection) {
-            if(this.selectedShape !== this.selectedCollection[x]) {
+            if (this.selectedShape !== this.selectedCollection[x]) {
                 this.selectedShape = this.selectedCollection[x];
             }
             clearPolygonListBorders(this.selectedCollection[x].id);
@@ -108,7 +108,7 @@ var polygons = {
         }
     },
     mutipleClearSelection: function(shape) {
-        if(this.selectedShape !== shape) {
+        if (this.selectedShape !== shape) {
             this.selectedShape = shape;
         }
         this.selectedShape.set('draggable', false);
@@ -119,8 +119,8 @@ var polygons = {
         }
     },
     isInSelectedCollection: function(shape) {
-        for(var x in this.selectedCollection) {
-            if(shape === this.selectedCollection[x]) {
+        for (var x in this.selectedCollection) {
+            if (shape === this.selectedCollection[x]) {
                 return true;
             }
         }
@@ -146,7 +146,7 @@ var polygons = {
     },
     generateColor: function(e) {
         var colorVal = "#";
-        for(var x = 0; x < 6; x++) {
+        for (var x = 0; x < 6; x++) {
             var randNum = Math.floor(Math.random() * 10) + 6;
             switch(randNum) {
                 case 10:
