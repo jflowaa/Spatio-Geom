@@ -111,15 +111,15 @@ def is_cycle_clockwise(seg):
         True if the polygon is going clockwise
     """
     print seg
-    sumOfLines = 0
+    sum_of_lines = 0
     for index in range(len(seg)):
-        nextIndex = index + 1
-        if nextIndex == len(seg):
-            nextIndex = 0
-        xTotal = seg[nextIndex]['lat'] - seg[index]['lat']
-        yTotal = seg[nextIndex]['lng'] + seg[index]['lng']
-        sumOfLines += (xTotal * yTotal)
-    return sumOfLines > 0
+        next_index = index + 1
+        if next_index == len(seg):
+            next_index = 0
+        x_total = seg[next_index]['lat'] - seg[index]['lat']
+        y_total = seg[next_index]['lng'] + seg[index]['lng']
+        sum_of_lines += (x_total * y_total)
+    return sum_of_lines > 0
 
 
 def process_difference_cords(seg_dict):
@@ -131,16 +131,16 @@ def process_difference_cords(seg_dict):
     Returns:
         A list of dictionary of coordinates.
     """
-    cycleCount = 0
+    cycle_count = 0
     for seg in seg_dict:
-        if cycleCount > 0:
+        if cycle_count > 0:
             if is_cycle_clockwise(seg_dict[seg]):
                 seg_dict[seg].reverse()
         else:
             if not is_cycle_clockwise(seg_dict[seg]):
                 print "not clockwise for big one"
                 seg_dict[seg].reverse()
-        cycleCount = cycleCount + 1
+        cycle_count = cycle_count + 1
     return seg_dict
 
 
