@@ -55,12 +55,11 @@ var polygons = {
             if(!that.isInSelectedCollection(this)) {
                 that.multipleSelection(this);
                 createPolygonListBorder(shape.id);
-            }else {
+            } else {
                 that.mutipleClearSelection(this);
                 clearPolygonListBorders(shape.id);
             }
             managePolygon(this.id,"selected");
-
         });
         shape.setMap(map);
         return shape.id;
@@ -329,7 +328,7 @@ function addPolygonToList(polygonID, computation) {
        if (!polygons.isInSCollec(polygon) && !isHidden) {
            polygons.multipleSelection(polygon);
            createPolygonListBorder(polygonID);
-       }else {
+       } else {
            polygons.mutipleClearSelection(polygon);
            clearPolygonListBorders(polygonID);
        }
