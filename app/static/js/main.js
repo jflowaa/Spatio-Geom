@@ -50,6 +50,7 @@ var polygons = {
         shape.path = poly.getPath();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
+        this.deselecteAll();
         google.maps.event.addListener(shape,'click', function() {
             if(!that.isInSelectedCollection(this)) {
                 that.multipleSelection(this);
@@ -91,6 +92,19 @@ var polygons = {
             this.selectedShape.set('editable', false);
             this.selectedShape = null;
             managePolygon(shape.id, "selected");
+        }
+    },
+    deselecteAll: function(){
+        for(var x in this.selectedCollection) {
+            if(this.selectedShape !== this.selectedCollection[x]) {
+                this.selectedShape = this.selectedCollection[x];
+            }
+            clearPolygonListBorders(this.selectedCollection[x].id);
+            this.selectedShape.set('draggable', false);
+            this.selectedShape.set('editable', false);
+            this.selectedShape = null;
+            managePolygon(this.selectedCollection[x].id, "selected");
+            delete this.selectedCollection[x];
         }
     },
     mutipleClearSelection: function(shape) {
