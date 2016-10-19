@@ -1,5 +1,6 @@
 var map;
 var polygons = {
+    selectedCollection: {},
     collection: {},
     is3DPolygon: false,
     selectedShape: null,
@@ -10,14 +11,20 @@ var polygons = {
         shape.path = e.overlay.getPath();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
-        this.setSelection(shape);
         google.maps.event.addListener(shape,'click', function() {
-            that.setSelection(this);
-            createPolygonListBorder(shape.id);
+            if(!that.isInSelectedCollection(this)) {
+                that.multipleSelection(this);
+                createPolygonListBorder(shape.id);
+            } else {
+                that.mutipleClearSelection(this);
+                clearPolygonListBorders(shape.id);
+            }
+            managePolygon(this.id,"selected");
         });
         google.maps.event.addListener(shape, 'rightclick', function(event) {
             handleContextMenu(event, this);
         });
+        shape.setMap(map);
         return shape.id;
     },
     hide: function(polygon) {
@@ -44,10 +51,16 @@ var polygons = {
         shape.path = poly.getPath();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
-        this.setSelection(shape);
+        this.deselectAll();
         google.maps.event.addListener(shape,'click', function() {
-            that.setSelection(this);
-            createPolygonListBorder(shape.id);
+            if (!that.isInSelectedCollection(this)) {
+                that.multipleSelection(this);
+                createPolygonListBorder(shape.id);
+            } else {
+                that.mutipleClearSelection(this);
+                clearPolygonListBorders(shape.id);
+            }
+            managePolygon(this.id,"selected");
         });
         shape.setMap(map);
         return shape.id;
@@ -67,26 +80,66 @@ var polygons = {
         return shape.id;
     },
     setSelection: function(shape) {
-        if(this.selectedShape !== shape) {
-            this.clearSelection();
+        if (this.selectedShape !== shape) {
+            this.clearSelection(shape);
+            this.selectedCollection[shape.id] = shape;
             this.selectedShape = shape;
             shape.set('editable', true);
+            managePolygon(shape.id, "selected");
         }
     },
+    multipleSelection: function(shape) {
+        this.selectedShape = shape;
+        shape.set('editable', true);
+        this.selectedCollection[shape.id] = shape;
+    },
     deleteSelected: function() {
-        if(this.selectedShape) {
+        if (this.selectedShape) {
             var shape= this.selectedShape;
             this.clearSelection();
             shape.setMap(null);
             delete this.collection[shape.id];
         }
     },
-    clearSelection: function() {
-        if(this.selectedShape) {
+    clearSelection: function(shape) {
+        if (this.selectedShape) {
             this.selectedShape.set('draggable', false);
             this.selectedShape.set('editable', false);
             this.selectedShape = null;
+            managePolygon(shape.id, "selected");
         }
+    },
+    deselectAll: function(){
+        for(var x in this.selectedCollection) {
+            if (this.selectedShape !== this.selectedCollection[x]) {
+                this.selectedShape = this.selectedCollection[x];
+            }
+            clearPolygonListBorders(this.selectedCollection[x].id);
+            this.selectedShape.set('draggable', false);
+            this.selectedShape.set('editable', false);
+            this.selectedShape = null;
+            managePolygon(this.selectedCollection[x].id, "selected");
+            delete this.selectedCollection[x];
+        }
+    },
+    mutipleClearSelection: function(shape) {
+        if (this.selectedShape !== shape) {
+            this.selectedShape = shape;
+        }
+        this.selectedShape.set('draggable', false);
+        this.selectedShape.set('editable', false);
+        this.selectedShape = null;
+        if(Object.keys(this.selectedCollection).length !== null) {
+            delete this.selectedCollection[shape.id];
+        }
+    },
+    isInSelectedCollection: function(shape) {
+        for (var x in this.selectedCollection) {
+            if (shape === this.selectedCollection[x]) {
+                return true;
+            }
+        }
+        return false;
     },
     save: function() {
         var collection = [];
@@ -108,7 +161,7 @@ var polygons = {
     },
     generateColor: function(e) {
         var colorVal = "#";
-        for(var x = 0; x < 6; x++) {
+        for (var x = 0; x < 6; x++) {
             var randNum = Math.floor(Math.random() * 10) + 6;
             switch(randNum) {
                 case 10:
@@ -224,7 +277,6 @@ function managePolygon(polygonID, action, computation) {
             }
         );
         addPolygonToList(polygonID, computation);
-        createPolygonListBorder(polygonID);
     } else if (action === "delete") {
         data = JSON.stringify(
             {
@@ -262,6 +314,7 @@ function addPolygonToList(polygonID, computation) {
     **/
     var fillColor = polygons.collection[polygonID].fillColor;
     var compName = "";
+    var isHidden = false;
     if (computation) {
         compName = " (" + computation + ")";
     }
@@ -289,6 +342,7 @@ function addPolygonToList(polygonID, computation) {
     $("#show-hide-" + polygonID).on("click", function(e) {
         var polygon = polygons.collection[polygonID];
         showHidePolygonButton(this, polygon);
+        isHidden = !isHidden;
     })
     $("#delete-" + polygonID).on("click", function(e) {
         var polygonID = $(this).parent().attr("id");
@@ -297,22 +351,24 @@ function addPolygonToList(polygonID, computation) {
     })
     $("#clear-regions").removeClass("hidden");
     $("#" + polygonID).on("click", function(e) {
-       clearPolygonListBorders();
        var polygon = polygons.collection[polygonID];
-       polygons.setSelection(polygon);
-       createPolygonListBorder(polygonID);
+       if (!polygons.isInSelectedCollection(polygon) && !isHidden) {
+           polygons.multipleSelection(polygon);
+           createPolygonListBorder(polygonID);
+       } else {
+           polygons.mutipleClearSelection(polygon);
+           clearPolygonListBorders(polygonID);
+       }
+       managePolygon(this.id,"selected");
    })
 }
 
-function createPolygonListBorder(polygonID){
-    clearPolygonListBorders();
+function createPolygonListBorder(polygonID) {
     document.getElementById(polygonID).style.border = "2px solid black";
 }
 
-function clearPolygonListBorders() {
-    for(var polygonID in polygons.collection) {
-        document.getElementById(polygonID).style.border = "none";
-    }
+function clearPolygonListBorders(polygonID) {
+    document.getElementById(polygonID).style.border = "none";
 }
 
 function deletePolygonButton(button, polygon) {
@@ -333,6 +389,7 @@ function showHidePolygonButton(button, polygon) {
         $(button).text("Hide");
         polygons.show(polygon);
     }
+    clearPolygonListBorders(polygon.id);
     managePolygon(polygon.id, "visible");
 }
 
