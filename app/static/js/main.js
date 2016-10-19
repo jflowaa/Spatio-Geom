@@ -100,13 +100,13 @@ var polygons = {
         this.selectedShape.set('draggable', false);
         this.selectedShape.set('editable', false);
         this.selectedShape = null;
-        if(Object.keys(this.scollec).length !== null) {
-            delete this.scollec[shape.id];
+        if(Object.keys(this.selectedCollection).length !== null) {
+            delete this.selectedCollection[shape.id];
         }
     },
     isInSelectedCollection: function(shape) {
-        for(var x in this.scollec) {
-            if(shape === this.scollec[x]) {
+        for(var x in this.selectedCollection) {
+            if(shape === this.selectedCollection[x]) {
                 return true;
             }
         }
