@@ -50,7 +50,7 @@ var polygons = {
         shape.path = poly.getPath();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
-        this.deselecteAll();
+        this.deselectAll();
         google.maps.event.addListener(shape,'click', function() {
             if(!that.isInSelectedCollection(this)) {
                 that.multipleSelection(this);
@@ -94,7 +94,7 @@ var polygons = {
             managePolygon(shape.id, "selected");
         }
     },
-    deselecteAll: function(){
+    deselectAll: function(){
         for(var x in this.selectedCollection) {
             if(this.selectedShape !== this.selectedCollection[x]) {
                 this.selectedShape = this.selectedCollection[x];
