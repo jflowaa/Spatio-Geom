@@ -15,12 +15,11 @@ var polygons = {
             if(!that.isInSelectedCollection(this)) {
                 that.multipleSelection(this);
                 createPolygonListBorder(shape.id);
-            }else {
+            } else {
                 that.clearSelection(this);
                 clearPolygonListBorders(shape.id);
             }
             managePolygon(this.id,"selected");
-
         });
         google.maps.event.addListener(shape, 'rightclick', function(event) {
             handleContextMenu(event, this);
