@@ -189,6 +189,6 @@ def hseg_to_coords(hseg, is_difference=None):
         # lat and lng for google maps to understand.
         for point in visited_cords:
             seg_dict[cycle_label].append({"lat": point[0], "lng": point[1]})
-    if (is_difference):
+    if is_difference:
         seg_dict = process_difference_cords(seg_dict)
     return seg_dict
