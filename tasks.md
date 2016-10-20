@@ -67,3 +67,6 @@ Feature 12
     * This window has data sets to choose from
     * Option to close window and option to import selected region
     * The dataset will need to be iterated and converted into regions. Stored in session. Converted to coordinates and sent to frontend to map.
+
+Feature 13
+  * Add Interpolate Regions (3d stuff)
