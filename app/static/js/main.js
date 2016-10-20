@@ -8,7 +8,7 @@ var polygons = {
         var shape = e.overlay,
             that = this;
         shape.type = e.type;
-        shape.path = e.overlay.getPath();
+        shape.path = e.overlay.getPaths();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
         google.maps.event.addListener(shape,'click', function() {
@@ -48,7 +48,7 @@ var polygons = {
         var shape = poly,
             that = this;
         shape.type = "polygon";
-        shape.path = poly.getPath();
+        shape.path = poly.getPaths();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
         this.collection[shape.id] = shape;
         this.deselectAll();
@@ -69,7 +69,7 @@ var polygons = {
         var shape = poly,
             that = this;
         shape.type = "polygon";
-        shape.path = poly.getPath();
+        shape.path = poly.getPaths();
         shape.id = polyId;
         this.collection[shape.id] = shape;
         this.setSelection(shape);
@@ -151,7 +151,7 @@ var polygons = {
                     collection.push({
                         type:shape.type,
                         path:google.maps.geometry.encoding.encodePath(
-                            shape.getPath())
+                            shape.getPaths())
                     });
                     break;
                 default:
@@ -268,11 +268,15 @@ function initialize() {
 }
 
 function managePolygon(polygonID, action, computation) {
+    var paths = new Array();
+    for (var singlePath in polygons.collection[polygonID].path.getArray()) {
+        paths.push(polygons.collection[polygonID].path.getArray()[singlePath].getArray());
+    }
     if (action === "add") {
         data = JSON.stringify(
             {
                 "id": polygonID,
-                "path": polygons.collection[polygonID].path.getArray(),
+                "path": paths,
                 "action": action
             }
         );
@@ -423,9 +427,8 @@ function restoreSession() {
                 // Doing a for instead of a foreach because foreach was giving
                 // the index instead of the object. No idea
                 for (i = 0; i < data.data.polygons.length; i++) {
-                    generateNewPolygon(data.data.polygons[i], "", data.data.polygon_ids[i],
-                                       data.data.polygon_visible[i]);
-                    console.log(JSON.stringify(data.data.polygon_visible[i]));
+                    generateNewPolygon(data.data.polygons[i].coords, "", data.data.polygons[i].id,
+                                       data.data.polygons[i].visible);
                 }
             }
         },
@@ -443,29 +446,31 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
      * new polygon isn't new, it is already in the session and we know an ID to
      * give it. This avoids duplicate regions in session.
      */
+    var allPolygons = new Array();
     for (var polygon in polygonCoords) {
         var arr = new Array();
         for (var i = 0; i < polygonCoords[polygon].length; i++) {
             arr.push(new google.maps.LatLng(polygonCoords[polygon][i].lat, polygonCoords[polygon][i].lng));
         }
-        var poly = new google.maps.Polygon({
-            paths: arr,
-            strokeWeight: 4,
-            fillColor: polygons.generateColor(),
-            fillOpacity: 0.8,
-            zIndex: 3
-        });
-        if (restoreId) {
-            polygons.restorePolygon(poly, restoreId);
-            addPolygonToList(restoreId, computation);
-        } else {
-            var polygonID = polygons.newPolygon(poly)
-            managePolygon(polygonID, "add", computation);
-        }
-        if (!isVisible){
-            $("#show-hide-" + poly.id).text("Show");
-            polygons.hide(poly);
-        }
+        allPolygons.push(arr);
+    }
+    var poly = new google.maps.Polygon({
+        paths: allPolygons,
+        strokeWeight: 4,
+        fillColor: polygons.generateColor(),
+        fillOpacity: 0.8,
+        zIndex: 3
+    });
+    if (restoreId) {
+        polygons.restorePolygon(poly, restoreId);
+        addPolygonToList(restoreId, computation);
+    } else {
+        var polygonID = polygons.newPolygon(poly)
+        managePolygon(polygonID, "add", computation);
+    }
+    if (!isVisible){
+        $("#show-hide-" + poly.id).text("Show");
+        polygons.hide(poly);
     }
 }
 

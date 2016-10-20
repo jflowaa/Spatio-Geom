@@ -67,13 +67,13 @@ def restore_session():
     if session.get("regions"):
         regions_to_coords = {}
         regions_to_coords["polygons"] = []
-        regions_to_coords["polygon_ids"] = []
-        regions_to_coords["polygon_visible"] = []
         for region in session.get("regions"):
+            coords_dict = {}
             hseg = hseg_to_coords(region["region"])
-            regions_to_coords["polygons"].append(hseg)
-            regions_to_coords["polygon_ids"].append(region["id"])
-            regions_to_coords["polygon_visible"].append(region["visible"])
+            coords_dict["coords"] = hseg
+            coords_dict["id"] = region["id"]
+            coords_dict["visible"] = region["visible"]
+            regions_to_coords["polygons"].append(coords_dict)
         return jsonify({"success": True, "data": regions_to_coords})
     else:
         return jsonify({"success": False, "data": "No session found"})
@@ -147,7 +147,7 @@ def find_difference():
         return jsonify(
             {"success": False, "data": "Not enough regions selected"})
     if difference:
-        return jsonify({"success": True, "data": hseg_to_coords(difference)})
+        return jsonify({"success": True, "data": hseg_to_coords(difference, True)})
     else:
         return jsonify(
             {"success": False, "data": "No common difference"})
