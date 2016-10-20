@@ -42,6 +42,7 @@ var polygons = {
             managePolygon(polygonID, "delete", null);
             polygons.delete(polygons.collection[polygonID]);
         }
+        clearSession();
     },
     newPolygon: function(poly) {
         var shape = poly,
@@ -60,6 +61,20 @@ var polygons = {
                 clearPolygonListBorders(shape.id);
             }
             managePolygon(this.id,"selected");
+        });
+        shape.setMap(map);
+        return shape.id;
+    },
+    restorePolygon: function(poly, polyId) {
+        var shape = poly,
+            that = this;
+        shape.type = "polygon";
+        shape.path = poly.getPath();
+        shape.id = polyId;
+        this.collection[shape.id] = shape;
+        this.setSelection(shape);
+        google.maps.event.addListener(shape,'click', function() {
+            that.setSelection(this);
         });
         shape.setMap(map);
         return shape.id;
@@ -203,7 +218,6 @@ function initialize() {
         polygonOptions.fillColor = polygons.generateColor();
         drawingManager.set('polygonOptions', polygonOptions);
         managePolygon(polygons.add(event), "add", null);
-        $("#clear-regions").removeClass("hidden");
     });
     showEmptyRegionList();
     $('#find-intersections').click(function() {
@@ -212,7 +226,7 @@ function initialize() {
             url: "/api/find_intersections",
             success: function(data) {
                 if (data.success)
-                    generateNewPolygon(data, "Intersection");
+                    generateNewPolygon(data.data, "Intersection");
             },
             failure: function(data) {
                 console.log(data);
@@ -225,7 +239,7 @@ function initialize() {
             url: "/api/find_unions",
             success: function(data) {
                 if (data.success)
-                    generateNewPolygon(data, "Union");
+                    generateNewPolygon(data.data, "Union");
             },
             failure: function(data) {
                 console.log(data);
@@ -238,7 +252,7 @@ function initialize() {
             url: "/api/find_difference",
             success: function(data) {
                 if (data.success)
-                    generateNewPolygon(data, "Difference");
+                    generateNewPolygon(data.data, "Difference");
             },
             failure: function(data) {
                 console.log(data);
@@ -261,7 +275,6 @@ function managePolygon(polygonID, action, computation) {
                 "path": polygons.collection[polygonID].path.getArray(),
                 "action": action
             }
-
         );
         addPolygonToList(polygonID, computation);
     } else if (action === "delete") {
@@ -336,6 +349,7 @@ function addPolygonToList(polygonID, computation) {
         var polygon = polygons.collection[polygonID];
         deletePolygonButton(this, polygon);
     })
+    $("#clear-regions").removeClass("hidden");
     $("#" + polygonID).on("click", function(e) {
        var polygon = polygons.collection[polygonID];
        if (!polygons.isInSelectedCollection(polygon) && !isHidden) {
@@ -400,11 +414,20 @@ function showHidePolygonButton(button, polygon) {
     managePolygon(polygon.id, "visible");
 }
 
-function clearSession() {
+function restoreSession() {
     $.ajax({
         type: "POST",
-        url: "/api/clear_session",
+        url: "/api/restore_session",
         success: function(data) {
+            if (data.success) {
+                // Doing a for instead of a foreach because foreach was giving
+                // the index instead of the object. No idea
+                for (i = 0; i < data.data.polygons.length; i++) {
+                    generateNewPolygon(data.data.polygons[i], "", data.data.polygon_ids[i],
+                                       data.data.polygon_visible[i]);
+                    console.log(JSON.stringify(data.data.polygon_visible[i]));
+                }
+            }
         },
         failure: function(data) {
             console.log(data);
@@ -412,11 +435,18 @@ function clearSession() {
     });
 }
 
-function generateNewPolygon(polygonList, computation) {
-    for (var polygon in polygonList.data) {
+function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=true) {
+    /**
+     * Creates a polygon from the given coords. polygonCoords is an object with
+     * arrays. The arrays are paths to take. Think of this as sides of a shape.
+     * restoreId is used for restoring a polygon, if it is set, not 0, then the
+     * new polygon isn't new, it is already in the session and we know an ID to
+     * give it. This avoids duplicate regions in session.
+     */
+    for (var polygon in polygonCoords) {
         var arr = new Array();
-        for (var i = 0; i < polygonList.data[polygon].length; i++) {
-            arr.push(new google.maps.LatLng(polygonList.data[polygon][i].lat, polygonList.data[polygon][i].lng));
+        for (var i = 0; i < polygonCoords[polygon].length; i++) {
+            arr.push(new google.maps.LatLng(polygonCoords[polygon][i].lat, polygonCoords[polygon][i].lng));
         }
         var poly = new google.maps.Polygon({
             paths: arr,
@@ -425,8 +455,17 @@ function generateNewPolygon(polygonList, computation) {
             fillOpacity: 0.8,
             zIndex: 3
         });
-        var polygonID = polygons.newPolygon(poly)
-        managePolygon(polygonID, "add", computation);
+        if (restoreId) {
+            polygons.restorePolygon(poly, restoreId);
+            addPolygonToList(restoreId, computation);
+        } else {
+            var polygonID = polygons.newPolygon(poly)
+            managePolygon(polygonID, "add", computation);
+        }
+        if (!isVisible){
+            $("#show-hide-" + poly.id).text("Show");
+            polygons.hide(poly);
+        }
     }
 }
 
@@ -468,9 +507,21 @@ function handleContextMenu(event, polygon) {
       });
 }
 
+function clearSession() {
+    $.ajax({
+        type: "POST",
+        url: "/api/clear_session",
+        success: function(data) {
+        },
+        failure: function(data) {
+            console.log(data);
+        }
+    });
+}
+
 $(document).ready(function() {
     initialize();
-    clearSession();
+    restoreSession();
     $(document).on("click", function(e) {
         var target = $(e.target);
         if (!$("#custom-menu").hasClass("hidden")) {

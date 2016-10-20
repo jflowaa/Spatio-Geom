@@ -47,12 +47,36 @@ def clear_session():
     """
     Clears the session. We could restore the session but this could be
     computationally intensive when we're getting data from a database.
-
     Returns:
         successful
     """
     session.clear()
     return jsonify({"success": True})
+
+
+@api.route("/restore_session", methods=["POST"])
+def restore_session():
+    """
+    Called on load of page. This is used for restoring the map of polygons
+    back to how it was when the user left the page or refreshed the page.
+
+    Returns:
+        Dictionary of two lists. One for the regions in lat and long. The
+        other list for the ID of the region.
+    """
+    if session.get("regions"):
+        regions_to_coords = {}
+        regions_to_coords["polygons"] = []
+        regions_to_coords["polygon_ids"] = []
+        regions_to_coords["polygon_visible"] = []
+        for region in session.get("regions"):
+            hseg = hseg_to_coords(region["region"])
+            regions_to_coords["polygons"].append(hseg)
+            regions_to_coords["polygon_ids"].append(region["id"])
+            regions_to_coords["polygon_visible"].append(region["visible"])
+        return jsonify({"success": True, "data": regions_to_coords})
+    else:
+        return jsonify({"success": False, "data": "No session found"})
 
 
 @api.route("/find_intersections", methods=["POST"])
