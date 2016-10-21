@@ -2,6 +2,7 @@ from flask import request, session, jsonify
 from . import api
 from ..spatio_helper import (process_polygons, process_intersections,
                              process_unions, process_difference,
+                             process_interpolate_regions,
                              hseg_to_coords)
 import json
 
@@ -151,3 +152,29 @@ def find_difference():
     else:
         return jsonify(
             {"success": False, "data": "No common difference"})
+
+
+@api.route("/find_introplated_regions", methods=["POST"])
+def find_introplated_regions():
+    data = json.loads(request.form.get("data"))
+    start_time = data.get("startTime")
+    end_time = data.get("endTime")
+    print start_time
+    print end_time
+
+    regions = [region for region in session[
+        "regions"] if (region.get("selected") and region.get("visible"))]
+    if len(regions) > 1:
+        introplated = process_interpolate_regions(regions, start_time, end_time)
+    else:
+        return jsonify(
+            {"success": False, "data": "Not enough regions selected"})
+    if introplated:
+        regions[0]["interval_region"] = introplated
+        regions[1]["interval_region"] = introplated
+        hseg = regions[0]["region"] + regions[1]["region"]
+        return jsonify({"success": True, "data": hseg_to_coords(hseg)})
+    else:
+        return jsonify(
+            {"success": False, "data": "No common difference"})
+    return jsonify({"success": True})

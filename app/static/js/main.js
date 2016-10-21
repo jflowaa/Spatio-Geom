@@ -65,10 +65,11 @@ var polygons = {
         shape.setMap(map);
         return shape.id;
     },
-    restorePolygon: function(poly, polyId) {
+    restorePolygon: function(poly, polyId, is3d) {
         var shape = poly,
             that = this;
         shape.type = "polygon";
+        shape.is3DPolygon = is3d;
         shape.path = poly.getPath();
         shape.id = polyId;
         this.collection[shape.id] = shape;
@@ -259,6 +260,31 @@ function initialize() {
             }
         });
     });
+    $('#interpolate-regions').click(function() {
+        data = JSON.stringify(
+            {
+                "startTime" : $("#startTime").val(),
+                "endTime" : $("#endTime").val()
+            }
+        );
+        $.ajax({
+            type: "POST",
+            url: "/api/find_introplated_regions",
+            data: {"data": data},
+            success: function(data) {
+                var polygonsIds = polygons.selectedCollection;
+                polygons.deselectAll();
+                for (var polyId in polygonsIds) {
+                    polygons.delete(polygons.collection[polyId]);
+                }
+                console.log(data.data);
+                generateNewPolygon(data.data, "Interpolated Regions", polygonsIds[0])
+            },
+            failure: function(data) {
+                console.log(data);
+            }
+        });
+    });
     $("#clear-regions").on("click", function(e) {
         polygons.clearAll();
         $("#region-list").empty();
@@ -373,7 +399,9 @@ function clearPolygonListBorders(polygonID) {
 
 function deletePolygonButton(button, polygon) {
     managePolygon(polygon.id, "delete");
+    console.log(polygons.selectedCollection);
     polygons.delete(polygon);
+    console.log(polygons.selectedCollection);
     $(button).parent().remove();
     if (!$("#region-list").children().length) {
         showEmptyRegionList();
@@ -391,16 +419,6 @@ function showHidePolygonButton(button, polygon) {
     }
     clearPolygonListBorders(polygon.id);
     managePolygon(polygon.id, "visible");
-}
-
-function deletePolygonButton(button, polygon) {
-    managePolygon(polygon.id, "delete");
-    polygons.delete(polygon);
-    $(button).parent().remove();
-    if (!$("#region-list").children().length) {
-        showEmptyRegionList();
-        $("#clear-regions").addClass("hidden");
-    }
 }
 
 function showHidePolygonButton(button, polygon) {
