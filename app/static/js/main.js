@@ -368,11 +368,11 @@ function addPolygonToList(polygonID, computation) {
 }
 
 function createPolygonListBorder(polygonID) {
-    document.getElementById(polygonID).style.border = "2px solid black";
+    $("#" + polygonID).css({"border": "2px solid black"});
 }
 
 function clearPolygonListBorders(polygonID) {
-    document.getElementById(polygonID).style.border = "none";
+    $("#" + polygonID).css({"border": "none"});
 }
 
 function deletePolygonButton(button, polygon) {
