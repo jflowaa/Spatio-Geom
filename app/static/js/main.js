@@ -85,7 +85,8 @@ var polygons = {
             this.selectedCollection[shape.id] = shape;
             this.selectedShape = shape;
             shape.set('editable', true);
-            managePolygon(shape.id, "selected");
+            //this breaks session selection
+            //managePolygon(shape.id, "selected");
         }
     },
     multipleSelection: function(shape) {
@@ -106,7 +107,8 @@ var polygons = {
             this.selectedShape.set('draggable', false);
             this.selectedShape.set('editable', false);
             this.selectedShape = null;
-            managePolygon(shape.id, "selected");
+            //this breaks it session selection
+            //managePolygon(shape.id, "selected");
         }
     },
     deselectAll: function(){
@@ -431,6 +433,7 @@ function restoreSession() {
                                        data.data.polygons[i].visible);
                 }
             }
+            polygons.selectedCollection = {};
         },
         failure: function(data) {
             console.log(data);
