@@ -85,16 +85,6 @@ var polygons = {
         shape.setMap(map);
         return shape.id;
     },
-    setSelection: function(shape) {
-        if (this.selectedShape !== shape) {
-            this.clearSelection(shape);
-            this.selectedCollection[shape.id] = shape;
-            this.selectedShape = shape;
-            shape.set('editable', true);
-            //this breaks session selection
-            //managePolygon(shape.id, "selected");
-        }
-    },
     multipleSelection: function(shape) {
         this.selectedShape = shape;
         shape.set('editable', true);
@@ -113,8 +103,6 @@ var polygons = {
             this.selectedShape.set('draggable', false);
             this.selectedShape.set('editable', false);
             this.selectedShape = null;
-            //this breaks it session selection
-            //managePolygon(shape.id, "selected");
         }
     },
     deselectAll: function(){
