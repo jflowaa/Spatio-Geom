@@ -282,6 +282,13 @@ function initialize() {
                 polygons.deselectAll();
                 var restoreId;
                 for (var polyId in polygonsIds) {
+                    var button = "#delete-" + polyId;
+                    $(button).parent().remove();
+                    if (!$("#region-list").children().length) {
+                        showEmptyRegionList();
+                        $("#clear-regions").addClass("hidden");
+                    }
+                    $("#custom-menu").addClass("hidden");
                     polygons.delete(polygons.collection[polyId]);
                     restoreId = polyId;
                 }
@@ -430,9 +437,7 @@ function clearPolygonListBorders(polygonID) {
 
 function deletePolygonButton(button, polygon) {
     managePolygon(polygon.id, "delete");
-    console.log(polygons.selectedCollection);
     polygons.delete(polygon);
-    console.log(polygons.selectedCollection);
     $(button).parent().remove();
     if (!$("#region-list").children().length) {
         showEmptyRegionList();
