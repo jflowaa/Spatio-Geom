@@ -17,18 +17,19 @@ def process_polygons(data):
     seg_list = []
     coord_matrix = [[0 for j in range(2)] for i in range(2)]
     for i in range(len(data)):
-        coord_matrix[0][0] = data[i].get("lat")
-        coord_matrix[0][1] = data[i].get("lng")
-        # If not last segment, else complete the shape
-        if len(data) > i + 1:
-            coord_matrix[1][0] = data[i + 1].get("lat")
-            coord_matrix[1][1] = data[i + 1].get("lng")
-        else:
-            coord_matrix[1][0] = data[0].get("lat")
-            coord_matrix[1][1] = data[0].get("lng")
-        # Need to make a copy of the list. Else each element in seg_list will
-        # be the last coord_matrix data set.
-        seg_list.append(copy.deepcopy(coord_matrix))
+        for j in range(len(data[i])):
+            coord_matrix[0][0] = data[i][j].get("lat")
+            coord_matrix[0][1] = data[i][j].get("lng")
+            # If not last segment, else complete the shape
+            if len(data[i]) > j + 1:
+                coord_matrix[1][0] = data[i][j + 1].get("lat")
+                coord_matrix[1][1] = data[i][j + 1].get("lng")
+            else:
+                coord_matrix[1][0] = data[i][0].get("lat")
+                coord_matrix[1][1] = data[i][0].get("lng")
+            # Need to make a copy of the list. Else each element in seg_list
+            # will be the last coord_matrix data set.
+            seg_list.append(copy.deepcopy(coord_matrix))
     return region_logic.createRegionFromSegs(seg_list)
 
 
@@ -101,7 +102,47 @@ def process_difference(regions):
     return region
 
 
-def hseg_to_coords(hseg):
+def is_cycle_clockwise(seg):
+    """
+    Iterates through the coordinates and gets the line sums for the entire
+    polygon. If the sum is greater than zero then points are going clockwise.
+
+    Returns:
+        True if the polygon is going clockwise
+    """
+    sum_of_lines = 0
+    for index in range(len(seg)):
+        next_index = index + 1
+        if next_index == len(seg):
+            next_index = 0
+        x_total = seg[next_index]['lat'] - seg[index]['lat']
+        y_total = seg[next_index]['lng'] + seg[index]['lng']
+        sum_of_lines += (x_total * y_total)
+    return sum_of_lines > 0
+
+
+def process_difference_cords(seg_dict):
+    """
+    Iterates through the segs to make sure the Polygons are going in the
+    correct direction. The outer cycle has to go clockwise and
+    the inner ones have to go counter-clockwise
+
+    Returns:
+        A list of dictionary of coordinates.
+    """
+    cycle_count = 0
+    for seg in seg_dict:
+        if cycle_count > 0:
+            if is_cycle_clockwise(seg_dict[seg]):
+                seg_dict[seg].reverse()
+        else:
+            if not is_cycle_clockwise(seg_dict[seg]):
+                seg_dict[seg].reverse()
+        cycle_count = cycle_count + 1
+    return seg_dict
+
+
+def hseg_to_coords(hseg, is_difference=None):
     """
     Iterates through the hsegs to find the cycles and returns the the
     coordinates of each cycle in its own dictionary. The key is the unique
@@ -148,4 +189,6 @@ def hseg_to_coords(hseg):
         # lat and lng for google maps to understand.
         for point in visited_cords:
             seg_dict[cycle_label].append({"lat": point[0], "lng": point[1]})
+    if is_difference:
+        seg_dict = process_difference_cords(seg_dict)
     return seg_dict
