@@ -65,11 +65,15 @@ var polygons = {
         shape.setMap(map);
         return shape.id;
     },
-    restorePolygon: function(poly, polyId, is3d) {
+    restorePolygon: function(poly, polyId, is3d=false, start=0, end=0) {
         var shape = poly,
             that = this;
         shape.type = "polygon";
         shape.is3DPolygon = is3d;
+        if (is3d) {
+            shape.startTime = start;
+            shape.endTime = end;
+        }
         shape.path = poly.getPaths();
         shape.id = polyId;
         this.collection[shape.id] = shape;
@@ -261,10 +265,12 @@ function initialize() {
         });
     });
     $('#interpolate-regions').click(function() {
+        var startTime = $("#startTime").val();
+        var endTime = $("#endTime").val();
         data = JSON.stringify(
             {
-                "startTime" : $("#startTime").val(),
-                "endTime" : $("#endTime").val()
+                "startTime" : startTime,
+                "endTime" : endTime
             }
         );
         $.ajax({
@@ -272,13 +278,14 @@ function initialize() {
             url: "/api/find_introplated_regions",
             data: {"data": data},
             success: function(data) {
-                var polygonsIds = polygons.selectedCollection;
+                var polygonsIds = jQuery.extend(true, {}, polygons.selectedCollection);
                 polygons.deselectAll();
+                var restoreId;
                 for (var polyId in polygonsIds) {
                     polygons.delete(polygons.collection[polyId]);
+                    restoreId = polyId;
                 }
-                console.log(data.data);
-                generateNewPolygon(data.data, "Interpolated Regions", polygonsIds[0])
+                generateNewPolygon(data.data, "Interpolated Regions", restoreId, true, startTime, endTime);
             },
             failure: function(data) {
                 console.log(data);
@@ -350,15 +357,35 @@ function addPolygonToList(polygonID, computation) {
     }
     $("#placeholder-empty").remove();
     if(polygons.collection[polygonID].is3DPolygon === true) {
+        var polygon = polygons.collection[polygonID];
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
                 .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
-                .append($("<input>").attr("type", "range").attr("class", "form-control"))
+                .append($("<input>").attr("type", "range").attr("id", "slider-" + polygonID).attr("class", "form-control").attr("min", polygon.startTime).attr("max", polygon.endTime).attr("value", polygon.startTime))
                 .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
                 .append($("<div>").attr("class", "col-md-2"))
                 .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
         );
+        $("#slider-" + polygonID).on("input change", function(e) {
+            data = JSON.stringify(
+                {
+                    "time" : e.target.value,
+                    "polygonID" : polygonID
+                }
+            );
+            $.ajax({
+                type: "POST",
+                url: "/api/find_region_at_time",
+                data: {"data": data},
+                success: function(data) {
+                    generateNewPolygon(data.data, "From introplated")
+                },
+                failure: function(data) {
+                    console.log(data);
+                }
+            });
+        });
     } else {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
@@ -425,17 +452,6 @@ function showHidePolygonButton(button, polygon) {
     managePolygon(polygon.id, "visible");
 }
 
-function showHidePolygonButton(button, polygon) {
-    if ($(button).text() === "Hide") {
-        $(button).text("Show");
-        polygons.hide(polygon);
-    } else {
-        $(button).text("Hide");
-        polygons.show(polygon);
-    }
-    managePolygon(polygon.id, "visible");
-}
-
 function restoreSession() {
     $.ajax({
         type: "POST",
@@ -456,7 +472,7 @@ function restoreSession() {
     });
 }
 
-function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=true) {
+function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=true, startTime=0, endTime=0) {
     /**
      * Creates a polygon from the given coords. polygonCoords is an object with
      * arrays. The arrays are paths to take. Think of this as sides of a shape.
@@ -480,7 +496,7 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
         zIndex: 3
     });
     if (restoreId) {
-        polygons.restorePolygon(poly, restoreId);
+        polygons.restorePolygon(poly, restoreId, computation == "Interpolated Regions", startTime, endTime);
         addPolygonToList(restoreId, computation);
     } else {
         var polygonID = polygons.newPolygon(poly)

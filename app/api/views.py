@@ -3,6 +3,7 @@ from . import api
 from ..spatio_helper import (process_polygons, process_intersections,
                              process_unions, process_difference,
                              process_interpolate_regions,
+                             process_interval_region_at_time,
                              hseg_to_coords)
 import json
 
@@ -159,9 +160,6 @@ def find_introplated_regions():
     data = json.loads(request.form.get("data"))
     start_time = data.get("startTime")
     end_time = data.get("endTime")
-    print start_time
-    print end_time
-
     regions = [region for region in session[
         "regions"] if (region.get("selected") and region.get("visible"))]
     if len(regions) > 1:
@@ -172,9 +170,31 @@ def find_introplated_regions():
     if introplated:
         regions[0]["interval_region"] = introplated
         regions[1]["interval_region"] = introplated
-        hseg = regions[0]["region"] + regions[1]["region"]
-        return jsonify({"success": True, "data": hseg_to_coords(hseg)})
+        seg1 = hseg_to_coords(regions[1]["region"])
+        seg2 = hseg_to_coords(regions[0]["region"])
+        segments = {
+            "2": seg1[2],
+            "3": seg2[2]
+        }
+        return jsonify({"success": True, "data": segments})
     else:
         return jsonify(
             {"success": False, "data": "No common difference"})
     return jsonify({"success": True})
+
+
+@api.route("/find_region_at_time", methods=["POST"])
+def find_region_at_time():
+    data = json.loads(request.form.get("data"))
+    time = data.get("time")
+    polygon_id = data.get("polygonID")
+    region = [region for region in session[
+        "regions"] if (region.get("id") == int(polygon_id))]
+    interval_region = region[0]["interval_region"]
+    valid_interval_region = interval_region[1]
+    found_region = process_interval_region_at_time(valid_interval_region, time)
+    if found_region:
+        return jsonify({"success": True, "data": found_region})
+    else:
+        return jsonify(
+            {"success": False, "data": "No common coords"})

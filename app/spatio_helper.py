@@ -105,9 +105,6 @@ def process_difference(regions):
 
 def process_interpolate_regions(regions, start_time, end_time):
     region = regions[0].get("region")
-    print start_time
-    print end_time
-    print type(start_time)
     # Compare with the rest of the regions
     for other_region in regions[1:]:
         region = interval_region_logic.interpolateRegions(region, other_region.get("region"), float(start_time), float(end_time))
@@ -156,6 +153,12 @@ def process_difference_cords(seg_dict):
         cycle_count = cycle_count + 1
     return seg_dict
 
+
+def process_interval_region_at_time(interval_region, time):
+    region = interval_region_logic.getRegionAtTime(interval_region, float(time))
+    print "I am found region"
+    hseg = region_logic.createRegionFromSegs(region)
+    return hseg_to_coords(hseg)
 
 def hseg_to_coords(hseg, is_difference=None):
     """
