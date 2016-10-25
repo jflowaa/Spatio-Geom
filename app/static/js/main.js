@@ -367,7 +367,7 @@ function addPolygonToList(polygonID, computation) {
                 .append($("<div>").attr("class", "col-md-2"))
                 .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
         );
-        $("#slider-" + polygonID).on("input change", function(e) {
+        $("#slider-" + polygonID).unbind().change(function(e) {
             data = JSON.stringify(
                 {
                     "time" : e.target.value,
