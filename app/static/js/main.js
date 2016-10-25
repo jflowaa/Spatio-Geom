@@ -72,9 +72,15 @@ var polygons = {
         shape.path = poly.getPaths();
         shape.id = polyId;
         this.collection[shape.id] = shape;
-        this.setSelection(shape);
         google.maps.event.addListener(shape,'click', function() {
-            that.setSelection(this);
+            if (!that.isInSelectedCollection(this)) {
+                that.multipleSelection(this);
+                createPolygonListBorder(shape.id);
+            } else {
+                that.mutipleClearSelection(this);
+                clearPolygonListBorders(shape.id);
+            }
+            managePolygon(this.id,"selected");
         });
         shape.setMap(map);
         return shape.id;
@@ -433,7 +439,7 @@ function restoreSession() {
                                        data.data.polygons[i].visible);
                 }
             }
-            polygons.selectedCollection = {};
+            polygons.deselectAll();
         },
         failure: function(data) {
             console.log(data);

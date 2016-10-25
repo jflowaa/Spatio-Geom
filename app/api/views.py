@@ -74,6 +74,8 @@ def restore_session():
             coords_dict["id"] = region["id"]
             coords_dict["visible"] = region["visible"]
             regions_to_coords["polygons"].append(coords_dict)
+            if(region["selected"]):
+                region["selected"] = not region["selected"]
         return jsonify({"success": True, "data": regions_to_coords})
     else:
         return jsonify({"success": False, "data": "No session found"})
