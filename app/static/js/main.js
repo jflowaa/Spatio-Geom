@@ -5,27 +5,7 @@ var polygons = {
     is3DPolygon: false,
     selectedShape: null,
     add: function(e) {
-        var shape = e.overlay,
-            that = this;
-        shape.type = e.type;
-        shape.path = e.overlay.getPaths();
-        shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
-        this.collection[shape.id] = shape;
-        google.maps.event.addListener(shape,'click', function() {
-            if(!that.isInSelectedCollection(this)) {
-                that.multipleSelection(this);
-                createPolygonListBorder(shape.id);
-            } else {
-                that.mutipleClearSelection(this);
-                clearPolygonListBorders(shape.id);
-            }
-            managePolygon(this.id,"selected");
-        });
-        google.maps.event.addListener(shape, 'rightclick', function(event) {
-            handleContextMenu(event, this);
-        });
-        shape.setMap(map);
-        return shape.id;
+        return polygons.newPolygon(e.overlay);
     },
     hide: function(polygon) {
         polygon.setMap(null);
@@ -44,16 +24,21 @@ var polygons = {
         }
         clearSession();
     },
-    newPolygon: function(poly) {
+    newPolygon: function(poly, polyId=0, is3d=false, start=0, end=0) {
         var shape = poly,
             that = this;
         shape.type = "polygon";
         shape.path = poly.getPaths();
-        shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
+        shape.id = polyId == 0 ?new Date().getTime() + Math.floor(Math.random() * 1000) : polyId;
         this.collection[shape.id] = shape;
+        shape.is3DPolygon = is3d;
+        if (is3d) {
+            shape.startTime = start;
+            shape.endTime = end;
+        }
         this.deselectAll();
         google.maps.event.addListener(shape,'click', function() {
-            if (!that.isInSelectedCollection(this)) {
+            if(!that.isInSelectedCollection(this)) {
                 that.multipleSelection(this);
                 createPolygonListBorder(shape.id);
             } else {
@@ -62,24 +47,8 @@ var polygons = {
             }
             managePolygon(this.id,"selected");
         });
-        shape.setMap(map);
-        return shape.id;
-    },
-    restorePolygon: function(poly, polyId, is3d=false, start=0, end=0) {
-        var shape = poly,
-            that = this;
-        shape.type = "polygon";
-        shape.is3DPolygon = is3d;
-        if (is3d) {
-            shape.startTime = start;
-            shape.endTime = end;
-        }
-        shape.path = poly.getPaths();
-        shape.id = polyId;
-        this.collection[shape.id] = shape;
-        this.setSelection(shape);
-        google.maps.event.addListener(shape,'click', function() {
-            that.setSelection(this);
+        google.maps.event.addListener(shape, 'rightclick', function(event) {
+            handleContextMenu(event, this);
         });
         shape.setMap(map);
         return shape.id;
@@ -501,7 +470,7 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
         zIndex: 3
     });
     if (restoreId) {
-        polygons.restorePolygon(poly, restoreId, computation == "Interpolated Regions", startTime, endTime);
+        polygons.newPolygon(poly, restoreId, computation == "Interpolated Regions", startTime, endTime);
         addPolygonToList(restoreId, computation);
     } else {
         var polygonID = polygons.newPolygon(poly)
