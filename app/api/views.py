@@ -172,17 +172,22 @@ def find_introplated_regions():
         for interval_tuple in introplated:
             if interval_tuple is not None:
                 max_time = 0
+                min_time = None
                 for line_tuple in interval_tuple:
                     for line in line_tuple:
                         if type(line) != type(True):
                             if line[2] > max_time:
                                 max_time = line[2]
-                print max_time
-                interval_regions[int(max_time)] = interval_tuple
+                            if min_time is None or line[2] < min_time:
+                                min_time = line[2]
+                interval_regions[int(max_time)] = {
+                    "min_time": min_time,
+                    "interval_tuple": interval_tuple
+                }
                 max_time = 0
-        print interval_regions
-        regions[0]["interval_region"] = introplated
-        regions[1]["interval_region"] = introplated
+                min_time = None
+        regions[0]["interval_region"] = interval_regions
+        regions[1]["interval_region"] = interval_regions
         seg1 = hseg_to_coords(regions[1]["region"])
         seg2 = hseg_to_coords(regions[0]["region"])
         segments = {
@@ -204,7 +209,10 @@ def find_region_at_time():
     region = [region for region in session[
         "regions"] if (region.get("id") == int(polygon_id))]
     interval_region = region[0]["interval_region"]
-    valid_interval_region = interval_region[1]
+    valid_interval_region = None
+    for max_time in interval_region:
+        if int(time) <= int(max_time) and int(time) >= int(interval_region[max_time]["min_time"]):
+            valid_interval_region = interval_region[max_time]["interval_tuple"]
     found_region = process_interval_region_at_time(valid_interval_region, time)
     if found_region:
         return jsonify({"success": True, "data": found_region})
