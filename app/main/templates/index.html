@@ -49,13 +49,20 @@
                 <div class="row list-group-item">
                     <div class="col-md-10">
                         <h4>Interpolate Regions</h4>
-                        Interpolates 2 polygons
-                        <br>
-                        <label>Start Time:</label>
-                        <input type="text" id="startTime" style="position: relative; width: 34%; font-weight: bold; left: 2%;">
-                        <br>
-                        <label>End Time:</label>
-                        <input type="text" id="endTime" style="position: relative; width: 34%; font-weight: bold; left: 5%;">
+                        <p> Interpolates two polygons over a span of time.</p>
+                        <p>Enter a time interval: </p>
+                        <div class="col-md-1 col-xs-1"></div>
+                        <div class="col-md-8 col-cs-8">
+                            <div class="group-from">
+                                <label for="start-time">Start</label>
+                                <input type="text" id="start-time" class="form-control" placeholder="ex: 1">
+                            </div>
+                            <div class="group-from">
+                                <label for="end-time">End</label>
+                                <input type="text" id="end-time" class="form-control" placeholder="ex: 15">
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-xs-3"></div>
                     </div>
                     <button id="interpolate-regions" class="btn btn-default pull-right col-md-2" style="margin-right: 0.5%;">Go</button>
                 </div>

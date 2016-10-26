@@ -235,14 +235,15 @@ function initialize() {
         });
     });
     $('#interpolate-regions').click(function() {
-        var startTime = $("#startTime").val();
-        var endTime = $("#endTime").val();
+        var startTime = $("#start-time").val();
+        var endTime = $("#end-time").val();
         data = JSON.stringify(
             {
                 "startTime" : startTime,
                 "endTime" : endTime
             }
         );
+        console.log("HIt");
         $.ajax({
             type: "POST",
             url: "/api/find_introplated_regions",
@@ -340,6 +341,7 @@ function addPolygonToList(polygonID, computation) {
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
                 .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
                 .append($("<input>").attr("type", "checkbox").attr("id", "checkbox-" + polygonID))
+                .append($("<label>").attr("for", "checkbox-" + polygonID).text(" Only create one region"))
                 .append($("<input>").attr("type", "range").attr("id", "slider-" + polygonID).attr("class", "form-control").attr("min", polygon.startTime).attr("max", polygon.endTime).attr("value", polygon.startTime))
                 .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
                 .append($("<div>").attr("class", "col-md-2"))
