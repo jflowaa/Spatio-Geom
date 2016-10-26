@@ -111,7 +111,6 @@ def process_interpolate_regions(regions, start_time, end_time):
         # If region is not empty, then there was a well-formed difference.
         if not region:
             return []
-    print region
     return region
 
 
@@ -157,9 +156,7 @@ def process_difference_cords(seg_dict):
 
 def process_interval_region_at_time(interval_region, time):
     region = interval_region_logic.getRegionAtTime(interval_region, float(time))
-    print "I am found region"
     hseg = region_logic.createRegionFromSegs(region)
-    print hseg
     return hseg_to_coords(hseg)
 
 def hseg_to_coords(hseg, is_difference=None):

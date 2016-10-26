@@ -168,6 +168,19 @@ def find_introplated_regions():
         return jsonify(
             {"success": False, "data": "Not enough regions selected"})
     if introplated:
+        interval_regions = {}
+        for interval_tuple in introplated:
+            if interval_tuple is not None:
+                max_time = 0
+                for line_tuple in interval_tuple:
+                    for line in line_tuple:
+                        if type(line) != type(True):
+                            if line[2] > max_time:
+                                max_time = line[2]
+                print max_time
+                interval_regions[int(max_time)] = interval_tuple
+                max_time = 0
+        print interval_regions
         regions[0]["interval_region"] = introplated
         regions[1]["interval_region"] = introplated
         seg1 = hseg_to_coords(regions[1]["region"])
