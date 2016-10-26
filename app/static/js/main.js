@@ -35,6 +35,7 @@ var polygons = {
         if (is3d) {
             shape.startTime = start;
             shape.endTime = end;
+            shape.interpolatedRegionId = 0;
         }
         this.deselectAll();
         google.maps.event.addListener(shape,'click', function() {
@@ -338,12 +339,73 @@ function addPolygonToList(polygonID, computation) {
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
                 .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
+                .append($("<input>").attr("type", "checkbox").attr("id", "checkbox-" + polygonID))
                 .append($("<input>").attr("type", "range").attr("id", "slider-" + polygonID).attr("class", "form-control").attr("min", polygon.startTime).attr("max", polygon.endTime).attr("value", polygon.startTime))
                 .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
                 .append($("<div>").attr("class", "col-md-2"))
                 .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
         );
-        $("#slider-" + polygonID).unbind().change(function(e) {
+        bindInterpolatedChange(polygonID, false);
+        $("#checkbox-" + polygonID).click(function(){
+            bindInterpolatedChange(polygonID, $(this).is(':checked'));
+            /*$("#slider-" + polygonID).unbind();
+            if ($(this).is(':checked')) {
+                $("#slider-" + polygonID).on("input", function(e) {
+                    data = JSON.stringify(
+                        {
+                            "time" : e.target.value,
+                            "polygonID" : polygonID
+                        }
+                    );
+                    var polygon = polygons.collection[polygonID];
+
+                    if (polygon.interpolatedRegionId != 0) {
+                        var button = "#delete-" + polygon.interpolatedRegionId;
+                        $(button).parent().remove();
+                        if (!$("#region-list").children().length) {
+                            showEmptyRegionList();
+                            $("#clear-regions").addClass("hidden");
+                        }
+                        $("#custom-menu").addClass("hidden");
+                        polygons.delete(polygons.collection[polygon.interpolatedRegionId]);
+                    }
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/find_region_at_time",
+                        polyId: polygonID,
+                        data: {"data": data},
+                        success: function(data) {
+                            var id = generateNewPolygon(data.data, "From introplated");
+                            polygons.collection[this.polyId].interpolatedRegionId = id;
+                        },
+                        failure: function(data) {
+                            console.log(data);
+                        }
+                    });
+                });
+            } else {
+                $("#slider-" + polygonID).unbind().change(function(e) {
+                    data = JSON.stringify(
+                        {
+                            "time" : e.target.value,
+                            "polygonID" : polygonID
+                        }
+                    );
+                    $.ajax({
+                        type: "POST",
+                        url: "/api/find_region_at_time",
+                        data: {"data": data},
+                        success: function(data) {
+                            generateNewPolygon(data.data, "From introplated")
+                        },
+                        failure: function(data) {
+                            console.log(data);
+                        }
+                    });
+                });
+            }*/
+        });
+        /*$("#slider-" + polygonID).unbind().change(function(e) {
             data = JSON.stringify(
                 {
                     "time" : e.target.value,
@@ -361,7 +423,41 @@ function addPolygonToList(polygonID, computation) {
                     console.log(data);
                 }
             });
-        });
+        });*/
+        /*$("#slider-" + polygonID).on("input", function(e) {
+            data = JSON.stringify(
+                {
+                    "time" : e.target.value,
+                    "polygonID" : polygonID
+                }
+            );
+            var polygon = polygons.collection[polygonID];
+
+            if (polygon.interpolatedRegionId != 0) {
+                var button = "#delete-" + polygon.interpolatedRegionId;
+                $(button).parent().remove();
+                if (!$("#region-list").children().length) {
+                    showEmptyRegionList();
+                    $("#clear-regions").addClass("hidden");
+                }
+                $("#custom-menu").addClass("hidden");
+                polygons.delete(polygons.collection[polygon.interpolatedRegionId]);
+            }
+            $.ajax({
+                type: "POST",
+                url: "/api/find_region_at_time",
+                polyId: polygonID,
+                data: {"data": data},
+                success: function(data) {
+                    var id = generateNewPolygon(data.data, "From introplated");
+                    polygons.collection[this.polyId].interpolatedRegionId = id;
+                },
+                failure: function(data) {
+                    console.log(data);
+                }
+            });
+        });*/
+
     } else {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
@@ -394,6 +490,65 @@ function addPolygonToList(polygonID, computation) {
        }
        managePolygon(this.id,"selected");
    })
+}
+
+function bindInterpolatedChange(polygonID, checked) {
+    $("#slider-" + polygonID).unbind();
+    if (checked) {
+        $("#slider-" + polygonID).on("input", function(e) {
+            data = JSON.stringify(
+                {
+                    "time" : e.target.value,
+                    "polygonID" : polygonID
+                }
+            );
+            var polygon = polygons.collection[polygonID];
+
+            if (polygon.interpolatedRegionId != 0) {
+                var button = "#delete-" + polygon.interpolatedRegionId;
+                $(button).parent().remove();
+                if (!$("#region-list").children().length) {
+                    showEmptyRegionList();
+                    $("#clear-regions").addClass("hidden");
+                }
+                $("#custom-menu").addClass("hidden");
+                polygons.delete(polygons.collection[polygon.interpolatedRegionId]);
+            }
+            $.ajax({
+                type: "POST",
+                url: "/api/find_region_at_time",
+                polyId: polygonID,
+                data: {"data": data},
+                success: function(data) {
+                    var id = generateNewPolygon(data.data, "From introplated");
+                    polygons.collection[this.polyId].interpolatedRegionId = id;
+                },
+                failure: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+    } else {
+        $("#slider-" + polygonID).unbind().change(function(e) {
+            data = JSON.stringify(
+                {
+                    "time" : e.target.value,
+                    "polygonID" : polygonID
+                }
+            );
+            $.ajax({
+                type: "POST",
+                url: "/api/find_region_at_time",
+                data: {"data": data},
+                success: function(data) {
+                    generateNewPolygon(data.data, "From introplated")
+                },
+                failure: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+    }
 }
 
 function createPolygonListBorder(polygonID) {
@@ -469,17 +624,19 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
         fillOpacity: 0.8,
         zIndex: 3
     });
+    var polygonId = 0;
     if (restoreId) {
-        polygons.newPolygon(poly, restoreId, computation == "Interpolated Regions", startTime, endTime);
+        polygonId = polygons.newPolygon(poly, restoreId, computation == "Interpolated Regions", startTime, endTime);
         addPolygonToList(restoreId, computation);
     } else {
-        var polygonID = polygons.newPolygon(poly)
-        managePolygon(polygonID, "add", computation);
+        polygonId = polygons.newPolygon(poly);
+        managePolygon(polygonId, "add", computation);
     }
     if (!isVisible){
         $("#show-hide-" + poly.id).text("Show");
         polygons.hide(poly);
     }
+    return polygonId;
 }
 
 function showEmptyRegionList() {
