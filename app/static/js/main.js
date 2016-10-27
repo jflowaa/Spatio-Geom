@@ -69,7 +69,7 @@ var polygons = {
     generateColor: function(e) {
         var colorVal = "#";
         for (var x = 0; x < 6; x++) {
-            var randNum = Math.floor(Math.random() * (13 - 1) + 1);
+            var randNum = Math.floor(Math.random() * (13) + 1);
             switch(randNum) {
                 case 10:
                     colorVal += "A";
