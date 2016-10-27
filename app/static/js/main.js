@@ -62,6 +62,9 @@ var polygons = {
             }
             managePolygon(this.id,"selected");
         });
+        google.maps.event.addListener(shape, 'rightclick', function(event) {
+            handleContextMenu(event, this);
+        });
         shape.setMap(map);
         return shape.id;
     },
@@ -81,6 +84,9 @@ var polygons = {
                 clearPolygonListBorders(shape.id);
             }
             managePolygon(this.id,"selected");
+        });
+        google.maps.event.addListener(shape, 'rightclick', function(event) {
+            handleContextMenu(event, this);
         });
         shape.setMap(map);
         return shape.id;
