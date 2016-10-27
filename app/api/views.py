@@ -32,7 +32,7 @@ def manage_region():
         for region in session["regions"]:
             if region.get("id") == int(data.get("id")):
                 region["visible"] = not region["visible"]
-    elif data.get("action") == "selected":
+    elif data.get("action") == "select":
         for region in session["regions"]:
             if region.get("id") == int(data.get("id")):
                 region["selected"] = not region["selected"]
@@ -74,6 +74,8 @@ def restore_session():
             coords_dict["id"] = region["id"]
             coords_dict["visible"] = region["visible"]
             regions_to_coords["polygons"].append(coords_dict)
+            if(region["selected"]):
+                region["selected"] = not region["selected"]
         return jsonify({"success": True, "data": regions_to_coords})
     else:
         return jsonify({"success": False, "data": "No session found"})

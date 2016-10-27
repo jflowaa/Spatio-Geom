@@ -1,36 +1,21 @@
 var map;
 var polygons = {
-    selectedCollection: {},
     collection: {},
     is3DPolygon: false,
-    selectedShape: null,
     add: function(e) {
-        var shape = e.overlay,
-            that = this;
-        shape.type = e.type;
-        shape.path = e.overlay.getPaths();
-        shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
-        this.collection[shape.id] = shape;
-        google.maps.event.addListener(shape,'click', function() {
-            if(!that.isInSelectedCollection(this)) {
-                that.multipleSelection(this);
-                createPolygonListBorder(shape.id);
-            } else {
-                that.mutipleClearSelection(this);
-                clearPolygonListBorders(shape.id);
-            }
-            managePolygon(this.id,"selected");
-        });
-        google.maps.event.addListener(shape, 'rightclick', function(event) {
-            handleContextMenu(event, this);
-        });
-        shape.setMap(map);
-        return shape.id;
+        return polygons.newPolygon(e.overlay);
     },
     hide: function(polygon) {
+        polygon.visible = false;
+        if (polygon.selected) {
+            clearPolygonSelectBorder(polygon.id);
+            polygon.selected = false;
+            managePolygon(polygon.id, "select");
+        }
         polygon.setMap(null);
     },
     show: function(polygon) {
+        polygon.visible = true;
         polygon.setMap(map);
     },
     delete: function(polygon) {
@@ -44,147 +29,48 @@ var polygons = {
         }
         clearSession();
     },
-    newPolygon: function(poly) {
+    newPolygon: function(poly, polyID, is3D, start, end) {
+        // Not all browsers support default parameters, such as Sarafi. This is the workaround
+        if (polyID === undefined) {
+            polyID = 0;
+        }
+        if (is3D === undefined) {
+            is3D = false;
+        }
+        if (start === undefined) {
+            start = 0;
+        }
+        if (end === undefined) {
+            end = 0;
+        }
         var shape = poly,
             that = this;
         shape.type = "polygon";
         shape.path = poly.getPaths();
-        shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
+        shape.id = polyID == 0 ? new Date().getTime() + Math.floor(Math.random() * 1000) : polyID;
+        shape.selected = false;
+        shape.visible = true;
+        shape.is3DPolygon = is3D;
+        if (is3D) {
+            shape.startTime = start;
+            shape.endTime = end;
+            shape.interpolatedRegionId = 0;
+        }
         this.collection[shape.id] = shape;
-        this.deselectAll();
         google.maps.event.addListener(shape,'click', function() {
-            if (!that.isInSelectedCollection(this)) {
-                that.multipleSelection(this);
-                createPolygonListBorder(shape.id);
-            } else {
-                that.mutipleClearSelection(this);
-                clearPolygonListBorders(shape.id);
-            }
-            managePolygon(this.id,"selected");
+            handlePolygonSelect(shape.id);
+        });
+        google.maps.event.addListener(shape, 'rightclick', function(event) {
+            handleContextMenu(event, this);
         });
         shape.setMap(map);
         return shape.id;
-    },
-    restorePolygon: function(poly, polyId) {
-        var shape = poly,
-            that = this;
-        shape.type = "polygon";
-        shape.path = poly.getPaths();
-        shape.id = polyId;
-        this.collection[shape.id] = shape;
-        this.setSelection(shape);
-        google.maps.event.addListener(shape,'click', function() {
-            that.setSelection(this);
-        });
-        shape.setMap(map);
-        return shape.id;
-    },
-    setSelection: function(shape) {
-        if (this.selectedShape !== shape) {
-            this.clearSelection(shape);
-            this.selectedCollection[shape.id] = shape;
-            this.selectedShape = shape;
-            shape.set('editable', true);
-            managePolygon(shape.id, "selected");
-        }
-    },
-    multipleSelection: function(shape) {
-        this.selectedShape = shape;
-        shape.set('editable', true);
-        this.selectedCollection[shape.id] = shape;
-    },
-    deleteSelected: function() {
-        if (this.selectedShape) {
-            var shape= this.selectedShape;
-            this.clearSelection();
-            shape.setMap(null);
-            delete this.collection[shape.id];
-        }
-    },
-    clearSelection: function(shape) {
-        if (this.selectedShape) {
-            this.selectedShape.set('draggable', false);
-            this.selectedShape.set('editable', false);
-            this.selectedShape = null;
-            managePolygon(shape.id, "selected");
-        }
-    },
-    deselectAll: function(){
-        for(var x in this.selectedCollection) {
-            if (this.selectedShape !== this.selectedCollection[x]) {
-                this.selectedShape = this.selectedCollection[x];
-            }
-            clearPolygonListBorders(this.selectedCollection[x].id);
-            this.selectedShape.set('draggable', false);
-            this.selectedShape.set('editable', false);
-            this.selectedShape = null;
-            managePolygon(this.selectedCollection[x].id, "selected");
-            delete this.selectedCollection[x];
-        }
-    },
-    mutipleClearSelection: function(shape) {
-        if (this.selectedShape !== shape) {
-            this.selectedShape = shape;
-        }
-        this.selectedShape.set('draggable', false);
-        this.selectedShape.set('editable', false);
-        this.selectedShape = null;
-        if(Object.keys(this.selectedCollection).length !== null) {
-            delete this.selectedCollection[shape.id];
-        }
-    },
-    isInSelectedCollection: function(shape) {
-        for (var x in this.selectedCollection) {
-            if (shape === this.selectedCollection[x]) {
-                return true;
-            }
-        }
-        return false;
-    },
-    save: function() {
-        var collection = [];
-        for (var k in this.collection) {
-            var shape = this.collection[k],
-            types = google.maps.drawing.OverlayType;
-            switch(shape.type) {
-                case types.POLYGON:
-                    collection.push({
-                        type:shape.type,
-                        path:google.maps.geometry.encoding.encodePath(
-                            shape.getPaths())
-                    });
-                    break;
-                default:
-                    alert('implement a storage-method for ' + shape.type)
-            }
-        }
     },
     generateColor: function(e) {
         var colorVal = "#";
         for (var x = 0; x < 6; x++) {
-            var randNum = Math.floor(Math.random() * 10) + 6;
-            switch(randNum) {
-                case 10:
-                    colorVal += "A";
-                    break;
-                case 11:
-                    colorVal += "B";
-                    break;
-                case 12:
-                    colorVal += "C";
-                    break;
-                case 13:
-                    colorVal += "D";
-                    break;
-                case 14:
-                    colorVal += "E";
-                    break;
-                case 15:
-                    colorVal += "F";
-                    break;
-                default:
-                    colorVal += randNum.toString();
-            }
+            var randNum = Math.floor(Math.random() * (9) + 1);
+            colorVal += randNum.toString();
         }
         return colorVal;
     }
@@ -200,7 +86,7 @@ function initialize() {
     var polyOptions = {
         fillColor : polygons.generateColor(),
         fillOpacity: .8,
-        strokeWeight: 4,
+        strokeWeight: 3,
         zIndex: 1
     };
     var drawingManager = new google.maps.drawing.DrawingManager({
@@ -225,8 +111,10 @@ function initialize() {
             type: "POST",
             url: "/api/find_intersections",
             success: function(data) {
-                if (data.success)
+                if (data.success) {
                     generateNewPolygon(data.data, "Intersection");
+                    clearPolygonSelection();
+                }
             },
             failure: function(data) {
                 console.log(data);
@@ -238,8 +126,10 @@ function initialize() {
             type: "POST",
             url: "/api/find_unions",
             success: function(data) {
-                if (data.success)
+                if (data.success) {
                     generateNewPolygon(data.data, "Union");
+                    clearPolygonSelection();
+                }
             },
             failure: function(data) {
                 console.log(data);
@@ -251,8 +141,10 @@ function initialize() {
             type: "POST",
             url: "/api/find_difference",
             success: function(data) {
-                if (data.success)
+                if (data.success) {
                     generateNewPolygon(data.data, "Difference");
+                    clearPolygonSelection()
+                }
             },
             failure: function(data) {
                 console.log(data);
@@ -269,10 +161,10 @@ function initialize() {
 
 function managePolygon(polygonID, action, computation) {
     var paths = new Array();
-    for (var singlePath in polygons.collection[polygonID].path.getArray()) {
-        paths.push(polygons.collection[polygonID].path.getArray()[singlePath].getArray());
-    }
     if (action === "add") {
+        for (var singlePath in polygons.collection[polygonID].path.getArray()) {
+            paths.push(polygons.collection[polygonID].path.getArray()[singlePath].getArray());
+        }
         data = JSON.stringify(
             {
                 "id": polygonID,
@@ -288,11 +180,19 @@ function managePolygon(polygonID, action, computation) {
                "action": action
             }
         );
-    } else {
+    } else if (action === "select") {
         data = JSON.stringify(
             {
                "id": polygonID,
                "action": action
+            }
+        );
+    } else {
+        // This shouldn't happen
+        data = JSON.stringify(
+            {
+                "id": polygonID,
+                "action": action
             }
         );
     }
@@ -301,7 +201,7 @@ function managePolygon(polygonID, action, computation) {
         url: "/api/manage_region",
         data: {"data": data},
         success: function(data) {
-
+            // Nothing needs to be done client side
         },
         failure: function(data) {
             console.log(data);
@@ -318,16 +218,15 @@ function addPolygonToList(polygonID, computation) {
     **/
     var fillColor = polygons.collection[polygonID].fillColor;
     var compName = "";
-    var isHidden = false;
     if (computation) {
         compName = " (" + computation + ")";
     }
     $("#placeholder-empty").remove();
-    if(polygons.collection[polygonID].is3DPolygon === true) {
+    if (polygons.collection[polygonID].is3DPolygon === true) {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
-                .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
+                .append($("<h4>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
                 .append($("<input>").attr("type", "range").attr("class", "form-control"))
                 .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
                 .append($("<div>").attr("class", "col-md-2"))
@@ -337,7 +236,7 @@ function addPolygonToList(polygonID, computation) {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
-                .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
+                .append($("<h4>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
                 .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
                 .append($("<div>").attr("class", "col-md-2"))
                 .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
@@ -346,7 +245,6 @@ function addPolygonToList(polygonID, computation) {
     $("#show-hide-" + polygonID).on("click", function(e) {
         var polygon = polygons.collection[polygonID];
         showHidePolygonButton(this, polygon);
-        isHidden = !isHidden;
     })
     $("#delete-" + polygonID).on("click", function(e) {
         var polygonID = $(this).parent().attr("id");
@@ -355,24 +253,37 @@ function addPolygonToList(polygonID, computation) {
     })
     $("#clear-regions").removeClass("hidden");
     $("#" + polygonID).on("click", function(e) {
-       var polygon = polygons.collection[polygonID];
-       if (!polygons.isInSelectedCollection(polygon) && !isHidden) {
-           polygons.multipleSelection(polygon);
-           createPolygonListBorder(polygonID);
-       } else {
-           polygons.mutipleClearSelection(polygon);
-           clearPolygonListBorders(polygonID);
-       }
-       managePolygon(this.id,"selected");
+        if (!$(e.target).hasClass("btn"))
+            handlePolygonSelect(polygonID);
    })
 }
 
-function createPolygonListBorder(polygonID) {
-    document.getElementById(polygonID).style.border = "2px solid black";
+function handlePolygonSelect(polygonID) {
+    if (polygons.collection[polygonID].visible) {
+        polygons.collection[polygonID].selected = !polygons.collection[polygonID].selected
+        if (polygons.collection[polygonID].selected) {
+            showPolygonSelectBorder(polygonID);
+            polygons.collection[polygonID].setOptions({strokeWeight: 5});
+        } else {
+            clearPolygonSelectBorder(polygonID);
+            polygons.collection[polygonID].setOptions({strokeWeight: 3});
+        }
+        managePolygon(polygonID, "select", null);
+    }
 }
 
-function clearPolygonListBorders(polygonID) {
-    document.getElementById(polygonID).style.border = "none";
+function clearPolygonSelection() {
+    for (polygonID in polygons.collection) {
+        handlePolygonSelect(polygonID);
+    }
+}
+
+function showPolygonSelectBorder(polygonID) {
+    $("#" + polygonID).css({"border": "2px solid black"});
+}
+
+function clearPolygonSelectBorder(polygonID) {
+    $("#" + polygonID).css({"border": "none"});
 }
 
 function deletePolygonButton(button, polygon) {
@@ -438,7 +349,7 @@ function restoreSession() {
     });
 }
 
-function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=true) {
+function generateNewPolygon(polygonCoords, computation, restoreID) {
     /**
      * Creates a polygon from the given coords. polygonCoords is an object with
      * arrays. The arrays are paths to take. Think of this as sides of a shape.
@@ -446,6 +357,9 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
      * new polygon isn't new, it is already in the session and we know an ID to
      * give it. This avoids duplicate regions in session.
      */
+    if (restoreID === undefined) {
+        restoreID = 0;
+    }
     var allPolygons = new Array();
     for (var polygon in polygonCoords) {
         var arr = new Array();
@@ -456,21 +370,17 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
     }
     var poly = new google.maps.Polygon({
         paths: allPolygons,
-        strokeWeight: 4,
+        strokeWeight: 3,
         fillColor: polygons.generateColor(),
         fillOpacity: 0.8,
         zIndex: 3
     });
-    if (restoreId) {
-        polygons.restorePolygon(poly, restoreId);
-        addPolygonToList(restoreId, computation);
+    if (restoreID) {
+        polygons.newPolygon(poly, restoreID);
+        addPolygonToList(restoreID, computation);
     } else {
         var polygonID = polygons.newPolygon(poly)
         managePolygon(polygonID, "add", computation);
-    }
-    if (!isVisible){
-        $("#show-hide-" + poly.id).text("Show");
-        polygons.hide(poly);
     }
 }
 
