@@ -278,11 +278,11 @@ function clearPolygonSelection() {
     }
 }
 
-function showPolygonSelectBoarder(polygonID) {
+function showPolygonSelectBorder(polygonID) {
     $("#" + polygonID).css({"border": "2px solid black"});
 }
 
-function clearPolygonSelectBoarder(polygonID) {
+function clearPolygonSelectBorder(polygonID) {
     $("#" + polygonID).css({"border": "none"});
 }
 
