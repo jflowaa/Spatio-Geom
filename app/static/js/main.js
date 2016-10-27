@@ -286,7 +286,7 @@ function handlePolygonSelect(polygonID) {
             clearPolygonSelectBoarder(polygonID);
             polygons.collection[polygonID].setOptions({strokeWeight: 3});
         }
-        managePolygon(polygonID, "select");
+        managePolygon(polygonID, "select", null);
     }
 }
 
