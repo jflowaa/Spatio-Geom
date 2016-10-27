@@ -3,25 +3,15 @@ var polygons = {
     collection: {},
     is3DPolygon: false,
     add: function(e) {
-        var shape = e.overlay,
-            that = this;
-        shape.type = e.type;
-        shape.path = e.overlay.getPaths();
-        shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
-        shape.selected = false;
-        shape.visible = true;
-        this.collection[shape.id] = shape;
-        google.maps.event.addListener(shape,'click', function() {
-            handlePolygonSelect(shape.id);
-        });
-        google.maps.event.addListener(shape, 'rightclick', function(event) {
-            handleContextMenu(event, this);
-        });
-        shape.setMap(map);
-        return shape.id;
+        return polygons.newPolygon(e.overlay);
     },
     hide: function(polygon) {
         polygon.visible = false;
+        if (polygon.selected) {
+            clearPolygonSelectBoarder(polygon.id);
+            polygon.selected = false;
+            managePolygon(polygon.id, "select");
+        }
         polygon.setMap(null);
     },
     show: function(polygon) {
@@ -39,32 +29,33 @@ var polygons = {
         }
         clearSession();
     },
-    newPolygon: function(poly) {
+    newPolygon: function(poly, polyID, is3D, start, end) {
+        // Not all browsers support default parameters, such as Sarafi. This is the workaround
+        if (polyID === undefined) {
+            polyID = 0;
+        }
+        if (is3D === undefined) {
+            is3D = false;
+        }
+        if (start === undefined) {
+            start = 0;
+        }
+        if (end === undefined) {
+            end = 0;
+        }
         var shape = poly,
             that = this;
         shape.type = "polygon";
         shape.path = poly.getPaths();
-        shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
+        shape.id = polyID == 0 ? new Date().getTime() + Math.floor(Math.random() * 1000) : polyID;
         shape.selected = false;
         shape.visible = true;
-        this.collection[shape.id] = shape;
-        google.maps.event.addListener(shape,'click', function() {
-            handlePolygonSelect(shape.id);
-        });
-        google.maps.event.addListener(shape, 'rightclick', function(event) {
-            handleContextMenu(event, this);
-        });
-        shape.setMap(map);
-        return shape.id;
-    },
-    restorePolygon: function(poly, polyId) {
-        var shape = poly,
-            that = this;
-        shape.type = "polygon";
-        shape.path = poly.getPaths();
-        shape.id = polyId;
-        shape.selected = false;
-        shape.visible = true;
+        shape.is3DPolygon = is3D;
+        if (is3D) {
+            shape.startTime = start;
+            shape.endTime = end;
+            shape.interpolatedRegionId = 0;
+        }
         this.collection[shape.id] = shape;
         google.maps.event.addListener(shape,'click', function() {
             handlePolygonSelect(shape.id);
@@ -376,7 +367,7 @@ function restoreSession() {
     });
 }
 
-function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=true) {
+function generateNewPolygon(polygonCoords, computation, restoreID=0, isVisible=true) {
     /**
      * Creates a polygon from the given coords. polygonCoords is an object with
      * arrays. The arrays are paths to take. Think of this as sides of a shape.
@@ -399,16 +390,12 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
         fillOpacity: 0.8,
         zIndex: 3
     });
-    if (restoreId) {
-        polygons.restorePolygon(poly, restoreId);
-        addPolygonToList(restoreId, computation);
+    if (restoreID) {
+        polygons.newPolygon(poly, restoreID);
+        addPolygonToList(restoreID, computation);
     } else {
         var polygonID = polygons.newPolygon(poly)
         managePolygon(polygonID, "add", computation);
-    }
-    if (!isVisible){
-        $("#show-hide-" + poly.id).text("Show");
-        polygons.hide(poly);
     }
 }
 
