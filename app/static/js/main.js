@@ -78,7 +78,7 @@ var polygons = {
     generateColor: function(e) {
         var colorVal = "#";
         for (var x = 0; x < 6; x++) {
-            var randNum = Math.floor(Math.random() * 10) + 6;
+            var randNum = Math.floor(Math.random() * (13 - 1) + 1);
             switch(randNum) {
                 case 10:
                     colorVal += "A";
@@ -94,9 +94,6 @@ var polygons = {
                     break;
                 case 14:
                     colorVal += "E";
-                    break;
-                case 15:
-                    colorVal += "F";
                     break;
                 default:
                     colorVal += randNum.toString();
@@ -256,7 +253,7 @@ function addPolygonToList(polygonID, computation) {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
-                .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
+                .append($("<h4>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
                 .append($("<input>").attr("type", "range").attr("class", "form-control"))
                 .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
                 .append($("<div>").attr("class", "col-md-2"))
@@ -266,7 +263,7 @@ function addPolygonToList(polygonID, computation) {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
-                .append($("<p>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
+                .append($("<h4>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
                 .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
                 .append($("<div>").attr("class", "col-md-2"))
                 .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
