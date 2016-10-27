@@ -69,26 +69,8 @@ var polygons = {
     generateColor: function(e) {
         var colorVal = "#";
         for (var x = 0; x < 6; x++) {
-            var randNum = Math.floor(Math.random() * (13) + 1);
-            switch(randNum) {
-                case 10:
-                    colorVal += "A";
-                    break;
-                case 11:
-                    colorVal += "B";
-                    break;
-                case 12:
-                    colorVal += "C";
-                    break;
-                case 13:
-                    colorVal += "D";
-                    break;
-                case 14:
-                    colorVal += "E";
-                    break;
-                default:
-                    colorVal += randNum.toString();
-            }
+            var randNum = Math.floor(Math.random() * (9) + 1);
+            colorVal += randNum.toString();
         }
         return colorVal;
     }
@@ -367,7 +349,7 @@ function restoreSession() {
     });
 }
 
-function generateNewPolygon(polygonCoords, computation, restoreID=0, isVisible=true) {
+function generateNewPolygon(polygonCoords, computation, restoreID) {
     /**
      * Creates a polygon from the given coords. polygonCoords is an object with
      * arrays. The arrays are paths to take. Think of this as sides of a shape.
@@ -375,6 +357,9 @@ function generateNewPolygon(polygonCoords, computation, restoreID=0, isVisible=t
      * new polygon isn't new, it is already in the session and we know an ID to
      * give it. This avoids duplicate regions in session.
      */
+    if (restoreID === undefined) {
+        restoreID = 0;
+    }
     var allPolygons = new Array();
     for (var polygon in polygonCoords) {
         var arr = new Array();
