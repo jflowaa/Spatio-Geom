@@ -8,7 +8,7 @@ var polygons = {
     hide: function(polygon) {
         polygon.visible = false;
         if (polygon.selected) {
-            clearPolygonSelectBoarder(polygon.id);
+            clearPolygonSelectBorder(polygon.id);
             polygon.selected = false;
             managePolygon(polygon.id, "select");
         }
@@ -262,10 +262,10 @@ function handlePolygonSelect(polygonID) {
     if (polygons.collection[polygonID].visible) {
         polygons.collection[polygonID].selected = !polygons.collection[polygonID].selected
         if (polygons.collection[polygonID].selected) {
-            showPolygonSelectBoarder(polygonID);
+            showPolygonSelectBorder(polygonID);
             polygons.collection[polygonID].setOptions({strokeWeight: 5});
         } else {
-            clearPolygonSelectBoarder(polygonID);
+            clearPolygonSelectBorder(polygonID);
             polygons.collection[polygonID].setOptions({strokeWeight: 3});
         }
         managePolygon(polygonID, "select", null);
