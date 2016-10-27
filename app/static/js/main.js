@@ -222,7 +222,7 @@ function addPolygonToList(polygonID, computation) {
         compName = " (" + computation + ")";
     }
     $("#placeholder-empty").remove();
-    if(polygons.collection[polygonID].is3DPolygon === true) {
+    if (polygons.collection[polygonID].is3DPolygon === true) {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
