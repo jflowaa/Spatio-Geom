@@ -32,7 +32,7 @@ def manage_region():
         for region in session["regions"]:
             if region.get("id") == int(data.get("id")):
                 region["visible"] = not region["visible"]
-    elif data.get("action") == "selected":
+    elif data.get("action") == "select":
         for region in session["regions"]:
             if region.get("id") == int(data.get("id")):
                 region["selected"] = not region["selected"]

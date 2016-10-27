@@ -1,25 +1,18 @@
 var map;
 var polygons = {
-    selectedCollection: {},
     collection: {},
     is3DPolygon: false,
-    selectedShape: null,
     add: function(e) {
         var shape = e.overlay,
             that = this;
         shape.type = e.type;
         shape.path = e.overlay.getPaths();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
+        shape.selected = false;
+        shape.visible = true;
         this.collection[shape.id] = shape;
         google.maps.event.addListener(shape,'click', function() {
-            if(!that.isInSelectedCollection(this)) {
-                that.multipleSelection(this);
-                createPolygonListBorder(shape.id);
-            } else {
-                that.mutipleClearSelection(this);
-                clearPolygonListBorders(shape.id);
-            }
-            managePolygon(this.id,"selected");
+            handlePolygonSelect(shape.id);
         });
         google.maps.event.addListener(shape, 'rightclick', function(event) {
             handleContextMenu(event, this);
@@ -28,9 +21,11 @@ var polygons = {
         return shape.id;
     },
     hide: function(polygon) {
+        polygon.visible = false;
         polygon.setMap(null);
     },
     show: function(polygon) {
+        polygon.visible = true;
         polygon.setMap(map);
     },
     delete: function(polygon) {
@@ -50,17 +45,11 @@ var polygons = {
         shape.type = "polygon";
         shape.path = poly.getPaths();
         shape.id = new Date().getTime() + Math.floor(Math.random() * 1000);
+        shape.selected = false;
+        shape.visible = true;
         this.collection[shape.id] = shape;
-        this.deselectAll();
         google.maps.event.addListener(shape,'click', function() {
-            if (!that.isInSelectedCollection(this)) {
-                that.multipleSelection(this);
-                createPolygonListBorder(shape.id);
-            } else {
-                that.mutipleClearSelection(this);
-                clearPolygonListBorders(shape.id);
-            }
-            managePolygon(this.id,"selected");
+            handlePolygonSelect(shape.id);
         });
         google.maps.event.addListener(shape, 'rightclick', function(event) {
             handleContextMenu(event, this);
@@ -74,92 +63,17 @@ var polygons = {
         shape.type = "polygon";
         shape.path = poly.getPaths();
         shape.id = polyId;
+        shape.selected = false;
+        shape.visible = true;
         this.collection[shape.id] = shape;
         google.maps.event.addListener(shape,'click', function() {
-            if (!that.isInSelectedCollection(this)) {
-                that.multipleSelection(this);
-                createPolygonListBorder(shape.id);
-            } else {
-                that.mutipleClearSelection(this);
-                clearPolygonListBorders(shape.id);
-            }
-            managePolygon(this.id,"selected");
+            handlePolygonSelect(shape.id);
         });
         google.maps.event.addListener(shape, 'rightclick', function(event) {
             handleContextMenu(event, this);
         });
         shape.setMap(map);
         return shape.id;
-    },
-    multipleSelection: function(shape) {
-        this.selectedShape = shape;
-        shape.set('editable', true);
-        this.selectedCollection[shape.id] = shape;
-    },
-    deleteSelected: function() {
-        if (this.selectedShape) {
-            var shape= this.selectedShape;
-            this.clearSelection();
-            shape.setMap(null);
-            delete this.collection[shape.id];
-        }
-    },
-    clearSelection: function(shape) {
-        if (this.selectedShape) {
-            this.selectedShape.set('draggable', false);
-            this.selectedShape.set('editable', false);
-            this.selectedShape = null;
-        }
-    },
-    deselectAll: function(){
-        for(var x in this.selectedCollection) {
-            if (this.selectedShape !== this.selectedCollection[x]) {
-                this.selectedShape = this.selectedCollection[x];
-            }
-            clearPolygonListBorders(this.selectedCollection[x].id);
-            this.selectedShape.set('draggable', false);
-            this.selectedShape.set('editable', false);
-            this.selectedShape = null;
-            managePolygon(this.selectedCollection[x].id, "selected");
-            delete this.selectedCollection[x];
-        }
-    },
-    mutipleClearSelection: function(shape) {
-        if (this.selectedShape !== shape) {
-            this.selectedShape = shape;
-        }
-        this.selectedShape.set('draggable', false);
-        this.selectedShape.set('editable', false);
-        this.selectedShape = null;
-        if(Object.keys(this.selectedCollection).length !== null) {
-            delete this.selectedCollection[shape.id];
-        }
-    },
-    isInSelectedCollection: function(shape) {
-        for (var x in this.selectedCollection) {
-            if (shape === this.selectedCollection[x]) {
-                return true;
-            }
-        }
-        return false;
-    },
-    save: function() {
-        var collection = [];
-        for (var k in this.collection) {
-            var shape = this.collection[k],
-            types = google.maps.drawing.OverlayType;
-            switch(shape.type) {
-                case types.POLYGON:
-                    collection.push({
-                        type:shape.type,
-                        path:google.maps.geometry.encoding.encodePath(
-                            shape.getPaths())
-                    });
-                    break;
-                default:
-                    alert('implement a storage-method for ' + shape.type)
-            }
-        }
     },
     generateColor: function(e) {
         var colorVal = "#";
@@ -202,7 +116,7 @@ function initialize() {
     var polyOptions = {
         fillColor : polygons.generateColor(),
         fillOpacity: .8,
-        strokeWeight: 4,
+        strokeWeight: 3,
         zIndex: 1
     };
     var drawingManager = new google.maps.drawing.DrawingManager({
@@ -227,8 +141,10 @@ function initialize() {
             type: "POST",
             url: "/api/find_intersections",
             success: function(data) {
-                if (data.success)
+                if (data.success) {
                     generateNewPolygon(data.data, "Intersection");
+                    clearPolygonSelection();
+                }
             },
             failure: function(data) {
                 console.log(data);
@@ -240,8 +156,10 @@ function initialize() {
             type: "POST",
             url: "/api/find_unions",
             success: function(data) {
-                if (data.success)
+                if (data.success) {
                     generateNewPolygon(data.data, "Union");
+                    clearPolygonSelection();
+                }
             },
             failure: function(data) {
                 console.log(data);
@@ -253,8 +171,10 @@ function initialize() {
             type: "POST",
             url: "/api/find_difference",
             success: function(data) {
-                if (data.success)
+                if (data.success) {
                     generateNewPolygon(data.data, "Difference");
+                    clearPolygonSelection()
+                }
             },
             failure: function(data) {
                 console.log(data);
@@ -271,10 +191,10 @@ function initialize() {
 
 function managePolygon(polygonID, action, computation) {
     var paths = new Array();
-    for (var singlePath in polygons.collection[polygonID].path.getArray()) {
-        paths.push(polygons.collection[polygonID].path.getArray()[singlePath].getArray());
-    }
     if (action === "add") {
+        for (var singlePath in polygons.collection[polygonID].path.getArray()) {
+            paths.push(polygons.collection[polygonID].path.getArray()[singlePath].getArray());
+        }
         data = JSON.stringify(
             {
                 "id": polygonID,
@@ -290,11 +210,19 @@ function managePolygon(polygonID, action, computation) {
                "action": action
             }
         );
-    } else {
+    } else if (action === "select") {
         data = JSON.stringify(
             {
                "id": polygonID,
                "action": action
+            }
+        );
+    } else {
+        // This shouldn't happen
+        data = JSON.stringify(
+            {
+                "id": polygonID,
+                "action": action
             }
         );
     }
@@ -303,7 +231,7 @@ function managePolygon(polygonID, action, computation) {
         url: "/api/manage_region",
         data: {"data": data},
         success: function(data) {
-
+            // Nothing needs to be done client side
         },
         failure: function(data) {
             console.log(data);
@@ -320,7 +248,6 @@ function addPolygonToList(polygonID, computation) {
     **/
     var fillColor = polygons.collection[polygonID].fillColor;
     var compName = "";
-    var isHidden = false;
     if (computation) {
         compName = " (" + computation + ")";
     }
@@ -348,7 +275,6 @@ function addPolygonToList(polygonID, computation) {
     $("#show-hide-" + polygonID).on("click", function(e) {
         var polygon = polygons.collection[polygonID];
         showHidePolygonButton(this, polygon);
-        isHidden = !isHidden;
     })
     $("#delete-" + polygonID).on("click", function(e) {
         var polygonID = $(this).parent().attr("id");
@@ -357,23 +283,36 @@ function addPolygonToList(polygonID, computation) {
     })
     $("#clear-regions").removeClass("hidden");
     $("#" + polygonID).on("click", function(e) {
-       var polygon = polygons.collection[polygonID];
-       if (!polygons.isInSelectedCollection(polygon) && !isHidden) {
-           polygons.multipleSelection(polygon);
-           createPolygonListBorder(polygonID);
-       } else {
-           polygons.mutipleClearSelection(polygon);
-           clearPolygonListBorders(polygonID);
-       }
-       managePolygon(this.id,"selected");
+        if (!$(e.target).hasClass("btn"))
+            handlePolygonSelect(polygonID);
    })
 }
 
-function createPolygonListBorder(polygonID) {
+function handlePolygonSelect(polygonID) {
+    if (polygons.collection[polygonID].visible) {
+        polygons.collection[polygonID].selected = !polygons.collection[polygonID].selected
+        if (polygons.collection[polygonID].selected) {
+            showPolygonSelectBoarder(polygonID);
+            polygons.collection[polygonID].setOptions({strokeWeight: 5});
+        } else {
+            clearPolygonSelectBoarder(polygonID);
+            polygons.collection[polygonID].setOptions({strokeWeight: 3});
+        }
+        managePolygon(polygonID, "select");
+    }
+}
+
+function clearPolygonSelection() {
+    for (polygonID in polygons.collection) {
+        handlePolygonSelect(polygonID);
+    }
+}
+
+function showPolygonSelectBoarder(polygonID) {
     $("#" + polygonID).css({"border": "2px solid black"});
 }
 
-function clearPolygonListBorders(polygonID) {
+function clearPolygonSelectBoarder(polygonID) {
     $("#" + polygonID).css({"border": "none"});
 }
 
@@ -433,7 +372,6 @@ function restoreSession() {
                                        data.data.polygons[i].visible);
                 }
             }
-            polygons.deselectAll();
         },
         failure: function(data) {
             console.log(data);
@@ -459,7 +397,7 @@ function generateNewPolygon(polygonCoords, computation, restoreId=0, isVisible=t
     }
     var poly = new google.maps.Polygon({
         paths: allPolygons,
-        strokeWeight: 4,
+        strokeWeight: 3,
         fillColor: polygons.generateColor(),
         fillOpacity: 0.8,
         zIndex: 3
