@@ -1,7 +1,6 @@
 var map;
 var polygons = {
     collection: {},
-    is3DPolygon: false,
     add: function(e) {
         return polygons.newPolygon(e.overlay);
     },
@@ -152,7 +151,6 @@ function initialize() {
         });
     });
     $('#interpolate-regions').click(function() {
-        console.log("hit");
         var startTime = $("#start-time").val();
         var endTime = $("#end-time").val();
         data = JSON.stringify(
@@ -161,14 +159,28 @@ function initialize() {
                 "endTime" : endTime
             }
         );
-        console.log("HIt");
         $.ajax({
             type: "POST",
             url: "/api/find_introplated_regions",
             data: {"data": data},
             success: function(data) {
-                var polygonsIds = jQuery.extend(true, {}, polygons.selectedCollection);
                 var restoreID = 0;
+                for (var polygon in polygons.collection) {
+                    if (polygons.collection[polygon].selected) {
+                        var button = "#delete-" + polygon;
+                        $(button).parent().remove();
+                        if (!$("#region-list").children().length) {
+                            showEmptyRegionList();
+                            $("#clear-regions").addClass("hidden");
+                        }
+                        restoreID = polygon;
+                        $("#custom-menu").addClass("hidden");
+                        polygons.delete(polygons.collection[polygon]);
+                    }
+                }
+                generateNewPolygon(data.data, "Interpolated Regions", restoreID, true, startTime, endTime);
+                /*var polygonsIds = jQuery.extend(true, {}, polygons.selectedCollection);
+                console.log(polygonsIds);
                 for (var polyID in polygonsIds) {
                     var button = "#delete-" + polyID;
                     $(button).parent().remove();
@@ -181,6 +193,7 @@ function initialize() {
                     restoreID = polyID;
                 }
                 generateNewPolygon(data.data, "Interpolated Regions", restoreID, true, startTime, endTime);
+*/
             },
             failure: function(data) {
                 console.log(data);
@@ -470,7 +483,7 @@ function bindInterpolatedChange(polygonID, checked) {
 }
 function handlePolygonSelect(polygonID) {
     if (polygons.collection[polygonID].visible) {
-        polygons.collection[polygonID].selected = !polygons.collection[polygonID].selected
+        polygons.collection[polygonID].selected = !polygons.collection[polygonID].selected;
         if (polygons.collection[polygonID].selected) {
             showPolygonSelectBorder(polygonID);
             polygons.collection[polygonID].setOptions({strokeWeight: 5});
@@ -572,8 +585,9 @@ function generateNewPolygon(polygonCoords, computation, restoreID, startTime, en
     });
     var polygonID = 0;
     if (restoreID) {
-        polygonID = polygons.newPolygon(poly, restoreID, "Interpolated Regions", startTime, endTime);
-        addPolygonToList(restoreId, computation);
+        var is3d = computation === "Interpolated Regions" ? true : false;
+        polygonID = polygons.newPolygon(poly, restoreID, is3d, startTime, endTime);
+        addPolygonToList(restoreID, computation);
     } else {
         polygonID = polygons.newPolygon(poly);
         managePolygon(polygonID, "add", computation);
