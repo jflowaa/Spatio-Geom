@@ -29,27 +29,15 @@ var polygons = {
         clearSession();
     },
     newPolygon: function(poly, polyID, is3D, start, end) {
-        // Not all browsers support default parameters, such as Sarafi. This is the workaround
-        if (polyID === undefined) {
+        if (polyID == null)
             polyID = 0;
-        }
-        if (is3D === undefined) {
-            is3D = false;
-        }
-        if (start === undefined) {
-            start = 0;
-        }
-        if (end === undefined) {
-            end = 0;
-        }
-        var shape = poly,
-            that = this;
+        var shape = poly, that = this;
         shape.type = "polygon";
         shape.path = poly.getPaths();
         shape.id = polyID == 0 ? new Date().getTime() + Math.floor(Math.random() * 1000) : polyID;
         shape.selected = false;
         shape.visible = true;
-        shape.is3DPolygon = is3D;
+        shape.is3DPolygon = is3D || false;
         if (is3D) {
             shape.startTime = start;
             shape.endTime = end;
@@ -66,14 +54,53 @@ var polygons = {
         return shape.id;
     },
     generateColor: function(e) {
-        var colorVal = "#";
-        for (var x = 0; x < 6; x++) {
-            var randNum = Math.floor(Math.random() * (9) + 1);
-            colorVal += randNum.toString();
+        var color = "#";
+        var tooDark = true;
+        while (tooDark) {
+            for (var x = 0; x < 6; x++) {
+                var randNum = Math.floor(Math.random() * 12);
+                switch(randNum) {
+                    case 10:
+                        color += "A";
+                        break;
+                    case 11:
+                        color += "B";
+                        break;
+                    case 12:
+                        color += "C";
+                        break;
+                    case 13:
+                        color += "D";
+                        break;
+                    case 14:
+                        colorVal += "E";
+                        break;
+                    case 15:
+                        color += "F";
+                        break;
+                    default:
+                        color += randNum.toString();
+                }
+            }
+            // tooDark = checkIfColorIsTooDark(color);
+            tooDark = false;
         }
-        return colorVal;
+        return color;
     }
 };
+
+function checkIfColorIsTooDark(colorInHex) {
+    var c = colorInHex.substring(1);      // strip #
+    var rgb = parseInt(c, 16);   // convert rrggbb to decimal
+    var r = (rgb >> 16) & 0xff;  // extract red
+    var g = (rgb >>  8) & 0xff;  // extract green
+    var b = (rgb >>  0) & 0xff;  // extract blue
+    var luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
+    if (luma > 80 || luma < 40) {
+        return true;
+    }
+    return false
+}
 
 function initialize() {
     var mapProp = {
@@ -435,15 +462,6 @@ function generateNewPolygon(polygonCoords, computation, restoreID, startTime, en
      * new polygon isn't new, it is already in the session and we know an ID to
      * give it. This avoids duplicate regions in session.
      */
-    if (restoreID === undefined) {
-        restoreID = 0;
-    }
-    if (startTime === undefined) {
-        restoreID = 0;
-    }
-    if (endTime === undefined) {
-        restoreID = 0;
-    }
     var allPolygons = new Array();
     for (var polygon in polygonCoords) {
         var arr = new Array();
@@ -460,10 +478,10 @@ function generateNewPolygon(polygonCoords, computation, restoreID, startTime, en
         zIndex: 3
     });
     var polygonID = 0;
-    if (restoreID) {
+    if (typeof restoreID !== undefined || restoreID == null) {
         var is3d = computation === "Interpolated Regions" ? true : false;
         polygonID = polygons.newPolygon(poly, restoreID, is3d, startTime, endTime);
-        addPolygonToList(restoreID, computation);
+        addPolygonToList(polygonID, computation);
     } else {
         polygonID = polygons.newPolygon(poly);
         managePolygon(polygonID, "add", computation);
