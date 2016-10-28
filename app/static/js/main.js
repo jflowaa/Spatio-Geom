@@ -173,7 +173,7 @@ function initialize() {
             url: "/api/find_introplated_regions",
             data: {"data": data},
             success: function(data) {
-                var restoreID = 0;
+                var restoreID = [];
                 for (var polygon in polygons.collection) {
                     if (polygons.collection[polygon].selected) {
                         var button = "#delete-" + polygon;
@@ -182,12 +182,13 @@ function initialize() {
                             showEmptyRegionList();
                             $("#clear-regions").addClass("hidden");
                         }
-                        restoreID = polygon;
+                        restoreID.push(polygon);
                         $("#custom-menu").addClass("hidden");
                         polygons.delete(polygons.collection[polygon]);
                     }
                 }
-                generateNewPolygon(data.data, "Interpolated Regions", restoreID, startTime, endTime);
+                managePolygon(restoreID[0], "delete", null);
+                generateNewPolygon(data.data, "Interpolated Regions", restoreID[1], startTime, endTime);
             },
             failure: function(data) {
                 console.log(data);
@@ -217,7 +218,6 @@ function managePolygon(polygonID, action, computation) {
         );
         addPolygonToList(polygonID, computation);
     } else if (action === "delete") {
-        console.log(polygonID + " " + action);
         data = JSON.stringify(
             {
                "id": polygonID,
@@ -330,7 +330,6 @@ function bindInterpolatedChange(polygonID, checked) {
                 }
                 $("#custom-menu").addClass("hidden");
                 polygons.delete(polygons.collection[polygon.interpolatedRegionId]);
-                console.log(polygon.interpolatedRegionId);
             }
             $.ajax({
                 type: "POST",

@@ -197,6 +197,11 @@ def find_introplated_regions():
             "2": seg1[2],
             "3": seg2[2]
         }
+        paths = []
+        paths.append(seg1[2])
+        paths.append(seg2[2])
+        regions[0]["region"] = process_polygons(paths)
+        regions[1]["region"] = process_polygons(paths)
         return jsonify({"success": True, "data": segments})
     else:
         return jsonify(
