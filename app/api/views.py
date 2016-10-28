@@ -158,8 +158,8 @@ def find_difference():
             {"success": False, "data": "No common difference"})
 
 
-@api.route("/find_introplated_regions", methods=["POST"])
-def find_introplated_regions():
+@api.route("/find_interoplated_regions", methods=["POST"])
+def find_interoplated_regions():
     """
     The user has started the process interpolate. The user passes a start and
     finish time for the regions. The selected regions are then interpolated.
@@ -175,7 +175,7 @@ def find_introplated_regions():
     end_time = data.get("endTime")
     regions = [region for region in session[
         "regions"] if (region.get("selected") and region.get("visible"))]
-    if len(regions) > 1:
+    if len(regions) == 2:
         introplated = process_interpolate_regions(
             regions, start_time, end_time)
     else:

@@ -167,6 +167,12 @@ def process_difference_cords(seg_dict):
 
 
 def process_interval_region_at_time(interval_region, time):
+    """
+    Given a interval tuple it will find the region from that time.
+
+    Returns:
+        Hseg of the region at the given time
+    """
     region = interval_region_logic.getRegionAtTime(
         interval_region, float(time))
     hseg = region_logic.createRegionFromSegs(region)

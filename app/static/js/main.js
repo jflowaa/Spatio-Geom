@@ -170,25 +170,27 @@ function initialize() {
         );
         $.ajax({
             type: "POST",
-            url: "/api/find_introplated_regions",
+            url: "/api/find_interoplated_regions",
             data: {"data": data},
             success: function(data) {
-                var restoreID = [];
-                for (var polygon in polygons.collection) {
-                    if (polygons.collection[polygon].selected) {
-                        var button = "#delete-" + polygon;
-                        $(button).parent().remove();
-                        if (!$("#region-list").children().length) {
-                            showEmptyRegionList();
-                            $("#clear-regions").addClass("hidden");
+                if (data.success) {
+                    var restoreID = [];
+                    for (var polygon in polygons.collection) {
+                        if (polygons.collection[polygon].selected) {
+                            var button = "#delete-" + polygon;
+                            $(button).parent().remove();
+                            if (!$("#region-list").children().length) {
+                                showEmptyRegionList();
+                                $("#clear-regions").addClass("hidden");
+                            }
+                            restoreID.push(polygon);
+                            $("#custom-menu").addClass("hidden");
+                            polygons.delete(polygons.collection[polygon]);
                         }
-                        restoreID.push(polygon);
-                        $("#custom-menu").addClass("hidden");
-                        polygons.delete(polygons.collection[polygon]);
                     }
+                    managePolygon(restoreID[0], "delete", null);
+                    generateNewPolygon(data.data, "Interpolated Regions", restoreID[1], startTime, endTime);
                 }
-                managePolygon(restoreID[0], "delete", null);
-                generateNewPolygon(data.data, "Interpolated Regions", restoreID[1], startTime, endTime);
             },
             failure: function(data) {
                 console.log(data);
@@ -337,7 +339,7 @@ function bindInterpolatedChange(polygonID, checked) {
                 polyId: polygonID,
                 data: {"data": data},
                 success: function(data) {
-                    var id = generateNewPolygon(data.data, "From introplated");
+                    var id = generateNewPolygon(data.data, "From interoplated");
                     managePolygon(polygons.collection[this.polyId].interpolatedRegionId, "delete", null);
                     polygons.collection[this.polyId].interpolatedRegionId = id;
                 },
@@ -359,7 +361,7 @@ function bindInterpolatedChange(polygonID, checked) {
                 url: "/api/find_region_at_time",
                 data: {"data": data},
                 success: function(data) {
-                    generateNewPolygon(data.data, "From introplated")
+                    generateNewPolygon(data.data, "From interoplated")
                 },
                 failure: function(data) {
                     console.log(data);
