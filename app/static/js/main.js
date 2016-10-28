@@ -215,6 +215,7 @@ function managePolygon(polygonID, action, computation) {
             {
                 "id": polygonID,
                 "path": paths,
+                "computation": computation,
                 "action": action
             }
         );
@@ -432,7 +433,9 @@ function restoreSession() {
                 // Doing a for instead of a foreach because foreach was giving
                 // the index instead of the object. No idea
                 for (i = 0; i < data.data.polygons.length; i++) {
-                    generateNewPolygon(data.data.polygons[i].coords, "", data.data.polygons[i].id,
+                    generateNewPolygon(data.data.polygons[i].coords,
+                                       data.data.polygons[i].computation,
+                                       data.data.polygons[i].id,
                                        data.data.polygons[i].visible);
                 }
             }

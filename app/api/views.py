@@ -25,6 +25,7 @@ def manage_region():
             "id": data.get("id"),
             "region": process_polygons(data.get("path")),
             "visible": True,
+            "computation": data.get("computation"),
             "selected": False
         }
         if not session.get("regions"):
@@ -74,6 +75,7 @@ def restore_session():
             hseg = hseg_to_coords(region["region"])
             coords_dict["coords"] = hseg
             coords_dict["id"] = region["id"]
+            coords_dict["computation"] = region["computation"]
             coords_dict["visible"] = region["visible"]
             regions_to_coords["polygons"].append(coords_dict)
             if(region["selected"]):
@@ -219,6 +221,8 @@ def find_interoplated_regions():
         paths.append(seg2[2])
         regions[0]["region"] = process_polygons(paths)
         regions[1]["region"] = process_polygons(paths)
+        regions[0]["computation"] = "Interpolated Regions"
+        regions[1]["computation"] = "Interpolated Regions"
         return jsonify({"success": True, "data": segments})
     else:
         return jsonify(
