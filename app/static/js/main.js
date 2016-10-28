@@ -272,6 +272,7 @@ function addPolygonToList(polygonID, computation) {
         bindInterpolatedChange(polygonID, false);
         $("#checkbox-" + polygonID).click(function(){
             bindInterpolatedChange(polygonID, $(this).is(':checked'));
+        });
     } else {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
