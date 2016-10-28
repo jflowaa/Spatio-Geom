@@ -1,4 +1,5 @@
 from pyspatiotemporalgeom import region as region_logic
+from pyspatiotemporalgeom import intervalRegion as interval_region_logic
 import copy
 
 
@@ -102,6 +103,29 @@ def process_difference(regions):
     return region
 
 
+def process_interpolate_regions(regions, start_time, end_time):
+    """
+    Finds the interpolated regions between the two given regions. Returns a 3
+    tuple of the interpolated region.
+
+    Arguments:
+        regions: a list of regions shown on the map
+
+    Returns:
+        A region formed from the interpolation with all given regions.
+    """
+    region = regions[0].get("region")
+    # Compare with the rest of the regions
+    for other_region in regions[1:]:
+        region = interval_region_logic.interpolateRegions(
+            region, other_region.get("region"),
+            float(start_time), float(end_time))
+        # If region is not empty, then there was a well-formed difference.
+        if not region:
+            return []
+    return region
+
+
 def is_cycle_clockwise(seg):
     """
     Iterates through the coordinates and gets the line sums for the entire
@@ -140,6 +164,19 @@ def process_difference_cords(seg_dict):
                 seg_dict[seg].reverse()
         cycle_count = cycle_count + 1
     return seg_dict
+
+
+def process_interval_region_at_time(interval_region, time):
+    """
+    Given a interval tuple it will find the region from that time.
+
+    Returns:
+        Hseg of the region at the given time
+    """
+    region = interval_region_logic.getRegionAtTime(
+        interval_region, float(time))
+    hseg = region_logic.createRegionFromSegs(region)
+    return hseg_to_coords(hseg)
 
 
 def hseg_to_coords(hseg, is_difference=None):

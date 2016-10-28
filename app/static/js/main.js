@@ -1,7 +1,6 @@
 var map;
 var polygons = {
     collection: {},
-    is3DPolygon: false,
     add: function(e) {
         return polygons.newPolygon(e.overlay);
     },
@@ -30,31 +29,19 @@ var polygons = {
         clearSession();
     },
     newPolygon: function(poly, polyID, is3D, start, end) {
-        // Not all browsers support default parameters, such as Sarafi. This is the workaround
-        if (polyID === undefined) {
+        if (polyID == null)
             polyID = 0;
-        }
-        if (is3D === undefined) {
-            is3D = false;
-        }
-        if (start === undefined) {
-            start = 0;
-        }
-        if (end === undefined) {
-            end = 0;
-        }
-        var shape = poly,
-            that = this;
+        var shape = poly, that = this;
         shape.type = "polygon";
         shape.path = poly.getPaths();
         shape.id = polyID == 0 ? new Date().getTime() + Math.floor(Math.random() * 1000) : polyID;
         shape.selected = false;
         shape.visible = true;
-        shape.is3DPolygon = is3D;
+        shape.is3DPolygon = is3D || false;
         if (is3D) {
             shape.startTime = start;
             shape.endTime = end;
-            shape.interpolatedRegionId = 0;
+            shape.interpolatedRegionID = 0;
         }
         this.collection[shape.id] = shape;
         google.maps.event.addListener(shape,'click', function() {
@@ -67,12 +54,33 @@ var polygons = {
         return shape.id;
     },
     generateColor: function(e) {
-        var colorVal = "#";
+        var color = "#";
         for (var x = 0; x < 6; x++) {
-            var randNum = Math.floor(Math.random() * (9) + 1);
-            colorVal += randNum.toString();
-        }
-        return colorVal;
+            var randNum = Math.floor(Math.random() * (15 - 7) + 7);
+            switch(randNum) {
+                case 10:
+                    color += "A";
+                    break;
+                case 11:
+                    color += "B";
+                    break;
+                case 12:
+                    color += "C";
+                    break;
+                case 13:
+                    color += "D";
+                    break;
+                case 14:
+                    color += "E";
+                    break;
+                case 15:
+                    color += "F";
+                    break;
+                default:
+                    color += randNum.toString();
+            }
+    }
+    return color;
     }
 };
 
@@ -151,6 +159,44 @@ function initialize() {
             }
         });
     });
+    $('#interpolate-regions').click(function() {
+        var startTime = $("#start-time").val();
+        var endTime = $("#end-time").val();
+        data = JSON.stringify(
+            {
+                "startTime" : startTime,
+                "endTime" : endTime
+            }
+        );
+        $.ajax({
+            type: "POST",
+            url: "/api/find_interoplated_regions",
+            data: {"data": data},
+            success: function(data) {
+                if (data.success) {
+                    var restoreID = [];
+                    for (var polygon in polygons.collection) {
+                        if (polygons.collection[polygon].selected) {
+                            var button = "#delete-" + polygon;
+                            $(button).parent().remove();
+                            if (!$("#region-list").children().length) {
+                                showEmptyRegionList();
+                                $("#clear-regions").addClass("hidden");
+                            }
+                            restoreID.push(polygon);
+                            $("#custom-menu").addClass("hidden");
+                            polygons.delete(polygons.collection[polygon]);
+                        }
+                    }
+                    managePolygon(restoreID[0], "delete", null);
+                    generateNewPolygon(data.data, "Interpolated Regions", restoreID[1], startTime, endTime);
+                }
+            },
+            failure: function(data) {
+                console.log(data);
+            }
+        });
+    });
     $("#clear-regions").on("click", function(e) {
         polygons.clearAll();
         $("#region-list").empty();
@@ -169,6 +215,7 @@ function managePolygon(polygonID, action, computation) {
             {
                 "id": polygonID,
                 "path": paths,
+                "computation": computation,
                 "action": action
             }
         );
@@ -222,24 +269,31 @@ function addPolygonToList(polygonID, computation) {
         compName = " (" + computation + ")";
     }
     $("#placeholder-empty").remove();
-    if (polygons.collection[polygonID].is3DPolygon === true) {
+    if(polygons.collection[polygonID].is3DPolygon === true) {
+        var polygon = polygons.collection[polygonID];
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
                 .append($("<h4>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
-                .append($("<input>").attr("type", "range").attr("class", "form-control"))
-                .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
+                .append($("<input>").attr("type", "checkbox").attr("id", "checkbox-" + polygonID).attr("class", "ignore-click"))
+                .append($("<label>").attr("for", "checkbox-" + polygonID).attr("class", "ignore-click").text(" Only create one region"))
+                .append($("<input>").attr("type", "range").attr("id", "slider-" + polygonID).attr("class", "form-control ignore-click").attr("min", polygon.startTime).attr("max", polygon.endTime).attr("value", polygon.startTime))
+                .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device ignore-click").attr("style", "padding-bottom: 1%").text("Hide"))
                 .append($("<div>").attr("class", "col-md-2"))
-                .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
+                .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device ignore-click").text("Delete"))
         );
+        bindInterpolatedChange(polygonID, false);
+        $("#checkbox-" + polygonID).click(function() {
+            bindInterpolatedChange(polygonID, $(this).is(':checked'));
+        });
     } else {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
                 .append($("<h4>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
-                .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
+                .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device ignore-click").attr("style", "padding-bottom: 1%").text("Hide"))
                 .append($("<div>").attr("class", "col-md-2"))
-                .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
+                .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device ignore-click").text("Delete"))
         );
     }
     $("#show-hide-" + polygonID).on("click", function(e) {
@@ -253,14 +307,73 @@ function addPolygonToList(polygonID, computation) {
     })
     $("#clear-regions").removeClass("hidden");
     $("#" + polygonID).on("click", function(e) {
-        if (!$(e.target).hasClass("btn"))
+        if (!$(e.target).hasClass("ignore-click"))
             handlePolygonSelect(polygonID);
    })
 }
 
+function bindInterpolatedChange(polygonID, checked) {
+    $("#slider-" + polygonID).unbind();
+    if (checked) {
+        $("#slider-" + polygonID).on("input", function(e) {
+            data = JSON.stringify(
+                {
+                    "time" : e.target.value,
+                    "polygonID" : polygonID
+                }
+            );
+            var polygon = polygons.collection[polygonID];
+            if (polygon.interpolatedRegionID != 0) {
+                var button = "#delete-" + polygon.interpolatedRegionID;
+                $(button).parent().remove();
+                if (!$("#region-list").children().length) {
+                    showEmptyRegionList();
+                    $("#clear-regions").addClass("hidden");
+                }
+                $("#custom-menu").addClass("hidden");
+                polygons.delete(polygons.collection[polygon.interpolatedRegionID]);
+            }
+            $.ajax({
+                type: "POST",
+                url: "/api/find_region_at_time",
+                polyID: polygonID,
+                data: {"data": data},
+                success: function(data) {
+                    var id = generateNewPolygon(data.data, "From Interoplated");
+                    managePolygon(polygons.collection[this.polyID].interpolatedRegionID, "delete", null);
+                    polygons.collection[this.polyID].interpolatedRegionID = id;
+                },
+                failure: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+    } else {
+        $("#slider-" + polygonID).unbind().change(function(e) {
+            data = JSON.stringify(
+                {
+                    "time" : e.target.value,
+                    "polygonID" : polygonID
+                }
+            );
+            $.ajax({
+                type: "POST",
+                url: "/api/find_region_at_time",
+                data: {"data": data},
+                success: function(data) {
+                    generateNewPolygon(data.data, "From Interoplated")
+                },
+                failure: function(data) {
+                    console.log(data);
+                }
+            });
+        });
+    }
+}
+
 function handlePolygonSelect(polygonID) {
     if (polygons.collection[polygonID].visible) {
-        polygons.collection[polygonID].selected = !polygons.collection[polygonID].selected
+        polygons.collection[polygonID].selected = !polygons.collection[polygonID].selected;
         if (polygons.collection[polygonID].selected) {
             showPolygonSelectBorder(polygonID);
             polygons.collection[polygonID].setOptions({strokeWeight: 5});
@@ -287,28 +400,11 @@ function clearPolygonSelectBorder(polygonID) {
 }
 
 function deletePolygonButton(button, polygon) {
-    managePolygon(polygon.id, "delete");
-    polygons.delete(polygon);
-    $(button).parent().remove();
-    if (!$("#region-list").children().length) {
-        showEmptyRegionList();
-        $("#clear-regions").addClass("hidden");
+    for (var polygonID in polygons.collection) {
+        if (polygons.collection[polygonID].interpolatedRegionID === polygon.id) {
+            polygons.collection[polygonID].interpolatedRegionID = 0;
+        }
     }
-}
-
-function showHidePolygonButton(button, polygon) {
-    if ($(button).text() === "Hide") {
-        $(button).text("Show");
-        polygons.hide(polygon);
-    } else {
-        $(button).text("Hide");
-        polygons.show(polygon);
-    }
-    clearPolygonListBorders(polygon.id);
-    managePolygon(polygon.id, "visible");
-}
-
-function deletePolygonButton(button, polygon) {
     managePolygon(polygon.id, "delete");
     polygons.delete(polygon);
     $(button).parent().remove();
@@ -338,7 +434,9 @@ function restoreSession() {
                 // Doing a for instead of a foreach because foreach was giving
                 // the index instead of the object. No idea
                 for (i = 0; i < data.data.polygons.length; i++) {
-                    generateNewPolygon(data.data.polygons[i].coords, "", data.data.polygons[i].id,
+                    generateNewPolygon(data.data.polygons[i].coords,
+                                       data.data.polygons[i].computation,
+                                       data.data.polygons[i].id,
                                        data.data.polygons[i].visible);
                 }
             }
@@ -349,17 +447,14 @@ function restoreSession() {
     });
 }
 
-function generateNewPolygon(polygonCoords, computation, restoreID) {
+function generateNewPolygon(polygonCoords, computation, restoreID, startTime, endTime) {
     /**
      * Creates a polygon from the given coords. polygonCoords is an object with
      * arrays. The arrays are paths to take. Think of this as sides of a shape.
-     * restoreId is used for restoring a polygon, if it is set, not 0, then the
+     * restoreID is used for restoring a polygon, if it is set, not 0, then the
      * new polygon isn't new, it is already in the session and we know an ID to
      * give it. This avoids duplicate regions in session.
      */
-    if (restoreID === undefined) {
-        restoreID = 0;
-    }
     var allPolygons = new Array();
     for (var polygon in polygonCoords) {
         var arr = new Array();
@@ -375,13 +470,16 @@ function generateNewPolygon(polygonCoords, computation, restoreID) {
         fillOpacity: 0.8,
         zIndex: 3
     });
+    var polygonID = 0;
     if (restoreID) {
-        polygons.newPolygon(poly, restoreID);
-        addPolygonToList(restoreID, computation);
+        var is3d = computation === "Interpolated Regions" ? true : false;
+        polygonID = polygons.newPolygon(poly, restoreID, is3d, startTime, endTime);
+        addPolygonToList(polygonID, computation);
     } else {
-        var polygonID = polygons.newPolygon(poly)
+        polygonID = polygons.newPolygon(poly);
         managePolygon(polygonID, "add", computation);
     }
+    return polygonID;
 }
 
 function showEmptyRegionList() {
