@@ -152,6 +152,7 @@ function initialize() {
         });
     });
     $('#interpolate-regions').click(function() {
+        console.log("hit");
         var startTime = $("#start-time").val();
         var endTime = $("#end-time").val();
         data = JSON.stringify(
@@ -571,11 +572,11 @@ function generateNewPolygon(polygonCoords, computation, restoreID, startTime, en
         zIndex: 3
     });
     var polygonID = 0;
-    if (restoreId) {
-        polygonID = polygons.newPolygon(poly, restoreId, "Interpolated Regions", startTime, endTime);
+    if (restoreID) {
+        polygonID = polygons.newPolygon(poly, restoreID, "Interpolated Regions", startTime, endTime);
         addPolygonToList(restoreId, computation);
     } else {
-        polygonId = polygons.newPolygon(poly);
+        polygonID = polygons.newPolygon(poly);
         managePolygon(polygonID, "add", computation);
     }
 }
