@@ -178,23 +178,7 @@ function initialize() {
                         polygons.delete(polygons.collection[polygon]);
                     }
                 }
-                console.log(startTime);
                 generateNewPolygon(data.data, "Interpolated Regions", restoreID, startTime, endTime);
-                /*var polygonsIds = jQuery.extend(true, {}, polygons.selectedCollection);
-                console.log(polygonsIds);
-                for (var polyID in polygonsIds) {
-                    var button = "#delete-" + polyID;
-                    $(button).parent().remove();
-                    if (!$("#region-list").children().length) {
-                        showEmptyRegionList();
-                        $("#clear-regions").addClass("hidden");
-                    }
-                    $("#custom-menu").addClass("hidden");
-                    polygons.delete(polygons.collection[polyID]);
-                    restoreID = polyID;
-                }
-                generateNewPolygon(data.data, "Interpolated Regions", restoreID, true, startTime, endTime);
-*/
             },
             failure: function(data) {
                 console.log(data);
@@ -274,7 +258,6 @@ function addPolygonToList(polygonID, computation) {
     $("#placeholder-empty").remove();
     if(polygons.collection[polygonID].is3DPolygon === true) {
         var polygon = polygons.collection[polygonID];
-        console.log(polygon.startTime);
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
@@ -289,116 +272,6 @@ function addPolygonToList(polygonID, computation) {
         bindInterpolatedChange(polygonID, false);
         $("#checkbox-" + polygonID).click(function(){
             bindInterpolatedChange(polygonID, $(this).is(':checked'));
-            /*$("#slider-" + polygonID).unbind();
-            if ($(this).is(':checked')) {
-                $("#slider-" + polygonID).on("input", function(e) {
-                    data = JSON.stringify(
-                        {
-                            "time" : e.target.value,
-                            "polygonID" : polygonID
-                        }
-                    );
-                    var polygon = polygons.collection[polygonID];
-
-                    if (polygon.interpolatedRegionId != 0) {
-                        var button = "#delete-" + polygon.interpolatedRegionId;
-                        $(button).parent().remove();
-                        if (!$("#region-list").children().length) {
-                            showEmptyRegionList();
-                            $("#clear-regions").addClass("hidden");
-                        }
-                        $("#custom-menu").addClass("hidden");
-                        polygons.delete(polygons.collection[polygon.interpolatedRegionId]);
-                    }
-                    $.ajax({
-                        type: "POST",
-                        url: "/api/find_region_at_time",
-                        polyId: polygonID,
-                        data: {"data": data},
-                        success: function(data) {
-                            var id = generateNewPolygon(data.data, "From introplated");
-                            polygons.collection[this.polyId].interpolatedRegionId = id;
-                        },
-                        failure: function(data) {
-                            console.log(data);
-                        }
-                    });
-                });
-            } else {
-                $("#slider-" + polygonID).unbind().change(function(e) {
-                    data = JSON.stringify(
-                        {
-                            "time" : e.target.value,
-                            "polygonID" : polygonID
-                        }
-                    );
-                    $.ajax({
-                        type: "POST",
-                        url: "/api/find_region_at_time",
-                        data: {"data": data},
-                        success: function(data) {
-                            generateNewPolygon(data.data, "From introplated")
-                        },
-                        failure: function(data) {
-                            console.log(data);
-                        }
-                    });
-                });
-            }*/
-        });
-        /*$("#slider-" + polygonID).unbind().change(function(e) {
-            data = JSON.stringify(
-                {
-                    "time" : e.target.value,
-                    "polygonID" : polygonID
-                }
-            );
-            $.ajax({
-                type: "POST",
-                url: "/api/find_region_at_time",
-                data: {"data": data},
-                success: function(data) {
-                    generateNewPolygon(data.data, "From introplated")
-                },
-                failure: function(data) {
-                    console.log(data);
-                }
-            });
-        });*/
-        /*$("#slider-" + polygonID).on("input", function(e) {
-            data = JSON.stringify(
-                {
-                    "time" : e.target.value,
-                    "polygonID" : polygonID
-                }
-            );
-            var polygon = polygons.collection[polygonID];
-
-            if (polygon.interpolatedRegionId != 0) {
-                var button = "#delete-" + polygon.interpolatedRegionId;
-                $(button).parent().remove();
-                if (!$("#region-list").children().length) {
-                    showEmptyRegionList();
-                    $("#clear-regions").addClass("hidden");
-                }
-                $("#custom-menu").addClass("hidden");
-                polygons.delete(polygons.collection[polygon.interpolatedRegionId]);
-            }
-            $.ajax({
-                type: "POST",
-                url: "/api/find_region_at_time",
-                polyId: polygonID,
-                data: {"data": data},
-                success: function(data) {
-                    var id = generateNewPolygon(data.data, "From introplated");
-                    polygons.collection[this.polyId].interpolatedRegionId = id;
-                },
-                failure: function(data) {
-                    console.log(data);
-                }
-            });
-        });*/
-
     } else {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
@@ -594,6 +467,7 @@ function generateNewPolygon(polygonCoords, computation, restoreID, startTime, en
         polygonID = polygons.newPolygon(poly);
         managePolygon(polygonID, "add", computation);
     }
+    return polygonID;
 }
 
 function showEmptyRegionList() {
