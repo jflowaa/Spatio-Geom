@@ -165,19 +165,20 @@ def find_introplated_regions():
     regions = [region for region in session[
         "regions"] if (region.get("selected") and region.get("visible"))]
     if len(regions) > 1:
-        introplated = process_interpolate_regions(regions, start_time, end_time)
+        introplated = process_interpolate_regions(
+            regions, start_time, end_time)
     else:
         return jsonify(
             {"success": False, "data": "Not enough regions selected"})
     if introplated:
         interval_regions = {}
         for interval_tuple in introplated:
-            if interval_tuple is not None:
+            if interval_tuple:
                 max_time = 0
                 min_time = None
                 for line_tuple in interval_tuple:
                     for line in line_tuple:
-                        if type(line) != type(True):
+                        if type(line) is tuple:
                             if line[2] > max_time:
                                 max_time = line[2]
                             if min_time is None or line[2] < min_time:
