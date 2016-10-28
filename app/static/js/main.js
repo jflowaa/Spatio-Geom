@@ -178,7 +178,8 @@ function initialize() {
                         polygons.delete(polygons.collection[polygon]);
                     }
                 }
-                generateNewPolygon(data.data, "Interpolated Regions", restoreID, true, startTime, endTime);
+                console.log(startTime);
+                generateNewPolygon(data.data, "Interpolated Regions", restoreID, startTime, endTime);
                 /*var polygonsIds = jQuery.extend(true, {}, polygons.selectedCollection);
                 console.log(polygonsIds);
                 for (var polyID in polygonsIds) {
@@ -273,6 +274,7 @@ function addPolygonToList(polygonID, computation) {
     $("#placeholder-empty").remove();
     if(polygons.collection[polygonID].is3DPolygon === true) {
         var polygon = polygons.collection[polygonID];
+        console.log(polygon.startTime);
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
