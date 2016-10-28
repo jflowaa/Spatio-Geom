@@ -151,7 +151,8 @@ def find_difference():
         return jsonify(
             {"success": False, "data": "Not enough regions selected"})
     if difference:
-        return jsonify({"success": True, "data": hseg_to_coords(difference, True)})
+        return jsonify({"success": True,
+                        "data": hseg_to_coords(difference, True)})
     else:
         return jsonify(
             {"success": False, "data": "No common difference"})
@@ -159,6 +160,16 @@ def find_difference():
 
 @api.route("/find_introplated_regions", methods=["POST"])
 def find_introplated_regions():
+    """
+    The user has started the process interpolate. The user passes a start and
+    finish time for the regions. The selected regions are then interpolated.
+    Since the regions are now merged into region. The session is updated so
+    that each region in the session has the paths. The new coordinates of the
+    merged region are returned to the client.
+
+    Returns:
+        The hseg list of the differences.
+    """
     data = json.loads(request.form.get("data"))
     start_time = data.get("startTime")
     end_time = data.get("endTime")
@@ -172,6 +183,9 @@ def find_introplated_regions():
             {"success": False, "data": "Not enough regions selected"})
     if introplated:
         interval_regions = {}
+        # More than one interval tuple can be returned for different time
+        # segments. To make make sure we can quickly get the correct tuple the
+        # keys will be the max time that interval tuple has.
         for interval_tuple in introplated:
             if interval_tuple:
                 max_time = 0
@@ -193,10 +207,13 @@ def find_introplated_regions():
         regions[1]["interval_region"] = interval_regions
         seg1 = hseg_to_coords(regions[1]["region"])
         seg2 = hseg_to_coords(regions[0]["region"])
+        # Since each hseg from session will have the same unique id we must
+        # make the unique id ourselves.
         segments = {
             "2": seg1[2],
             "3": seg2[2]
         }
+        # This will merge the polygons int one polygon and store it.
         paths = []
         paths.append(seg1[2])
         paths.append(seg2[2])
@@ -219,7 +236,8 @@ def find_region_at_time():
     interval_region = region[0]["interval_region"]
     valid_interval_region = None
     for max_time in interval_region:
-        if int(time) <= int(max_time) and int(time) >= int(interval_region[max_time]["min_time"]):
+        if (int(time) <= int(max_time) and
+                int(time) >= int(interval_region[max_time]["min_time"])):
             valid_interval_region = interval_region[max_time]["interval_tuple"]
     found_region = process_interval_region_at_time(valid_interval_region, time)
     if found_region:
