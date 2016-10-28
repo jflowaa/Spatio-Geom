@@ -217,6 +217,7 @@ function managePolygon(polygonID, action, computation) {
         );
         addPolygonToList(polygonID, computation);
     } else if (action === "delete") {
+        console.log(polygonID + " " + action);
         data = JSON.stringify(
             {
                "id": polygonID,
@@ -329,6 +330,7 @@ function bindInterpolatedChange(polygonID, checked) {
                 }
                 $("#custom-menu").addClass("hidden");
                 polygons.delete(polygons.collection[polygon.interpolatedRegionId]);
+                console.log(polygon.interpolatedRegionId);
             }
             $.ajax({
                 type: "POST",
@@ -337,6 +339,7 @@ function bindInterpolatedChange(polygonID, checked) {
                 data: {"data": data},
                 success: function(data) {
                     var id = generateNewPolygon(data.data, "From introplated");
+                    managePolygon(polygons.collection[this.polyId].interpolatedRegionId, "delete", null);
                     polygons.collection[this.polyId].interpolatedRegionId = id;
                 },
                 failure: function(data) {
