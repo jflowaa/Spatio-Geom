@@ -55,52 +55,34 @@ var polygons = {
     },
     generateColor: function(e) {
         var color = "#";
-        var tooDark = true;
-        while (tooDark) {
-            for (var x = 0; x < 6; x++) {
-                var randNum = Math.floor(Math.random() * 12);
-                switch(randNum) {
-                    case 10:
-                        color += "A";
-                        break;
-                    case 11:
-                        color += "B";
-                        break;
-                    case 12:
-                        color += "C";
-                        break;
-                    case 13:
-                        color += "D";
-                        break;
-                    case 14:
-                        colorVal += "E";
-                        break;
-                    case 15:
-                        color += "F";
-                        break;
-                    default:
-                        color += randNum.toString();
-                }
+        for (var x = 0; x < 6; x++) {
+            var randNum = Math.floor(Math.random() * 15);
+            switch(randNum) {
+                case 10:
+                    color += "A";
+                    break;
+                case 11:
+                    color += "B";
+                    break;
+                case 12:
+                    color += "C";
+                    break;
+                case 13:
+                    color += "D";
+                    break;
+                case 14:
+                    color += "E";
+                    break;
+                case 15:
+                    color += "F";
+                    break;
+                default:
+                    color += randNum.toString();
             }
-            // tooDark = checkIfColorIsTooDark(color);
-            tooDark = false;
-        }
-        return color;
+    }
+    return color;
     }
 };
-
-function checkIfColorIsTooDark(colorInHex) {
-    var c = colorInHex.substring(1);      // strip #
-    var rgb = parseInt(c, 16);   // convert rrggbb to decimal
-    var r = (rgb >> 16) & 0xff;  // extract red
-    var g = (rgb >>  8) & 0xff;  // extract green
-    var b = (rgb >>  0) & 0xff;  // extract blue
-    var luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
-    if (luma > 80 || luma < 40) {
-        return true;
-    }
-    return false
-}
 
 function initialize() {
     var mapProp = {
@@ -430,7 +412,6 @@ function showHidePolygonButton(button, polygon) {
         $(button).text("Hide");
         polygons.show(polygon);
     }
-    clearPolygonListBorders(polygon.id);
     managePolygon(polygon.id, "visible");
 }
 
@@ -478,7 +459,7 @@ function generateNewPolygon(polygonCoords, computation, restoreID, startTime, en
         zIndex: 3
     });
     var polygonID = 0;
-    if (typeof restoreID !== undefined || restoreID == null) {
+    if (restoreID) {
         var is3d = computation === "Interpolated Regions" ? true : false;
         polygonID = polygons.newPolygon(poly, restoreID, is3d, startTime, endTime);
         addPolygonToList(polygonID, computation);
