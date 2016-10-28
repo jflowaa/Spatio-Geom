@@ -322,7 +322,6 @@ function bindInterpolatedChange(polygonID, checked) {
                 }
             );
             var polygon = polygons.collection[polygonID];
-
             if (polygon.interpolatedRegionId != 0) {
                 var button = "#delete-" + polygon.interpolatedRegionId;
                 $(button).parent().remove();
@@ -399,6 +398,11 @@ function clearPolygonSelectBorder(polygonID) {
 }
 
 function deletePolygonButton(button, polygon) {
+    for (var polygonID in polygons.collection) {
+        if (polygons.collection[polygonID].interpolatedRegionId === polygon.id) {
+            polygons.collection[polygonID].interpolatedRegionId = 0;
+        }
+    }
     managePolygon(polygon.id, "delete");
     polygons.delete(polygon);
     $(button).parent().remove();
