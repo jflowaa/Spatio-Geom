@@ -41,7 +41,7 @@ var polygons = {
         if (is3D) {
             shape.startTime = start;
             shape.endTime = end;
-            shape.interpolatedRegionId = 0;
+            shape.interpolatedRegionID = 0;
         }
         this.collection[shape.id] = shape;
         google.maps.event.addListener(shape,'click', function() {
@@ -322,25 +322,25 @@ function bindInterpolatedChange(polygonID, checked) {
                 }
             );
             var polygon = polygons.collection[polygonID];
-            if (polygon.interpolatedRegionId != 0) {
-                var button = "#delete-" + polygon.interpolatedRegionId;
+            if (polygon.interpolatedRegionID != 0) {
+                var button = "#delete-" + polygon.interpolatedRegionID;
                 $(button).parent().remove();
                 if (!$("#region-list").children().length) {
                     showEmptyRegionList();
                     $("#clear-regions").addClass("hidden");
                 }
                 $("#custom-menu").addClass("hidden");
-                polygons.delete(polygons.collection[polygon.interpolatedRegionId]);
+                polygons.delete(polygons.collection[polygon.interpolatedRegionID]);
             }
             $.ajax({
                 type: "POST",
                 url: "/api/find_region_at_time",
-                polyId: polygonID,
+                polyID: polygonID,
                 data: {"data": data},
                 success: function(data) {
                     var id = generateNewPolygon(data.data, "From interoplated");
-                    managePolygon(polygons.collection[this.polyId].interpolatedRegionId, "delete", null);
-                    polygons.collection[this.polyId].interpolatedRegionId = id;
+                    managePolygon(polygons.collection[this.polyID].interpolatedRegionID, "delete", null);
+                    polygons.collection[this.polyID].interpolatedRegionID = id;
                 },
                 failure: function(data) {
                     console.log(data);
@@ -399,8 +399,8 @@ function clearPolygonSelectBorder(polygonID) {
 
 function deletePolygonButton(button, polygon) {
     for (var polygonID in polygons.collection) {
-        if (polygons.collection[polygonID].interpolatedRegionId === polygon.id) {
-            polygons.collection[polygonID].interpolatedRegionId = 0;
+        if (polygons.collection[polygonID].interpolatedRegionID === polygon.id) {
+            polygons.collection[polygonID].interpolatedRegionID = 0;
         }
     }
     managePolygon(polygon.id, "delete");
@@ -447,7 +447,7 @@ function generateNewPolygon(polygonCoords, computation, restoreID, startTime, en
     /**
      * Creates a polygon from the given coords. polygonCoords is an object with
      * arrays. The arrays are paths to take. Think of this as sides of a shape.
-     * restoreId is used for restoring a polygon, if it is set, not 0, then the
+     * restoreID is used for restoring a polygon, if it is set, not 0, then the
      * new polygon isn't new, it is already in the session and we know an ID to
      * give it. This avoids duplicate regions in session.
      */
