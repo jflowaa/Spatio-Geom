@@ -56,7 +56,7 @@ var polygons = {
     generateColor: function(e) {
         var color = "#";
         for (var x = 0; x < 6; x++) {
-            var randNum = Math.floor(Math.random() * 15);
+            var randNum = Math.floor(Math.random() * (15 - 7) + 7);
             switch(randNum) {
                 case 10:
                     color += "A";
