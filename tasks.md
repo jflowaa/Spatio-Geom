@@ -70,3 +70,8 @@ Feature 12
 
 Feature 13
   * Add Interpolate Regions (3d stuff)
+
+Feature 14
+ * Refractor code
+   * Too much code duplication
+   * Too many magic strings
