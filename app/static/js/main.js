@@ -270,8 +270,9 @@ function addPolygonToList(polygonID, computation) {
                 .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
         );
         bindInterpolatedChange(polygonID, false);
-        $("#checkbox-" + polygonID).click(function(){
+        $("#checkbox-" + polygonID).click(function() {
             bindInterpolatedChange(polygonID, $(this).is(':checked'));
+        });
     } else {
         $("#region-list").append(
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
