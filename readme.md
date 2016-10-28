@@ -2,10 +2,8 @@ A web interface for the [pyspatiotemporalgeom](https://pypi.python.org/pypi/pysp
 
 ### Features
 * Use Google Maps to create a polygon for selecting an area
-* Manage selected regions
-* Run computations on created regions
-* Stores regions in session
-* Restore session
+* Manage created regions, such as delete, hide/show, or run computations
+* Regions stored on server allowing for restore for later use
 
 ### Libraries
 This web application is built in Python2 using the Flask web framework.  
