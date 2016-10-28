@@ -339,7 +339,7 @@ function bindInterpolatedChange(polygonID, checked) {
                 polyID: polygonID,
                 data: {"data": data},
                 success: function(data) {
-                    var id = generateNewPolygon(data.data, "From interoplated");
+                    var id = generateNewPolygon(data.data, "From Interoplated");
                     managePolygon(polygons.collection[this.polyID].interpolatedRegionID, "delete", null);
                     polygons.collection[this.polyID].interpolatedRegionID = id;
                 },
@@ -361,7 +361,7 @@ function bindInterpolatedChange(polygonID, checked) {
                 url: "/api/find_region_at_time",
                 data: {"data": data},
                 success: function(data) {
-                    generateNewPolygon(data.data, "From interoplated")
+                    generateNewPolygon(data.data, "From Interoplated")
                 },
                 failure: function(data) {
                     console.log(data);
@@ -370,6 +370,7 @@ function bindInterpolatedChange(polygonID, checked) {
         });
     }
 }
+
 function handlePolygonSelect(polygonID) {
     if (polygons.collection[polygonID].visible) {
         polygons.collection[polygonID].selected = !polygons.collection[polygonID].selected;

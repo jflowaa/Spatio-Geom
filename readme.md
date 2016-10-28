@@ -1,9 +1,11 @@
 A web interface for the [pyspatiotemporalgeom](https://pypi.python.org/pypi/pyspatiotemporalgeom/) package.
 
 ### Features
-* Use Google Maps to create a polygon for selecting an area.
-* Manage selected regions.
-* Run computations on created regions.
+* Use Google Maps to create a polygon for selecting an area
+* Manage selected regions
+* Run computations on created regions
+* Stores regions in session
+* Restore session
 
 ### Libraries
 This web application is built in Python2 using the Flask web framework.  
@@ -50,8 +52,8 @@ The application is now running at: http://0.0.0.0:5000
 - [x] Draw a polygon on a map to generate a region for processing
 - [x] Decide on a UI
 - [x] Map intersections and unions
-- [ ] Only run computations on selected regions
+- [x] Only run computations on selected regions
 - [x] Manage regions. Such as delete, hide, clear map
 - [x] Select regions on map and hide/delete it from a context menu
 - [ ] Import regions from database
-- [ ] Restore session feature
+- [x] Restore session feature
