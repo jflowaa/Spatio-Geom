@@ -262,12 +262,12 @@ function addPolygonToList(polygonID, computation) {
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
                 .append($("<h4>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
-                .append($("<input>").attr("type", "checkbox").attr("id", "checkbox-" + polygonID))
-                .append($("<label>").attr("for", "checkbox-" + polygonID).text(" Only create one region"))
-                .append($("<input>").attr("type", "range").attr("id", "slider-" + polygonID).attr("class", "form-control").attr("min", polygon.startTime).attr("max", polygon.endTime).attr("value", polygon.startTime))
-                .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
+                .append($("<input>").attr("type", "checkbox").attr("id", "checkbox-" + polygonID).attr("class", "ignore-click"))
+                .append($("<label>").attr("for", "checkbox-" + polygonID).attr("class", "ignore-click").text(" Only create one region"))
+                .append($("<input>").attr("type", "range").attr("id", "slider-" + polygonID).attr("class", "form-control ignore-click").attr("min", polygon.startTime).attr("max", polygon.endTime).attr("value", polygon.startTime))
+                .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device ignore-click").attr("style", "padding-bottom: 1%").text("Hide"))
                 .append($("<div>").attr("class", "col-md-2"))
-                .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
+                .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device ignore-click").text("Delete"))
         );
         bindInterpolatedChange(polygonID, false);
         $("#checkbox-" + polygonID).click(function() {
@@ -278,9 +278,9 @@ function addPolygonToList(polygonID, computation) {
             $("<li>").attr("id", polygonID).attr("class", "list-group-item row")
                 .attr("style", "margin: 1%; background-color: " + fillColor + ";")
                 .append($("<h4>").attr("style", "padding-bottom: 5%;").text("Region ID: " + polygonID + compName))
-                .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device").attr("style", "padding-bottom: 1%").text("Hide"))
+                .append($("<button>").attr("id", "show-hide-" + polygonID).attr("class", "btn btn-default col-md-5 mobile-device ignore-click").attr("style", "padding-bottom: 1%").text("Hide"))
                 .append($("<div>").attr("class", "col-md-2"))
-                .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device").text("Delete"))
+                .append($("<button>").attr("id", "delete-" + polygonID).attr("class", "btn btn-danger col-md-5 mobile-device ignore-click").text("Delete"))
         );
     }
     $("#show-hide-" + polygonID).on("click", function(e) {
@@ -294,7 +294,7 @@ function addPolygonToList(polygonID, computation) {
     })
     $("#clear-regions").removeClass("hidden");
     $("#" + polygonID).on("click", function(e) {
-        if (!$(e.target).hasClass("btn"))
+        if (!$(e.target).hasClass("ignore-click"))
             handlePolygonSelect(polygonID);
    })
 }
