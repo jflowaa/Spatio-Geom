@@ -168,20 +168,19 @@ function initialize() {
             data: {"data": data},
             success: function(data) {
                 var polygonsIds = jQuery.extend(true, {}, polygons.selectedCollection);
-                polygons.deselectAll();
-                var restoreId;
-                for (var polyId in polygonsIds) {
-                    var button = "#delete-" + polyId;
+                var restoreID = 0;
+                for (var polyID in polygonsIds) {
+                    var button = "#delete-" + polyID;
                     $(button).parent().remove();
                     if (!$("#region-list").children().length) {
                         showEmptyRegionList();
                         $("#clear-regions").addClass("hidden");
                     }
                     $("#custom-menu").addClass("hidden");
-                    polygons.delete(polygons.collection[polyId]);
-                    restoreId = polyId;
+                    polygons.delete(polygons.collection[polyID]);
+                    restoreID = polyID;
                 }
-                generateNewPolygon(data.data, "Interpolated Regions", restoreId, true, startTime, endTime);
+                generateNewPolygon(data.data, "Interpolated Regions", restoreID, true, startTime, endTime);
             },
             failure: function(data) {
                 console.log(data);
